@@ -138,7 +138,7 @@ function AnimatedCard({ product }: { product: Product }) {
 
       <div className="p-4 flex flex-col justify-between flex-1 bg-white">
         <div>
-          <div className="flex items-center justify-between gap-2 text-[10px] sm:text-xs text-slate-400 font-semibold tracking-wider uppercase mb-1">
+          <div className="flex items-center justify-between gap-2 text-[10px] sm:text-xs text-black/40 font-semibold tracking-wider uppercase mb-1">
             <span>{product.storeName}</span>
             <div className="flex items-center gap-1 text-amber-500">
               <span>★</span>
