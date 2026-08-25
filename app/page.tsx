@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import NavbarGuest from './components/NavbarGuest';
 import HeroGuest from './components/sections/HeroGuest';
 import RecommendationSection from './components/sections/Recommendation';
-import FooterGuest from './components/Footer';
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -14,7 +13,6 @@ export default function Home() {
       <NavbarGuest searchQuery={searchQuery} onSearchChange={setSearchQuery} />
       <HeroGuest />
       <RecommendationSection searchQuery={searchQuery} />
-      <FooterGuest />
     </main>
   );
 }

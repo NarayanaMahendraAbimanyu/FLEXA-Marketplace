@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 
 export default function HeroGuest() {
   return (
@@ -28,19 +29,19 @@ export default function HeroGuest() {
         </p>
 
         <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
-          <button
-            type="button"
+          <Link
+            href="/signin"
             className="w-full sm:w-auto bg-white hover:bg-[#047857] border-2 border-white hover:border-[#047857] text-black/90 hover:text-white font-medium text-xs sm:text-sm px-6 py-3 rounded-xl transition-all duration-200 shadow-lg hover:scale-105 active:scale-95"
           >
             Buat akun gratis &rarr;
-          </button>
+          </Link>
 
-          <button
-            type="button"
+          <Link
+            href="/login"
             className="w-full sm:w-auto border-2 border-white/80 hover:border-white text-white font-medium text-xs sm:text-sm px-6 py-3 rounded-xl transition-all duration-200 hover:scale-105 hover:bg-white/10 active:scale-95 flex items-center justify-center gap-2"
           >
             Sudah punya akun?
-          </button>
+          </Link>
         </div>
       </div>
     </section>

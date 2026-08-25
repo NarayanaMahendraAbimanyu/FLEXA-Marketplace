@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import Link from 'next/link';
 
 interface Product {
   id: number;
@@ -229,19 +230,19 @@ function LoginModal({ isOpen, onClose }: LoginModalProps) {
         </p>
 
         <div className="space-y-3">
-          <button
-            type="button"
+          <Link
+            href="/login"
             className="w-full py-3.5 px-4 bg-[#059669] hover:bg-emerald-500 hover:-translate-y-1 text-white font-bold text-sm sm:text-base rounded-2xl shadow-lg shadow-emerald-600/20 transition-all duration-200 active:scale-[0.98]"
           >
             Masuk Akun
-          </button>
+          </Link>
 
-          <button
-            type="button"
+          <Link
+            href="/signin"
             className="w-full py-3.5 px-4 bg-white border border-slate-200 hover:border-emerald-500 text-black/40 hover:text-[#059669] font-bold text-sm sm:text-base rounded-2xl transition-all duration-200 active:scale-[0.98]"
           >
             Daftar Baru
-          </button>
+          </Link>
         </div>
 
         <button
@@ -284,7 +285,7 @@ export default function RecommendationSection({ searchQuery }: RecommendationSec
                   key={cat.id}
                   type="button"
                   onClick={() => setActiveCategory(cat.id)}
-                  className={`font-medium text-xs sm:text-sm px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl shrink-0 flex items-center gap-2 transition-colors duration-200 ${
+                  className={`font-medium text-xs sm:text-sm px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl shrink-0 flex items-center gap-2 hover:scale-103 active:scale-98 transition-all duration-200 ${
                     isActive
                       ? 'bg-[#059669] text-white font-semibold shadow-sm'
                       : 'bg-white border border-slate-300 text-slate-800 hover:border-[#059669] hover:text-[#059669]'
@@ -327,16 +328,15 @@ export default function RecommendationSection({ searchQuery }: RecommendationSec
         )}
 
         <div className="mt-8 sm:mt-12 flex justify-center">
-          <button
-            type="button"
-            onClick={() => setIsModalOpen(true)}
-            className="bg-transparent text-[#059669] font-semibold text-xs sm:text-sm border border-[#059669] px-6 sm:px-8 py-3.5 rounded-xl hover:bg-[#059669] hover:border-[#059669] hover:text-white transition-all duration-200 flex items-center gap-2 shadow-sm"
+          <Link
+            href="/login"
+            className="bg-transparent text-[#059669] hover:scale-105 active:scale-98 transition-all duration-200 font-semibold text-xs sm:text-sm border border-[#059669] px-6 sm:px-8 py-3.5 rounded-xl hover:bg-[#059669] hover:border-[#059669] hover:text-white flex items-center gap-2 shadow-sm"
           >
             <span>Login Untuk Lihat Lainnya</span>
             <svg className="w-4 h-4 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
             </svg>
-          </button>
+          </Link>
         </div>
       </div>
 

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 
 const PLACEHOLDERS = [
   'Cari barang sewa...',
@@ -63,7 +64,7 @@ export default function NavbarGuest({ searchQuery, onSearchChange }: NavbarGuest
         <div className="w-full sm:w-auto flex items-center justify-between shrink-0">
           <div 
             onClick={scrollToTop}
-            className="flex items-center cursor-pointer transition-transform hover:opacity-90 active:scale-95"
+            className="flex items-center cursor-pointer active:scale-98 transition-all duration-200"
           >
             <Image
               src="/flexa-logo-green.png"
@@ -85,18 +86,18 @@ export default function NavbarGuest({ searchQuery, onSearchChange }: NavbarGuest
                 <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </button>
-            <button 
-              type="button"
+            <Link 
+              href="/login"
               className="border-2 border-[#059669] text-[#059669] font-semibold text-xs px-3 py-1.5 rounded-lg"
             >
               Masuk
-            </button>
-            <button 
-              type="button"
+            </Link>
+            <Link 
+              href="/signin"
               className="bg-[#059669] text-white font-semibold text-xs px-3 py-1.5 rounded-lg"
             >
               Daftar
-            </button>
+            </Link>
           </div>
         </div>
 
@@ -130,19 +131,19 @@ export default function NavbarGuest({ searchQuery, onSearchChange }: NavbarGuest
         </div>
 
         <div className="hidden sm:flex items-center gap-2 md:gap-4 shrink-0">
-          <button 
-            type="button"
+          <Link 
+            href="/login"
             className="border-2 border-[#059669] text-[#059669] hover:bg-[#059669] hover:text-white font-semibold text-xs md:text-sm px-3 md:px-6 py-1.5 md:py-2.5 rounded-xl transition-all duration-200 hover:scale-105 active:scale-95 whitespace-nowrap"
           >
             Masuk
-          </button>
+          </Link>
 
-          <button 
-            type="button"
+          <Link 
+            href="/signin"
             className="bg-[#059669]  border-2 border-[#059669] text-white font-semibold text-xs md:text-sm px-3 md:px-6 py-1.5 md:py-2.5 rounded-xl transition-all duration-200 shadow-sm hover:scale-105 active:scale-95 whitespace-nowrap"
           >
             Daftar
-          </button>
+          </Link>
         </div>
 
       </div>
