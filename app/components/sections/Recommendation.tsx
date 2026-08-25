@@ -237,7 +237,7 @@ export default function RecommendationSection({ searchQuery }: RecommendationSec
         <div className="mt-8 sm:mt-12 flex justify-center">
           <button
             type="button"
-            className="bg-transparent text-black font-semibold text-xs sm:text-sm border border-black/60 px-6 sm:px-8 py-3.5 rounded-xl hover:bg-[#059669] hover:border-[#059669] hover:text-white transition-all duration-200 flex items-center gap-2 shadow-sm"
+            className="bg-transparent text-[#059669] font-semibold text-xs sm:text-sm border border-[#059669] px-6 sm:px-8 py-3.5 rounded-xl hover:bg-[#059669] hover:border-[#059669] hover:text-white transition-all duration-200 flex items-center gap-2 shadow-sm"
           >
             <span>Login Untuk Lihat Lainnya</span>
             <svg className="w-4 h-4 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
