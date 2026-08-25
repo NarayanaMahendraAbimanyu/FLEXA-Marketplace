@@ -99,7 +99,13 @@ const PRODUCTS: Product[] = [
   { id: 30, category: 'elektronik', categoryTag: 'Elektronik', imageText: 'MONITOR', storeName: 'DISPLAY HUB', rating: 4.9, title: 'Monitor Gaming Curved 144Hz', price: 'Rp. 160.000' },
 ];
 
-function AnimatedCard({ product }: { product: Product }) {
+interface AnimatedCardProps {
+  product: Product;
+  index: number;
+  onClick: () => void;
+}
+
+function AnimatedCard({ product, index, onClick }: AnimatedCardProps) {
   const [isVisible, setIsVisible] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
 
@@ -119,11 +125,18 @@ function AnimatedCard({ product }: { product: Product }) {
     return () => observer.disconnect();
   }, []);
 
+  const columnIndex = index % 4;
+  const delayMs = columnIndex * 150;
+
   return (
     <div
       ref={cardRef}
-      className={`bg-white rounded-2xl border border-slate-200/80 hover:border-[#059669] shadow-sm hover:shadow-md transition-all duration-500 overflow-hidden group flex flex-col transform ${
-        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+      onClick={onClick}
+      style={{
+        transitionDelay: isVisible ? `${delayMs}ms` : '0ms',
+      }}
+      className={`bg-white rounded-2xl border border-slate-200/80 hover:border-[#059669] shadow-sm hover:shadow-md transition-all duration-700 ease-out overflow-hidden group flex flex-col transform cursor-pointer ${
+        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
       }`}
     >
       <div className="relative w-full aspect-[4/3] bg-black/10 flex items-center justify-center p-4">
@@ -152,12 +165,16 @@ function AnimatedCard({ product }: { product: Product }) {
         </div>
 
         <div className="mt-3 flex items-center justify-between pt-2 border-t border-slate-100">
-          <span className="text-sm sm:text-base font-extrabold text-[#059669]">
+          <span className="text-sm sm:text-lg font-bold text-[#059669]">
             {product.price}
           </span>
 
           <button
             type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onClick();
+            }}
             className="w-8 h-8 rounded-full bg-transparent text-[#059669] border border-[#059669] hover:bg-[#059669] hover:text-white transition-colors duration-200 flex items-center justify-center"
           >
             <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
@@ -170,8 +187,78 @@ function AnimatedCard({ product }: { product: Product }) {
   );
 }
 
+interface LoginModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+function LoginModal({ isOpen, onClose }: LoginModalProps) {
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn">
+      <div 
+        className="relative w-full max-w-sm sm:max-w-md bg-white rounded-3xl p-6 sm:p-8 text-center shadow-2xl border border-slate-100 transform transition-all animate-scaleUp"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="mx-auto w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-emerald-50 flex items-center justify-center mb-6">
+          <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-emerald-100/70 flex items-center justify-center">
+            <svg className="w-6 h-6 sm:w-7 sm:h-7 text-[#059669]" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3 3.1-3 1.71 0 3.1 1.39 3.1 3v2z"/>
+            </svg>
+          </div>
+        </div>
+
+        <h3 className="text-xl sm:text-2xl font-semibold text-black/80 mb-3 tracking-tight">
+          Login Diperlukan
+        </h3>
+
+        <p className="text-xs sm:text-sm text-black/50 leading-relaxed mb-8 px-2 sm:px-4">
+          Ups! Fitur transaksi dan negosiasi harga hanya tersedia untuk member. Yuk gabung sekarang!
+        </p>
+
+        <div className="space-y-3">
+          <button
+            type="button"
+            className="w-full py-3.5 px-4 bg-[#059669] hover:bg-emerald-500 hover:-translate-y-1 text-white font-bold text-sm sm:text-base rounded-2xl shadow-lg shadow-emerald-600/20 transition-all duration-200 active:scale-[0.98]"
+          >
+            Masuk Akun
+          </button>
+
+          <button
+            type="button"
+            className="w-full py-3.5 px-4 bg-white border border-slate-200 hover:border-emerald-500 text-black/40 hover:text-[#059669] font-bold text-sm sm:text-base rounded-2xl transition-all duration-200 active:scale-[0.98]"
+          >
+            Daftar Baru
+          </button>
+        </div>
+
+        <button
+          type="button"
+          onClick={onClose}
+          className="mt-6 text-xs sm:text-sm text-black/40 hover:text-black/80 hover:underline font-medium transition-colors"
+        >
+          Kembali melihat-lihat
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function RecommendationSection({ searchQuery }: RecommendationSectionProps) {
   const [activeCategory, setActiveCategory] = useState('trending');
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const filteredProducts = PRODUCTS.filter((product) => {
     const matchesCategory = activeCategory === 'trending' || product.category === activeCategory;
@@ -223,13 +310,18 @@ export default function RecommendationSection({ searchQuery }: RecommendationSec
         </div>
 
         {filteredProducts.length === 0 ? (
-          <div className="text-center py-12 text-slate-500">
+          <div className="text-center py-12 text-black/40">
             <p className="text-base font-medium">Produk tidak ditemukan.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-            {filteredProducts.map((product) => (
-              <AnimatedCard key={product.id} product={product} />
+            {filteredProducts.map((product, idx) => (
+              <AnimatedCard
+                key={product.id}
+                product={product}
+                index={idx}
+                onClick={() => setIsModalOpen(true)}
+              />
             ))}
           </div>
         )}
@@ -237,6 +329,7 @@ export default function RecommendationSection({ searchQuery }: RecommendationSec
         <div className="mt-8 sm:mt-12 flex justify-center">
           <button
             type="button"
+            onClick={() => setIsModalOpen(true)}
             className="bg-transparent text-[#059669] font-semibold text-xs sm:text-sm border border-[#059669] px-6 sm:px-8 py-3.5 rounded-xl hover:bg-[#059669] hover:border-[#059669] hover:text-white transition-all duration-200 flex items-center gap-2 shadow-sm"
           >
             <span>Login Untuk Lihat Lainnya</span>
@@ -246,6 +339,8 @@ export default function RecommendationSection({ searchQuery }: RecommendationSec
           </button>
         </div>
       </div>
+
+      <LoginModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </section>
   );
 }

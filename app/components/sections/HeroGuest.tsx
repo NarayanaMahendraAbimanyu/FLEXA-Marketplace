@@ -30,7 +30,7 @@ export default function HeroGuest() {
         <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
           <button
             type="button"
-            className="w-full sm:w-auto bg-[#059669] hover:bg-[#047857] border-2 border-[#059669] hover:border-[#047857] text-white font-medium text-xs sm:text-sm px-6 py-3 rounded-xl transition-all duration-200 shadow-lg hover:scale-105 active:scale-95"
+            className="w-full sm:w-auto bg-white hover:bg-[#047857] border-2 border-white hover:border-[#047857] text-black/90 hover:text-white font-medium text-xs sm:text-sm px-6 py-3 rounded-xl transition-all duration-200 shadow-lg hover:scale-105 active:scale-95"
           >
             Buat akun gratis &rarr;
           </button>

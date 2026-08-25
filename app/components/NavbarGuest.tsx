@@ -101,7 +101,7 @@ export default function NavbarGuest({ searchQuery, onSearchChange }: NavbarGuest
         </div>
 
         <div className={`w-full sm:flex-1 max-w-2xl ${isMobileSearchOpen ? 'block' : 'hidden sm:block'}`}>
-          <div className="relative flex items-center w-full bg-[#f4f4f4] border-1 border-transparent focus-within:border-[#059669] focus-within:bg-white focus-within:ring-1 focus-within:ring-[#059669] rounded-full p-1 sm:p-1.5 md:p-2 pl-4 sm:pl-5 md:pl-6 transition-all duration-200 shadow-inner">
+          <div className="relative flex items-center w-full bg-[#f4f4f4] border-1 border-transparent focus-within:border-[#059669] focus-within:ring-1 focus-within:ring-[#059669] rounded-full p-1 sm:p-1.5 md:p-2 pl-4 sm:pl-5 md:pl-6 transition-all duration-200 shadow-inner">
             <input
               type="text"
               value={searchQuery}
@@ -111,7 +111,7 @@ export default function NavbarGuest({ searchQuery, onSearchChange }: NavbarGuest
             />
             <button 
               type="button"
-              className="bg-[#059669] hover:bg-[#047857] text-white p-1.5 sm:p-2 md:p-2.5 rounded-full transition-all duration-200 shrink-0 flex items-center justify-center shadow-sm active:scale-95"
+              className="bg-[#059669] hover:scale-110 text-white p-1.5 sm:p-2 md:p-2.5 rounded-full transition-all duration-200 shrink-0 flex items-center justify-center shadow-sm active:scale-95"
             >
               <svg 
                 className="w-4 h-4 md:w-5 md:h-5 stroke-[2.5]" 
@@ -139,7 +139,7 @@ export default function NavbarGuest({ searchQuery, onSearchChange }: NavbarGuest
 
           <button 
             type="button"
-            className="bg-[#059669] hover:bg-[#047857] border-2 border-[#059669] text-white font-semibold text-xs md:text-sm px-3 md:px-6 py-1.5 md:py-2.5 rounded-xl transition-all duration-200 shadow-sm hover:scale-105 active:scale-95 whitespace-nowrap"
+            className="bg-[#059669]  border-2 border-[#059669] text-white font-semibold text-xs md:text-sm px-3 md:px-6 py-1.5 md:py-2.5 rounded-xl transition-all duration-200 shadow-sm hover:scale-105 active:scale-95 whitespace-nowrap"
           >
             Daftar
           </button>

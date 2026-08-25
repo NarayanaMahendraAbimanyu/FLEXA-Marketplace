@@ -41,10 +41,10 @@ export default function FooterGuest() {
         <button
           type="button"
           onClick={scrollToTop}
-          className="flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-700 hover:text-[#059669] transition-colors focus:outline-none"
+          className="flex items-center gap-2 text-xs sm:text-sm font-normal text-black/70 hover:text-[#059669] transition-colors focus:outline-none"
         >
           <span>Kembali ke Atas</span>
-          <div className="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center border border-slate-200">
+          <div className="w-7 h-7 rounded-full bg-transparent flex items-center justify-center border border-black/70 hover:border-[#059669]">
             <svg className="w-4 h-4 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
             </svg>
