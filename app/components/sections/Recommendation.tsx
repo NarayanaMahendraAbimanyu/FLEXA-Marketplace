@@ -188,8 +188,8 @@ export default function RecommendationSection({ searchQuery }: RecommendationSec
     <section className="relative w-full bg-slate-50 pt-8 pb-20 px-4 sm:px-6 lg:px-8">
       
       <div className="max-w-7xl mx-auto -mt-16 mb-12 sticky top-14 sm:top-18 z-40 pt-2">
-        <div className="bg-white/95 backdrop-blur-md rounded-2xl p-3 sm:p-4 shadow-xl border border-slate-100 overflow-hidden">
-          <div className="flex items-center justify-center gap-2 sm:gap-3 overflow-x-auto no-scrollbar pb-1 sm:pb-0">
+        <div className="bg-white/95 backdrop-blur-md rounded-2xl p-2.5 sm:p-4 shadow-xl border border-slate-100">
+          <div className="flex items-center justify-start sm:justify-center gap-2 sm:gap-3 overflow-x-auto no-scrollbar py-1">
             {CATEGORIES.map((cat) => {
               const isActive = activeCategory === cat.id;
               return (
@@ -197,7 +197,7 @@ export default function RecommendationSection({ searchQuery }: RecommendationSec
                   key={cat.id}
                   type="button"
                   onClick={() => setActiveCategory(cat.id)}
-                  className={`font-medium text-xs sm:text-sm px-4 sm:px-5 py-2.5 rounded-xl shrink-0 flex items-center gap-2 transition-colors duration-200 ${
+                  className={`font-medium text-xs sm:text-sm px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl shrink-0 flex items-center gap-2 transition-colors duration-200 ${
                     isActive
                       ? 'bg-[#059669] text-white font-semibold shadow-sm'
                       : 'bg-white border border-slate-300 text-slate-800 hover:border-[#059669] hover:text-[#059669]'
