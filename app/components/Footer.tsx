@@ -12,7 +12,7 @@ export default function FooterGuest() {
   };
 
   return (
-    <footer className="w-full bg-white border-t border-slate-200 py-6 px-4 sm:px-6 lg:px-8">
+    <footer className="w-full bg-white border-t border-black/50 py-6 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
         
         <div className="flex items-center gap-3">
