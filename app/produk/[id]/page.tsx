@@ -105,7 +105,7 @@ export default function ProductDetailPage() {
           href="/" 
           className="inline-flex items-center gap-2 px-4 py-2 bg-[#059669] text-white rounded-xl font-semibold text-xs sm:text-sm hover:bg-emerald-700 hover:scale-[1.03] active:scale-[0.98] duration-200 transition-all shadow-sm"
         >
-          <span>‹ Kembali</span>
+          <span>← Kembali</span>
         </Link>
       </div>
 
@@ -163,7 +163,7 @@ export default function ProductDetailPage() {
                   />
                 </svg>
               </span>
-              <span className="font-bold text-xs sm:text-sm text-amber-700">{product.rating}</span>
+              <span className="font-bold text-xs sm:text-sm text-amber-600">{product.rating}</span>
             </div>
             <span className="text-xs sm:text-sm text-black/60 font-medium">{product.soldCount}</span>
           </div>
@@ -238,7 +238,7 @@ export default function ProductDetailPage() {
                 />
                 <button
                   type="submit"
-                  className="px-5 py-2.5 bg-[#059669] text-white text-xs font-bold rounded-xl flex items-center justify-center hover:bg-emerald-700 hover:scale-[1.03] active:scale-[0.98] duration-200 transition-all shadow-sm"
+                  className="px-5 py-2.5 bg-[#059669] text-white text-xs font-semibold rounded-xl flex items-center justify-center hover:bg-emerald-700 hover:scale-[1.03] active:scale-[0.98] duration-200 transition-all shadow-sm"
                 >
                   KIRIM ULASAN
                 </button>
@@ -302,9 +302,12 @@ export default function ProductDetailPage() {
             <div className="grid grid-cols-2 gap-2 w-full">
               <button
                 type="button"
-                className="py-2.5 px-2 bg-white border border-[#059669] text-[#059669] hover:scale-[1.03] active:scale-[0.98] duration-200 transition-all font-medium text-xs rounded-lg text-center shadow-sm truncate"
+                className="py-2.5 px-2 bg-white border border-[#059669] text-[#059669] hover:scale-[1.03] active:scale-[0.98] duration-200 transition-all font-medium text-xs rounded-lg text-center shadow-sm truncate flex items-center justify-center gap-1.5"
               >
-                Masuk Keranjang
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 flex-shrink-0">
+                  <path d="M2.25 2.25a.75.75 0 000 1.5h1.386c.17 0 .318.114.362.278l2.558 9.592a3.752 3.752 0 00-2.806 3.63c0 .414.336.75.75.75h15.75a.75.75 0 000-1.5H5.378A2.25 2.25 0 017.5 15h11.218a.75.75 0 00.674-.421 60.358 60.358 0 002.96-7.286.75.75 0 00-.522-.965A61.276 61.276 0 0019.5 6H5.717L5.03 3.42A1.875 1.875 0 003.236 2.25H2.25zM7.5 20.25a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zM18.75 20.25a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0z" />
+                </svg>
+                <span>Keranjang</span>
               </button>
               <button
                 type="button"
