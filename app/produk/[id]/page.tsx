@@ -90,7 +90,7 @@ export default function ProductDetailPage() {
   };
 
   return (
-    <main className="w-full min-h-screen bg-slate-50 pt-24 pb-32 px-4 sm:px-6 lg:px-8 relative">
+    <main className="w-full min-h-screen bg-slate-50 pt-20 pb-32 px-4 sm:px-6 lg:px-8 relative">
       {alertMessage && (
         <div className={`fixed top-6 left-1/2 -translate-x-1/2 z-50 bg-white border border-[#059669] text-black/80 px-5 py-3 rounded-2xl shadow-lg font-medium text-xs sm:text-sm flex items-center gap-3 transition-all duration-300 ${
           isAlertVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-12'
@@ -110,7 +110,7 @@ export default function ProductDetailPage() {
       </div>
 
       <div className="max-w-7xl mx-auto border border-[#059669]/40 rounded-3xl p-4 sm:p-6 lg:p-8 bg-white shadow-sm grid grid-cols-1 lg:grid-cols-12 gap-8 items-start relative">
-        <div className="lg:col-span-6 sticky top-28 space-y-4">
+        <div className="w-full lg:col-span-6 lg:sticky lg:top-13 space-y-4">
           <div className="w-full aspect-[4/3] bg-slate-200 rounded-2xl flex items-center justify-center p-6 border border-slate-200 shadow-inner">
             <span className="text-3xl sm:text-5xl font-black text-black/30 tracking-wider">
               {product.images[selectedImage]}
@@ -133,12 +133,12 @@ export default function ProductDetailPage() {
           </div>
         </div>
 
-        <div className="lg:col-span-6 space-y-6">
+        <div className="w-full lg:col-span-6 space-y-4">
           <div>
             <span className="text-xs text-black/40 font-medium block mb-1">
               {product.categoryPath} &gt; <span className="text-black/60 font-semibold">{product.title}</span>
             </span>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-black/80 tracking-tight">
+            <h1 className="text-xl sm:text-3xl font-extrabold text-black/80 tracking-tight">
               {product.title}
             </h1>
           </div>
@@ -147,14 +147,14 @@ export default function ProductDetailPage() {
             <span className="text-2xl sm:text-3xl font-bold text-[#059669]">{product.price}</span>
           </div>
 
-          <div className="flex items-center gap-3 py-2">
+          <div className="flex items-center gap-3 py-1">
             <div className="flex items-center gap-1 px-3 py-1.5 rounded-lg border-2 border-amber-200/50">
               <span className="text-amber-500">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 24 24"
                   fill="currentColor"
-                  className="w-6 h-6"
+                  className="w-5 h-5 sm:w-6 sm:h-6"
                 >
                   <path
                     strokeLinecap="round"
@@ -170,7 +170,7 @@ export default function ProductDetailPage() {
 
           <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-200">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-slate-300 flex items-center justify-center text-white font-bold">
+              <div className="w-12 h-12 rounded-full bg-slate-300 flex items-center justify-center text-white font-bold flex-shrink-0">
                 {product.storeName.charAt(0)}
               </div>
               <div>
@@ -180,7 +180,7 @@ export default function ProductDetailPage() {
             </div>
             <button
               type="button"
-              className="px-5 py-2.5 bg-[#059669] text-white hover:bg-emerald-700 hover:scale-[1.03] active:scale-[0.98] duration-200 transition-all font-bold text-xs sm:text-sm rounded-xl shadow-sm"
+              className="px-4 sm:px-5 py-2.5 bg-[#059669] text-white hover:bg-emerald-700 hover:scale-[1.03] active:scale-[0.98] duration-200 transition-all font-bold text-xs sm:text-sm rounded-xl shadow-sm flex-shrink-0"
             >
               Tawar / Chat
             </button>
@@ -248,9 +248,9 @@ export default function ProductDetailPage() {
             <div className="space-y-3">
               {reviewsList.map((rev) => (
                 <div key={rev.id} className="p-4 border border-slate-100 rounded-2xl bg-white space-y-2 shadow-sm">
-                  <div className="flex items-center justify-center sm:justify-between flex-wrap gap-2">
+                  <div className="flex items-center justify-between flex-wrap gap-2">
                     <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center text-xs font-bold">
+                      <div className="w-8 h-8 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center text-xs font-bold flex-shrink-0">
                         {rev.username.charAt(0)}
                       </div>
                       <span className="text-xs sm:text-sm font-bold text-black/80">{rev.username}</span>
@@ -280,35 +280,35 @@ export default function ProductDetailPage() {
             </div>
           </div>
 
-          <div className="sticky bottom-0.5 z-30 pt-4 mt-6 bg-white/90 backdrop-blur-md p-4 border border-slate-200 rounded-2xl shadow-xl flex flex-col sm:flex-row items-center gap-4">
-            <div className="flex items-center gap-3 bg-slate-100 px-3 py-2 rounded-2xl w-full sm:w-auto justify-center">
+          <div className="sticky md:sticky md:bottom-0.5 bottom-1 left-0 right-0 z-40 bg-white/95 sm:bg-white/90 backdrop-blur-md p-3 sm:p-4 border-t sm:border border-black/30 sm:rounded-2xl shadow-xl flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-lg flex-shrink-0">
               <button
                 type="button"
                 onClick={handleDecrement}
-                className="w-8 h-8 rounded-xl bg-white shadow-sm flex items-center justify-center font-bold text-black/70 hover:text-[#059669] hover:scale-[1.03] active:scale-[0.98] duration-200 transition-all"
+                className="w-7 h-7 rounded-xl bg-white shadow-sm flex items-center justify-center font-bold text-black/70 hover:text-[#059669] hover:scale-[1.03] active:scale-[0.98] duration-200 transition-all text-sm"
               >
                 -
               </button>
-              <span className="text-sm font-bold text-black/80 w-8 text-center">{quantity}</span>
+              <span className="text-xs sm:text-sm font-bold text-black/80 w-6 text-center">{quantity}</span>
               <button
                 type="button"
                 onClick={handleIncrement}
-                className="w-8 h-8 rounded-xl bg-white shadow-sm flex items-center justify-center font-bold text-black/70 hover:text-[#059669] hover:scale-[1.03] active:scale-[0.98] duration-200 transition-all"
+                className="w-7 h-7 rounded-xl bg-white shadow-sm flex items-center justify-center font-bold text-black/70 hover:text-[#059669] hover:scale-[1.03] active:scale-[0.98] duration-200 transition-all text-sm"
               >
                 +
               </button>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 w-full">
+            <div className="grid grid-cols-2 gap-2 w-full">
               <button
                 type="button"
-                className="py-3 px-4 bg-white border border-[#059669] text-[#059669] hover:bg-emerald-50 hover:scale-[1.03] active:scale-[0.98] duration-200 transition-all font-bold text-xs sm:text-sm rounded-2xl text-center shadow-sm"
+                className="py-2.5 px-2 bg-white border border-[#059669] text-[#059669] hover:scale-[1.03] active:scale-[0.98] duration-200 transition-all font-medium text-xs rounded-lg text-center shadow-sm truncate"
               >
                 Masuk Keranjang
               </button>
               <button
                 type="button"
-                className="py-3 px-4 bg-[#059669] text-white hover:bg-emerald-700 hover:scale-[1.03] active:scale-[0.98] duration-200 transition-all font-bold text-xs sm:text-sm rounded-2xl shadow-lg shadow-emerald-600/20 text-center"
+                className="py-2.5 px-2 bg-[#059669] text-white hover:bg-emerald-700 hover:scale-[1.03] active:scale-[0.98] duration-200 transition-all font-medium text-xs rounded-lg shadow-lg shadow-emerald-600/20 text-center truncate"
               >
                 Beli Sekarang
               </button>
