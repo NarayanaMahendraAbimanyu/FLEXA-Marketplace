@@ -16,6 +16,7 @@ interface Product {
 
 interface RecommendationSectionProps {
   searchQuery: string;
+  isLoggedIn?: boolean;
 }
 
 const CATEGORIES = [
@@ -136,7 +137,7 @@ function AnimatedCard({ product, index, onClick }: AnimatedCardProps) {
       style={{
         transitionDelay: isVisible ? `${delayMs}ms` : '0ms',
       }}
-      className={`bg-white rounded-2xl border border-slate-200/80 hover:border-[#059669] shadow-sm hover:shadow-md transition-all duration-700 ease-out overflow-hidden group flex flex-col transform cursor-pointer ${
+      className={`bg-white rounded-2xl border border-slate-200/85 hover:border-[#059669] shadow-sm hover:shadow-md transition-all duration-700 ease-out overflow-hidden group flex flex-col transform cursor-pointer ${
         isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
       }`}
     >
@@ -257,7 +258,7 @@ function LoginModal({ isOpen, onClose }: LoginModalProps) {
   );
 }
 
-export default function RecommendationSection({ searchQuery }: RecommendationSectionProps) {
+export default function RecommendationSection({ searchQuery, isLoggedIn }: RecommendationSectionProps) {
   const [activeCategory, setActiveCategory] = useState('trending');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -272,9 +273,17 @@ export default function RecommendationSection({ searchQuery }: RecommendationSec
     return matchesCategory && matchesSearch;
   });
 
+  const handleCardClick = () => {
+    if (!isLoggedIn) {
+      setIsModalOpen(true);
+    } else {
+      // Aksi ketika user sudah login (misal arahkan ke detail produk atau transaksi)
+      console.log('User sudah login, lanjut ke halaman produk');
+    }
+  };
+
   return (
     <section className="relative w-full bg-slate-50 pt-8 pb-20 px-4 sm:px-6 lg:px-8">
-      
       <div className="max-w-7xl mx-auto -mt-16 mb-12 sticky top-14 sm:top-18 z-40 pt-2">
         <div className="bg-white/95 backdrop-blur-md rounded-2xl p-2.5 sm:p-4 shadow-xl border border-slate-100">
           <div className="flex items-center justify-start sm:justify-center gap-2 sm:gap-3 overflow-x-auto no-scrollbar py-1">
@@ -303,7 +312,7 @@ export default function RecommendationSection({ searchQuery }: RecommendationSec
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-10 sm:mb-12">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-black/90 tracking-tight">
-            Rekomendasikan Untukmu
+            Rekomendasi Untukmu
           </h2>
           <p className="mt-2 text-xs sm:text-sm md:text-base text-black/50 font-normal">
             Berdasarkan lokasi terdekatmu (Simulasi)
@@ -321,23 +330,25 @@ export default function RecommendationSection({ searchQuery }: RecommendationSec
                 key={product.id}
                 product={product}
                 index={idx}
-                onClick={() => setIsModalOpen(true)}
+                onClick={handleCardClick}
               />
             ))}
           </div>
         )}
 
-        <div className="mt-8 sm:mt-12 flex justify-center">
-          <Link
-            href="/login"
-            className="bg-transparent text-[#059669] hover:scale-105 active:scale-98 transition-all duration-200 font-semibold text-xs sm:text-sm border border-[#059669] px-6 sm:px-8 py-3.5 rounded-xl hover:bg-[#059669] hover:border-[#059669] hover:text-white flex items-center gap-2 shadow-sm"
-          >
-            <span>Login Untuk Lihat Lainnya</span>
-            <svg className="w-4 h-4 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-            </svg>
-          </Link>
-        </div>
+        {!isLoggedIn && (
+          <div className="mt-8 sm:mt-12 flex justify-center">
+            <Link
+              href="/login"
+              className="bg-transparent text-[#059669] hover:scale-105 active:scale-98 transition-all duration-200 font-semibold text-xs sm:text-sm border border-[#059669] px-6 sm:px-8 py-3.5 rounded-xl hover:bg-[#059669] hover:border-[#059669] hover:text-white flex items-center gap-2 shadow-sm"
+            >
+              <span>Login Untuk Lihat Lainnya</span>
+              <svg className="w-4 h-4 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+              </svg>
+            </Link>
+          </div>
+        )}
       </div>
 
       <LoginModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />

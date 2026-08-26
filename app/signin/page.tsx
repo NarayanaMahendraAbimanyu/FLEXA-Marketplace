@@ -50,10 +50,10 @@ export default function SignInPage() {
       setErrorMessage(error.message);
       setIsLoading(false);
     } else {
-      const destination = role === 'seller' ? '/dashboard/seller' : '/dashboard/buyer';
+      const destination = role === 'seller' ? '/dashboard/seller' : '/';
 
       if (data.session) {
-        setSuccessMessage('Pendaftaran berhasil! Mengalihkan ke dashboard...');
+        setSuccessMessage('Pendaftaran berhasil! Mengalihkan...');
         setTimeout(() => {
           router.push(destination);
         }, 1500);
@@ -67,7 +67,7 @@ export default function SignInPage() {
           setSuccessMessage('Pendaftaran berhasil! Silakan masuk.');
           setIsLoading(false);
         } else {
-          setSuccessMessage('Berhasil masuk! Mengalihkan ke dashboard...');
+          setSuccessMessage('Berhasil masuk! Mengalihkan...');
           setTimeout(() => {
             router.push(destination);
           }, 1500);
@@ -83,7 +83,7 @@ export default function SignInPage() {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/login`,
+        redirectTo: `${window.location.origin}/`,
         queryParams: {
           access_type: 'offline',
           prompt: 'consent',
@@ -98,24 +98,6 @@ export default function SignInPage() {
     }
 
     if (data?.url) {
-      const urlParams = new URLSearchParams(data.url.split('#')[1] || '');
-      const googleEmail = urlParams.get('email');
-
-      if (googleEmail) {
-        const { data: existingUser } = await supabase
-          .from('profiles')
-          .select('id')
-          .eq('email', googleEmail)
-          .single();
-
-        if (existingUser) {
-          await supabase.auth.signOut();
-          setErrorMessage('Akun ini sudah di daftarkan.');
-          setIsLoading(false);
-          return;
-        }
-      }
-
       window.location.href = data.url;
     }
   };

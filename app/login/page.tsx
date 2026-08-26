@@ -6,6 +6,8 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
 
+const isBrowser = typeof window !== 'undefined';
+
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
@@ -37,7 +39,7 @@ export default function LoginPage() {
           if (profile.role === 'penjual') {
             router.push('/dashboard/penjual');
           } else {
-            router.push('/dashboard/pembeli');
+            router.push('/');
           }
         }
       }
@@ -51,9 +53,14 @@ export default function LoginPage() {
     setIsLoading(true);
     setErrorMessage('');
 
+    if (isBrowser) {
+      localStorage.setItem('supabase_remember_me', rememberMe ? 'true' : 'false');
+    }
+
     if (!rememberMe) {
       await supabase.auth.signOut();
       window.localStorage.removeItem('sb-' + process.env.NEXT_PUBLIC_SUPABASE_PROJECT_ID + '-auth-token');
+      window.sessionStorage.removeItem('sb-' + process.env.NEXT_PUBLIC_SUPABASE_PROJECT_ID + '-auth-token');
     }
 
     const { data, error } = await supabase.auth.signInWithPassword({
@@ -66,14 +73,15 @@ export default function LoginPage() {
       setIsLoading(false);
     } else {
       if (!rememberMe) {
-        const sessionData = window.localStorage.getItem(
-          Object.keys(window.localStorage).find((key) => key.startsWith('sb-') && key.endsWith('-auth-token')) || ''
+        const tokenKey = Object.keys(window.localStorage).find(
+          (key) => key.startsWith('sb-') && key.endsWith('-auth-token')
         );
-        if (sessionData) {
-          window.sessionStorage.setItem('supabase.auth.token', sessionData);
-          window.localStorage.removeItem(
-            Object.keys(window.localStorage).find((key) => key.startsWith('sb-') && key.endsWith('-auth-token')) || ''
-          );
+        if (tokenKey) {
+          const sessionData = window.localStorage.getItem(tokenKey);
+          if (sessionData) {
+            window.sessionStorage.setItem(tokenKey, sessionData);
+            window.localStorage.removeItem(tokenKey);
+          }
         }
       }
 
@@ -93,7 +101,7 @@ export default function LoginPage() {
           if (profile.role === 'penjual') {
             router.push('/dashboard/penjual');
           } else {
-            router.push('/dashboard/pembeli');
+            router.push('/');
           }
         }
       }
@@ -123,7 +131,7 @@ export default function LoginPage() {
       });
 
     if (!error) {
-      router.push(selectedRole === 'penjual' ? '/dashboard/penjual' : '/dashboard/pembeli');
+      router.push(selectedRole === 'penjual' ? '/dashboard/penjual' : '/');
     } else {
       setErrorMessage(error.message);
       setShowRoleModal(false);
@@ -270,22 +278,13 @@ export default function LoginPage() {
                     <label htmlFor="remember" className="text-xs sm:text-sm text-slate-700 font-medium cursor-pointer">
                       Ingat Saya
                     </label>
-                    <div className="relative group flex items-center justify-center">
-                      <span className="w-4 h-4 rounded-full bg-transparent border-1 border-[#059669] text-[#059669] text-[10px] font-bold flex items-center justify-center">
-                        ?
-                      </span>
-                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-64 p-3 bg-white text-slate-700 text-xs rounded-xl shadow-xl border border-slate-200 z-50 text-left">
-                        <p className="leading-relaxed">Jika dipilih, kamu akan tetap login di website Flexa setelah menutup tab browser.</p>
-                        <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-white"></div>
-                      </div>
-                    </div>
                   </div>
                 </div>
 
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full py-3 sm:py-3.5 bg-[#059669] hover:bg-emerald-500 hover:scale-103 active:scale-98 hover:-translate-y-1 text-white font-semibold text-xs sm:text-sm rounded-xl shadow-md transition-all duration-200 active:scale-[0.99] mt-2 disabled:opacity-50"
+                  className="w-full py-3 sm:py-3.5 bg-[#059669] hover:bg-emerald-500 text-white font-semibold text-xs sm:text-sm rounded-xl shadow-md transition-all duration-200 mt-2 disabled:opacity-50"
                 >
                   {isLoading ? 'Memproses...' : 'Masuk Sekarang'}
                 </button>
@@ -298,11 +297,11 @@ export default function LoginPage() {
                 </span>
               </div>
 
-              <div className="flex hover:-translate-y-1 transition-all duration-200">
+              <div className="flex">
                 <button
                   type="button"
                   onClick={handleGoogleAuth}
-                  className="cursor-pointer w-full py-2.5 px-3 bg-white border border-emerald-500/40 hover:scale-103 active:scale-98 duration-200 rounded-xl hover:border-[#059669] hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-all"
+                  className="cursor-pointer w-full py-2.5 px-3 bg-white border border-emerald-500/40 rounded-xl hover:border-[#059669] hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-all"
                 >
                   <svg className="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24">
                     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -314,7 +313,7 @@ export default function LoginPage() {
                 </button>
               </div>
 
-              <p className="text-center text-xs sm:text-sm text-slate-600 mt-6 font-medium ">
+              <p className="text-center text-xs sm:text-sm text-slate-600 mt-6 font-medium">
                 Belum punya akun?{' '}
                 <Link href="/signin" className="text-[#059669] font-bold hover:underline">
                   Daftar
@@ -334,43 +333,23 @@ export default function LoginPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full mb-6">
               <div 
                 onClick={() => setSelectedRole('pembeli')}
-                className={`rounded-2xl p-5 flex flex-col items-center text-center cursor-pointer transition-all border-2 ${selectedRole === 'pembeli' ? 'bg-[#059669] text-white border-[#059669] shadow-lg scale-105' : 'bg-[#059669] text-white border-[#059669]'}`}
+                className="rounded-2xl p-5 flex flex-col items-center text-center cursor-pointer transition-all border-2 bg-[#059669] text-white border-[#059669]"
               >
-                <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center mb-3">
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                  </svg>
-                </div>
                 <span className="font-bold text-base mb-1">Pembeli</span>
-                <span className="text-xs text-emerald-50 leading-relaxed">Saya ingin mencari barang murah di sekitar.</span>
               </div>
-
               <div 
                 onClick={() => setSelectedRole('penjual')}
-                className={`rounded-2xl p-5 flex flex-col items-center text-center cursor-pointer transition-all border-2 ${selectedRole === 'penjual' ? 'bg-[#059669] text-white border-[#059669] shadow-lg scale-105' : 'bg-[#059669] text-white border-[#059669]'}`}
+                className="rounded-2xl p-5 flex flex-col items-center text-center cursor-pointer transition-all border-2 bg-[#059669] text-white border-[#059669]"
               >
-                <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center mb-3">
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                  </svg>
-                </div>
                 <span className="font-bold text-base mb-1">Penjual</span>
-                <span className="text-xs text-emerald-50 leading-relaxed">Saya ingin berjualan menggunakan Flexa.</span>
               </div>
             </div>
 
             <button 
               onClick={handleSaveRole}
-              className="w-full bg-white hover:scale-103 active:scale-98 duration-200 text-[#059669] hover:bg-[#059669] hover:text-white border-2 border-[#059669] font-medium py-3 px-4 rounded-xl text-sm sm:text-base transition-all shadow-md cursor-pointer mb-3"
+              className="w-full bg-white text-[#059669] hover:bg-[#059669] hover:text-white border-2 border-[#059669] font-medium py-3 px-4 rounded-xl text-sm transition-all shadow-md cursor-pointer mb-3"
             >
               Lanjutkan daftar sebagai {selectedRole === 'penjual' ? 'Penjual' : 'Pembeli'} &gt;
-            </button>
-
-            <button 
-              onClick={() => setShowRoleModal(false)}
-              className="text-xs sm:text-sm font-semibold text-[#059669] hover:underline cursor-pointer py-1"
-            >
-              &lt; Batalkan
             </button>
           </div>
         </div>
