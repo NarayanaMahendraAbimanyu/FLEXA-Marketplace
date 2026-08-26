@@ -79,19 +79,44 @@ export default function SignInPage() {
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
     setErrorMessage('');
-    const { error } = await supabase.auth.signInWithOAuth({
+
+    const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: `${window.location.origin}/login`,
         queryParams: {
           access_type: 'offline',
           prompt: 'consent',
         },
       },
     });
+
     if (error) {
       setErrorMessage(error.message);
       setIsLoading(false);
+      return;
+    }
+
+    if (data?.url) {
+      const urlParams = new URLSearchParams(data.url.split('#')[1] || '');
+      const googleEmail = urlParams.get('email');
+
+      if (googleEmail) {
+        const { data: existingUser } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('email', googleEmail)
+          .single();
+
+        if (existingUser) {
+          await supabase.auth.signOut();
+          setErrorMessage('Akun ini sudah di daftarkan.');
+          setIsLoading(false);
+          return;
+        }
+      }
+
+      window.location.href = data.url;
     }
   };
 

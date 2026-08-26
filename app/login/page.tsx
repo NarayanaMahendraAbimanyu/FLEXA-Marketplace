@@ -56,7 +56,7 @@ export default function LoginPage() {
       window.localStorage.removeItem('sb-' + process.env.NEXT_PUBLIC_SUPABASE_PROJECT_ID + '-auth-token');
     }
 
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
@@ -76,7 +76,27 @@ export default function LoginPage() {
           );
         }
       }
-      router.push('/dashboard');
+
+      const user = data.user;
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .single();
+
+        if (!profile || !profile.role) {
+          setPendingUser(user);
+          setShowRoleModal(true);
+          setIsLoading(false);
+        } else {
+          if (profile.role === 'penjual') {
+            router.push('/dashboard/penjual');
+          } else {
+            router.push('/dashboard/pembeli');
+          }
+        }
+      }
     }
   };
 
@@ -265,7 +285,7 @@ export default function LoginPage() {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full py-3 sm:py-3.5 bg-[#059669] hover:bg-emerald-500 hover:-translate-y-1 text-white font-semibold text-xs sm:text-sm rounded-xl shadow-md transition-all duration-200 active:scale-[0.99] mt-2 disabled:opacity-50"
+                  className="w-full py-3 sm:py-3.5 bg-[#059669] hover:bg-emerald-500 hover:scale-103 active:scale-98 hover:-translate-y-1 text-white font-semibold text-xs sm:text-sm rounded-xl shadow-md transition-all duration-200 active:scale-[0.99] mt-2 disabled:opacity-50"
                 >
                   {isLoading ? 'Memproses...' : 'Masuk Sekarang'}
                 </button>
@@ -282,7 +302,7 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={handleGoogleAuth}
-                  className="w-full py-2.5 px-3 bg-white border border-emerald-500/40 rounded-xl hover:border-[#059669] hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-all"
+                  className="cursor-pointer w-full py-2.5 px-3 bg-white border border-emerald-500/40 hover:scale-103 active:scale-98 duration-200 rounded-xl hover:border-[#059669] hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-all"
                 >
                   <svg className="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24">
                     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -294,7 +314,7 @@ export default function LoginPage() {
                 </button>
               </div>
 
-              <p className="text-center text-xs sm:text-sm text-slate-600 mt-6 font-medium">
+              <p className="text-center text-xs sm:text-sm text-slate-600 mt-6 font-medium ">
                 Belum punya akun?{' '}
                 <Link href="/signin" className="text-[#059669] font-bold hover:underline">
                   Daftar
