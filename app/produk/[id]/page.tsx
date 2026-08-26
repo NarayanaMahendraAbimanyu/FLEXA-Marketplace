@@ -90,7 +90,7 @@ export default function ProductDetailPage() {
   };
 
   return (
-    <main className="w-full min-h-screen bg-slate-50 pt-20 pb-32 px-4 sm:px-6 lg:px-8 relative">
+    <main className="w-full min-h-screen bg-slate-50 pt-14 pb-12 px-4 sm:px-6 lg:px-8 relative">
       {alertMessage && (
         <div className={`fixed top-6 left-1/2 -translate-x-1/2 z-50 bg-white border border-[#059669] text-black/80 px-5 py-3 rounded-2xl shadow-lg font-medium text-xs sm:text-sm flex items-center gap-3 transition-all duration-300 ${
           isAlertVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-12'
