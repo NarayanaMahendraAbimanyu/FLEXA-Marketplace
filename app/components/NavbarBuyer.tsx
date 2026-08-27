@@ -102,14 +102,10 @@ export default function NavbarBuyer({ searchQuery, onSearchChange, onSearchSubmi
   };
 
   const handleSearchAction = () => {
-    if (onSearchSubmit) {
-      onSearchSubmit(searchQuery);
+    if (searchQuery.trim() !== '') {
+      router.push(`/?search=${encodeURIComponent(searchQuery)}`);
     } else {
-      if (searchQuery.trim() !== '') {
-        router.push(`/?search=${encodeURIComponent(searchQuery)}`);
-      } else {
-        router.push('/');
-      }
+      router.push('/');
     }
   };
 

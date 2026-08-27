@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 const PLACEHOLDERS = [
   'Cari barang sewa...',
@@ -14,9 +15,11 @@ const PLACEHOLDERS = [
 interface NavbarGuestProps {
   searchQuery: string;
   onSearchChange: (value: string) => void;
+  onSearchSubmit?: (val: string) => void;
 }
 
-export default function NavbarGuest({ searchQuery, onSearchChange }: NavbarGuestProps) {
+export default function NavbarGuest({ searchQuery, onSearchChange, onSearchSubmit }: NavbarGuestProps) {
+  const router = useRouter();
   const [placeholderText, setPlaceholderText] = useState('');
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const [charIndex, setCharIndex] = useState(0);
@@ -55,6 +58,24 @@ export default function NavbarGuest({ searchQuery, onSearchChange }: NavbarGuest
       top: 0,
       behavior: 'smooth',
     });
+  };
+
+  const handleSearchAction = () => {
+    if (onSearchSubmit) {
+      onSearchSubmit(searchQuery);
+    } else {
+      if (searchQuery.trim() !== '') {
+        router.push(`/?search=${encodeURIComponent(searchQuery)}`);
+      } else {
+        router.push('/');
+      }
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSearchAction();
+    }
   };
 
   return (
@@ -107,11 +128,13 @@ export default function NavbarGuest({ searchQuery, onSearchChange }: NavbarGuest
               type="text"
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
+              onKeyDown={handleKeyDown}
               placeholder={placeholderText}
               className="w-full bg-transparent text-xs sm:text-sm md:text-base text-black/80 placeholder-black/40 focus:outline-none pr-2"
             />
             <button 
               type="button"
+              onClick={handleSearchAction}
               className="bg-[#059669] hover:scale-110 text-white p-1.5 sm:p-2 md:p-2.5 rounded-full transition-all duration-200 shrink-0 flex items-center justify-center shadow-sm active:scale-95"
             >
               <svg 

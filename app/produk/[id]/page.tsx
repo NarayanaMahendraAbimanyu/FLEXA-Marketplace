@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import NavbarBuyer from '@/app/components/NavbarBuyer';
+import { PRODUCTS, Product } from '@/app/data/products';
 
 interface Review {
   id: number;
@@ -16,9 +16,29 @@ interface Review {
 export default function ProductDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const productId = params?.id;
+  const productId = Number(params?.id);
 
-  const [searchQuery, setSearchQuery] = useState('');
+  const foundProduct: Product | undefined = PRODUCTS.find((p) => p.id === productId);
+
+  const product = {
+    id: foundProduct ? foundProduct.id : 1,
+    categoryTag: foundProduct ? foundProduct.categoryTag : 'Elektronik',
+    title: foundProduct ? foundProduct.title : 'Produk Tidak Ditemukan',
+    storeName: foundProduct ? foundProduct.storeName : 'Toko Tidak Ditemukan',
+    rating: foundProduct ? foundProduct.rating : 5.0,
+    soldCount: '3rb+ Terjual',
+    price: foundProduct ? foundProduct.price : 'Rp. 0',
+    stock: 12,
+    description: foundProduct 
+      ? `Deskripsi lengkap untuk ${foundProduct.title} yang dijual oleh ${foundProduct.storeName}. Kondisi mulus, berkualitas tinggi, dan siap digunakan untuk menunjang kebutuhan Anda.` 
+      : 'Deskripsi tidak tersedia.',
+    images: [
+      foundProduct ? foundProduct.imageText : 'PRODUK', 
+      foundProduct ? `${foundProduct.imageText} 2` : 'DETAIL', 
+      foundProduct ? `${foundProduct.imageText} 3` : 'PREVIEW'
+    ],
+  };
+
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
   
@@ -27,29 +47,7 @@ export default function ProductDetailPage() {
   const [alertMessage, setAlertMessage] = useState('');
   const [isAlertVisible, setIsAlertVisible] = useState(false);
   
-  const [reviewsList, setReviewsList] = useState<Review[]>([
-    {
-      id: 1,
-      username: 'Narayana Mahendra Abimanyu',
-      rating: 5,
-      comment: 'Barangnya bagus dan mulus banget pengiriman juga cepat.',
-      time: 'BARU SAJA',
-    },
-  ]);
-
-  const product = {
-    id: productId,
-    categoryPath: 'FLEXA > Elektronik',
-    categoryTag: 'Elektronik',
-    title: 'Sony Alpha A7 III Mirrorless Camera',
-    storeName: 'ALFA CAM',
-    rating: 4.9,
-    soldCount: '3rb+ Terjual',
-    price: 'Rp. 50.000,00',
-    stock: 12,
-    description: 'Kamera mirrorless full-frame kondisi mulus, sensor bersih, kelengkapan lengkap (body, lensa kit 28-70mm, baterai 2 buah, charger, tas). Sangat cocok untuk kebutuhan dokumentasi event, wedding, maupun pembuatan konten profesional.',
-    images: ['CAMERA 1', 'CAMERA 2', 'CAMERA 3'],
-  };
+  const [reviewsList, setReviewsList] = useState<Review[]>([]);
 
   const handleIncrement = () => setQuantity((prev) => prev + 1);
   const handleDecrement = () => setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
@@ -60,14 +58,6 @@ export default function ProductDetailPage() {
     setTimeout(() => {
       setIsAlertVisible(false);
     }, 3000);
-  };
-
-  const handleSearchSubmit = (val: string) => {
-    if (val.trim() !== '') {
-      router.push(`/?search=${encodeURIComponent(val)}`);
-    } else {
-      router.push('/');
-    }
   };
 
   const handleAddReview = (e: React.FormEvent) => {
@@ -89,7 +79,7 @@ export default function ProductDetailPage() {
 
     const newReview: Review = {
       id: Date.now(),
-      username: 'Narayana Mahendra Abimanyu',
+      username: 'Bayu Kresna',
       rating: userRating,
       comment: reviewText,
       time: 'BARU SAJA',
@@ -102,14 +92,6 @@ export default function ProductDetailPage() {
 
   return (
     <div className="w-full min-h-screen bg-slate-50 flex flex-col">
-      <NavbarBuyer 
-        searchQuery={searchQuery} 
-        onSearchChange={(val) => {
-          setSearchQuery(val);
-        }} 
-        onSearchSubmit={handleSearchSubmit}
-      />
-
       <main className="w-full flex-1 pt-6 pb-12 px-4 sm:px-6 lg:px-8 relative max-w-7xl mx-auto">
         {alertMessage && (
           <div className={`fixed top-24 left-1/2 -translate-x-1/2 z-50 bg-white border border-[#059669] text-black/80 px-5 py-3 rounded-2xl shadow-lg font-medium text-xs sm:text-sm flex items-center gap-3 transition-all duration-300 ${
@@ -130,7 +112,7 @@ export default function ProductDetailPage() {
         </div>
 
         <div className="border border-[#059669]/40 rounded-3xl p-4 sm:p-6 lg:p-8 bg-white shadow-sm grid grid-cols-1 lg:grid-cols-12 gap-8 items-start relative">
-          <div className="w-full lg:col-span-6 lg:sticky lg:top-28 space-y-4">
+          <div className="w-full lg:col-span-6 lg:sticky lg:top-15 space-y-4">
             <div className="w-full aspect-[4/3] bg-slate-200 rounded-2xl flex items-center justify-center p-6 border border-slate-200 shadow-inner">
               <span className="text-3xl sm:text-5xl font-black text-black/30 tracking-wider">
                 {product.images[selectedImage]}
@@ -156,7 +138,11 @@ export default function ProductDetailPage() {
           <div className="w-full lg:col-span-6 space-y-4">
             <div>
               <span className="text-xs text-black/40 font-medium block mb-1">
-                {product.categoryPath} &gt; <span className="text-black/60 font-semibold">{product.title}</span>
+                <Link href="/" className="hover:text-[#059669] transition-colors font-semibold">FLEXA</Link>
+                {' > '}
+                <Link href={`/?category=${product.categoryTag.toLowerCase()}`} className="hover:text-[#059669] transition-colors font-semibold">{product.categoryTag}</Link>
+                {' > '}
+                <span className="text-black/60 font-semibold">{product.title}</span>
               </span>
               <h1 className="text-xl sm:text-3xl font-extrabold text-black/80 tracking-tight">
                 {product.title}
@@ -266,37 +252,43 @@ export default function ProductDetailPage() {
               </form>
 
               <div className="space-y-3">
-                {reviewsList.map((rev) => (
-                  <div key={rev.id} className="p-4 border border-slate-100 rounded-2xl bg-white space-y-2 shadow-sm">
-                    <div className="flex items-center justify-between flex-wrap gap-2">
-                      <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center text-xs font-bold flex-shrink-0">
-                          {rev.username.charAt(0)}
-                        </div>
-                        <span className="text-xs sm:text-sm font-bold text-black/80">{rev.username}</span>
-                      </div>
-                      <div className="flex gap-0.5">
-                        {[1, 2, 3, 4, 5].map((s) => (
-                          <svg
-                            key={s}
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 24 24"
-                            fill="currentColor"
-                            className={`w-4 h-4 ${s <= rev.rating ? 'text-amber-400' : 'text-slate-200'}`}
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
-                            />
-                          </svg>
-                        ))}
-                      </div>
-                    </div>
-                    <p className="text-xs text-black/70 italic">"{rev.comment}"</p>
-                    <span className="text-[10px] text-[#059669] font-bold block">{rev.time}</span>
+                {reviewsList.length === 0 ? (
+                  <div className="text-center py-6 text-black/40 text-xs sm:text-sm italic border border-dashed border-slate-200 rounded-2xl">
+                    Belum ada ulasan. Jadilah yang pertama memberikan ulasan!
                   </div>
-                ))}
+                ) : (
+                  reviewsList.map((rev) => (
+                    <div key={rev.id} className="p-4 border border-slate-100 rounded-2xl bg-white space-y-2 shadow-sm">
+                      <div className="flex items-center justify-between flex-wrap gap-2">
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 rounded-full bg-emerald-100 text-[#059669] flex items-center justify-center text-xs font-bold flex-shrink-0">
+                            {rev.username.charAt(0)}
+                          </div>
+                          <span className="text-xs sm:text-sm font-bold text-black/80">{rev.username}</span>
+                        </div>
+                        <div className="flex gap-0.5">
+                          {[1, 2, 3, 4, 5].map((s) => (
+                            <svg
+                              key={s}
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 24 24"
+                              fill="currentColor"
+                              className={`w-4 h-4 ${s <= rev.rating ? 'text-amber-400' : 'text-slate-200'}`}
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
+                              />
+                            </svg>
+                          ))}
+                        </div>
+                      </div>
+                      <p className="text-xs text-black/70 italic">"{rev.comment}"</p>
+                      <span className="text-[10px] text-[#059669] font-bold block">{rev.time}</span>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
 
