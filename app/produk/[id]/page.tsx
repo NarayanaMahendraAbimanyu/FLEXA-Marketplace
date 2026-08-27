@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { PRODUCTS, Product } from '@/app/data/products';
+import { supabase } from '@/lib/supabaseClient';
 
 interface Review {
   id: number;
@@ -20,15 +21,32 @@ export default function ProductDetailPage() {
 
   const foundProduct: Product | undefined = PRODUCTS.find((p) => p.id === productId);
 
+  const [userData, setUserData] = useState<{ name: string; avatar: string | null }>({
+    name: '',
+    avatar: null,
+  });
+
+  useEffect(() => {
+    async function fetchActiveUser() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const fullName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'User';
+        const avatarUrl = user.user_metadata?.avatar_url || user.user_metadata?.picture || null;
+        setUserData({ name: fullName, avatar: avatarUrl });
+      }
+    }
+    fetchActiveUser();
+  }, []);
+
   const product = {
     id: foundProduct ? foundProduct.id : 1,
     categoryTag: foundProduct ? foundProduct.categoryTag : 'Elektronik',
     title: foundProduct ? foundProduct.title : 'Produk Tidak Ditemukan',
     storeName: foundProduct ? foundProduct.storeName : 'Toko Tidak Ditemukan',
     rating: foundProduct ? foundProduct.rating : 5.0,
-    soldCount: '3rb+ Terjual',
+    soldCount: foundProduct && 'soldCount' in foundProduct ? (foundProduct as any).soldCount : '0 Terjual',
     price: foundProduct ? foundProduct.price : 'Rp. 0',
-    stock: 12,
+    stock: foundProduct && 'stock' in foundProduct ? (foundProduct as any).stock : 0,
     description: foundProduct 
       ? `Deskripsi lengkap untuk ${foundProduct.title} yang dijual oleh ${foundProduct.storeName}. Kondisi mulus, berkualitas tinggi, dan siap digunakan untuk menunjang kebutuhan Anda.` 
       : 'Deskripsi tidak tersedia.',
@@ -77,9 +95,19 @@ export default function ProductDetailPage() {
       return;
     }
 
+    interface Review {
+      id: number;
+      username: string;
+      avatar?: string | null;
+      rating: number;
+      comment: string;
+      time: string;
+    }
+
     const newReview: Review = {
       id: Date.now(),
-      username: 'Bayu Kresna',
+      username: userData.name,
+      avatar: userData.avatar,
       rating: userRating,
       comment: reviewText,
       time: 'BARU SAJA',
@@ -201,7 +229,7 @@ export default function ProductDetailPage() {
 
             <div className="inline-flex flex-col p-4 bg-emerald-50/70 border border-[#059669]/30 rounded-2xl w-fit">
               <span className="text-xs text-black/50 block font-medium mb-1">Stock tersedia</span>
-              <span className="text-2xl font-black text-[#059669]">{product.stock}</span>
+              <span className="text-2xl font-bold text-[#059669]">{product.stock}</span>
             </div>
 
             <div className="space-y-4 pt-2">
