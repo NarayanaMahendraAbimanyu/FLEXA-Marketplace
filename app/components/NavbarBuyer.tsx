@@ -15,10 +15,11 @@ const PLACEHOLDERS = [
 
 interface NavbarBuyerProps {
   searchQuery: string;
-  onSearchChange: (value: string) => void;
+  onSearchChange: (val: string) => void;
+  onSearchSubmit?: (val: string) => void;
 }
 
-export default function NavbarBuyer({ searchQuery, onSearchChange }: NavbarBuyerProps) {
+export default function NavbarBuyer({ searchQuery, onSearchChange, onSearchSubmit }: NavbarBuyerProps) {
   const router = useRouter();
   const [placeholderText, setPlaceholderText] = useState('');
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
@@ -100,12 +101,31 @@ export default function NavbarBuyer({ searchQuery, onSearchChange }: NavbarBuyer
     });
   };
 
+  const handleSearchAction = () => {
+    if (onSearchSubmit) {
+      onSearchSubmit(searchQuery);
+    } else {
+      if (searchQuery.trim() !== '') {
+        router.push(`/?search=${encodeURIComponent(searchQuery)}`);
+      } else {
+        router.push('/');
+      }
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSearchAction();
+    }
+  };
+
   return (
     <header className="w-full bg-white border-b border-slate-200 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-0 sm:h-20 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 md:gap-6">
         
         <div className="w-full sm:w-auto flex items-center justify-between shrink-0">
-          <div 
+          <Link 
+            href="/"
             onClick={scrollToTop}
             className="flex items-center cursor-pointer active:scale-98 transition-all duration-200"
           >
@@ -117,7 +137,7 @@ export default function NavbarBuyer({ searchQuery, onSearchChange }: NavbarBuyer
               priority
               className="h-8 sm:h-9 md:h-10 w-auto object-contain"
             />
-          </div>
+          </Link>
 
           <div className="flex items-center gap-1 sm:hidden relative" ref={mobileMenuRef}>
             <button
@@ -216,11 +236,13 @@ export default function NavbarBuyer({ searchQuery, onSearchChange }: NavbarBuyer
               type="text"
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
+              onKeyDown={handleKeyDown}
               placeholder={placeholderText}
               className="w-full bg-transparent text-xs sm:text-sm md:text-base text-black/80 placeholder-black/40 focus:outline-none pr-2"
             />
             <button 
               type="button"
+              onClick={handleSearchAction}
               className="bg-[#059669] hover:scale-110 text-white p-1.5 sm:p-2 md:p-2.5 rounded-full transition-all duration-200 shrink-0 flex items-center justify-center shadow-sm active:scale-95"
             >
               <svg 
