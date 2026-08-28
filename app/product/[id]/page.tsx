@@ -207,6 +207,7 @@ export default function ProductDetailPage() {
               </div>
               <button
                 type="button"
+                onClick={() => router.push(`/chat/${product.id}`)}
                 className="px-4 sm:px-5 py-2.5 bg-[#059669] text-white hover:bg-emerald-700 hover:scale-[1.03] active:scale-[0.98] duration-200 transition-all font-bold text-xs sm:text-sm rounded-xl shadow-sm flex-shrink-0"
               >
                 Tawar / Chat

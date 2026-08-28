@@ -175,7 +175,7 @@ export default function RecommendationSection({ searchQuery, isLoggedIn, initial
     if (!isLoggedIn) {
       setIsModalOpen(true);
     } else {
-      router.push(`/produk/${productId}`);
+      router.push(`/product/${productId}`);
     }
   };
 
