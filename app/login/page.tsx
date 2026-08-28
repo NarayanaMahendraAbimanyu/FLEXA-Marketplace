@@ -18,7 +18,7 @@ export default function LoginPage() {
   const [errorMessage, setErrorMessage] = useState('');
 
   const [showRoleModal, setShowRoleModal] = useState(false);
-  const [selectedRole, setSelectedRole] = useState<'pembeli' | 'penjual'>('pembeli');
+  const [selectedRole, setSelectedRole] = useState<'pembeli' | 'penjual' | null>(null);
   const [pendingUser, setPendingUser] = useState<any>(null);
 
   useEffect(() => {
@@ -119,7 +119,7 @@ export default function LoginPage() {
   };
 
   const handleSaveRole = async () => {
-    if (!pendingUser) return;
+    if (!pendingUser || !selectedRole) return;
 
     const { error } = await supabase
       .from('profiles')
@@ -333,23 +333,60 @@ export default function LoginPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full mb-6">
               <div 
                 onClick={() => setSelectedRole('pembeli')}
-                className="rounded-2xl p-5 flex flex-col items-center text-center cursor-pointer transition-all border-2 bg-[#059669] text-white border-[#059669]"
+                className={`rounded-2xl p-5 flex flex-col items-center text-center cursor-pointer transition-all duration-200 active:scale-105 border-2 ${
+                  selectedRole === 'pembeli'
+                    ? 'bg-[#059669] text-white border-[#059669]'
+                    : 'bg-white text-slate-800 border-slate-200 hover:border-slate-300'
+                }`}
               >
+                <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center mb-3">
+                  <svg className={`w-6 h-6 ${selectedRole === 'pembeli' ? 'text-white' : 'text-[#059669]'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                  </svg>
+                </div>
                 <span className="font-bold text-base mb-1">Pembeli</span>
+                <span className={`text-xs ${selectedRole === 'pembeli' ? 'text-emerald-50' : 'text-slate-500'}`}>Saya ingin mencari barang murah di sekitar.</span>
               </div>
+
               <div 
                 onClick={() => setSelectedRole('penjual')}
-                className="rounded-2xl p-5 flex flex-col items-center text-center cursor-pointer transition-all border-2 bg-[#059669] text-white border-[#059669]"
+                className={`rounded-2xl p-5 flex flex-col items-center text-center cursor-pointer transition-all duration-200 active:scale-105 border-2 ${
+                  selectedRole === 'penjual'
+                    ? 'bg-[#059669] text-white border-[#059669]'
+                    : 'bg-white text-slate-800 border-slate-200 hover:border-slate-300'
+                }`}
               >
+                <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center mb-3">
+                  <svg className={`w-6 h-6 ${selectedRole === 'penjual' ? 'text-white' : 'text-[#059669]'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                  </svg>
+                </div>
                 <span className="font-bold text-base mb-1">Penjual</span>
+                <span className={`text-xs ${selectedRole === 'penjual' ? 'text-emerald-50' : 'text-slate-500'}`}>Saya ingin berjualan menggunakan Flexa.</span>
               </div>
             </div>
 
             <button 
               onClick={handleSaveRole}
-              className="w-full bg-white text-[#059669] hover:bg-[#059669] hover:text-white border-2 border-[#059669] font-medium py-3 px-4 rounded-xl text-sm transition-all shadow-md cursor-pointer mb-3"
+              disabled={!selectedRole}
+              className={`w-full font-medium py-3 px-4 rounded-xl text-sm transition-all shadow-md mb-3 ${
+                selectedRole 
+                  ? 'bg-white text-[#059669] hover:bg-[#059669] hover:text-white border-2 border-[#059669] cursor-pointer' 
+                  : 'bg-slate-100 text-slate-400 border-2 border-slate-200 cursor-not-allowed'
+              }`}
             >
-              Lanjutkan daftar sebagai {selectedRole === 'penjual' ? 'Penjual' : 'Pembeli'} &gt;
+              Lanjutkan daftar sebagai {selectedRole === 'penjual' ? 'Penjual' : selectedRole === 'pembeli' ? 'Pembeli' : '...'} &gt;
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setShowRoleModal(false);
+                setSelectedRole(null);
+              }}
+              className="text-xs sm:text-sm text-[#059669] hover:underline font-medium mt-1 cursor-pointer"
+            >
+              &lt; Batalkan
             </button>
           </div>
         </div>

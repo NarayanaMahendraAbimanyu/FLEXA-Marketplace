@@ -3,12 +3,14 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { PRODUCTS, Product } from '@/app/data/products';
 import { supabase } from '@/lib/supabaseClient';
 
 interface Review {
   id: number;
   username: string;
+  avatar?: string | null;
   rating: number;
   comment: string;
   time: string;
@@ -93,15 +95,6 @@ export default function ProductDetailPage() {
     if (!reviewText.trim()) {
       triggerAlert('Silakan tulis komentar ulasan Anda!');
       return;
-    }
-
-    interface Review {
-      id: number;
-      username: string;
-      avatar?: string | null;
-      rating: number;
-      comment: string;
-      time: string;
     }
 
     const newReview: Review = {
@@ -289,9 +282,19 @@ export default function ProductDetailPage() {
                     <div key={rev.id} className="p-4 border border-slate-100 rounded-2xl bg-white space-y-2 shadow-sm">
                       <div className="flex items-center justify-between flex-wrap gap-2">
                         <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 rounded-full bg-emerald-100 text-[#059669] flex items-center justify-center text-xs font-bold flex-shrink-0">
-                            {rev.username.charAt(0)}
-                          </div>
+                          {rev.avatar ? (
+                            <Image
+                              src={rev.avatar}
+                              alt={rev.username}
+                              width={32}
+                              height={32}
+                              className="w-8 h-8 rounded-full object-cover flex-shrink-0"
+                            />
+                          ) : (
+                            <div className="w-8 h-8 rounded-full bg-emerald-100 text-[#059669] flex items-center justify-center text-xs font-bold flex-shrink-0">
+                              {rev.username.charAt(0)}
+                            </div>
+                          )}
                           <span className="text-xs sm:text-sm font-bold text-black/80">{rev.username}</span>
                         </div>
                         <div className="flex gap-0.5">

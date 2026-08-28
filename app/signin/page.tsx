@@ -21,8 +21,53 @@ export default function SignInPage() {
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
+  const handleWhatsappChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value.replace(/\D/g, '');
+    if (value.startsWith('0')) {
+      value = value.substring(0, 13);
+    } else if (value.startsWith('8')) {
+      value = '0' + value.substring(0, 12);
+    } else {
+      value = '';
+    }
+
+    let formatted = '';
+    if (value.length > 0) {
+      formatted += value.substring(0, 4);
+    }
+    if (value.length >= 5) {
+      formatted += '-' + value.substring(4, 9);
+    }
+    if (value.length >= 10) {
+      formatted += '-' + value.substring(9, 13);
+    }
+
+    setWhatsapp(formatted);
+  };
+
+  const isEmailValid = email.endsWith('0@gmail.com');
+  const isWhatsappValid = whatsapp.length >= 12;
+  const isPasswordValid = password.length >= 8;
+  const isFormValid = isEmailValid && isWhatsappValid && isPasswordValid && agreeTerms;
+
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!isEmailValid) {
+      setErrorMessage('Email harus menggunakan format berakhiran "0@gmail.com".');
+      return;
+    }
+
+    if (!isWhatsappValid) {
+      setErrorMessage('No. Whatsapp belum lengkap.');
+      return;
+    }
+
+    if (!isPasswordValid) {
+      setErrorMessage('Password minimal harus 8 karakter.');
+      return;
+    }
+
     if (!agreeTerms) {
       setErrorMessage('Anda harus menyetujui Syarat & Ketentuan serta kebijakan privasi.');
       return;
@@ -239,7 +284,7 @@ export default function SignInPage() {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Email Address"
+                    placeholder="Email (contoh: nama0@gmail.com)"
                     required
                     className="w-full px-4 pr-10 py-3 bg-white text-slate-800 placeholder-slate-400 rounded-xl text-xs sm:text-sm focus:outline-none shadow-sm"
                   />
@@ -254,8 +299,8 @@ export default function SignInPage() {
                   <input
                     type="text"
                     value={whatsapp}
-                    onChange={(e) => setWhatsapp(e.target.value)}
-                    placeholder="No. Whatsapp"
+                    onChange={handleWhatsappChange}
+                    placeholder="No. Whatsapp (08xx-xxxx-xxxx)"
                     required
                     className="w-full px-4 pr-10 py-3 bg-white text-slate-800 placeholder-slate-400 rounded-xl text-xs sm:text-sm focus:outline-none shadow-sm"
                   />
@@ -309,8 +354,12 @@ export default function SignInPage() {
 
                 <button
                   type="submit"
-                  disabled={isLoading}
-                  className="w-full py-3.5 bg-white hover:scale-105 active:scale-98 transition-all duration-200 text-black/80 font-medium text-xs sm:text-sm rounded-xl shadow-lg disabled:opacity-50"
+                  disabled={isLoading || !isFormValid}
+                  className={`w-full py-3.5 font-medium text-xs sm:text-sm rounded-xl shadow-lg transition-all duration-200 ${
+                    isFormValid && !isLoading
+                      ? 'bg-white text-black/80 hover:scale-105 active:scale-98 cursor-pointer'
+                      : 'bg-white/50 text-slate-500 cursor-not-allowed opacity-80'
+                  }`}
                 >
                   {isLoading ? 'Memproses...' : 'Daftar Sekarang →'}
                 </button>
