@@ -9,11 +9,12 @@ import { supabase } from '@/lib/supabaseClient';
 
 interface Review {
   id: number;
+  product_id: number;
   username: string;
   avatar?: string | null;
   rating: number;
   comment: string;
-  time: string;
+  created_at: string;
 }
 
 export default function ProductDetailPage() {
@@ -83,6 +84,44 @@ export default function ProductDetailPage() {
   
   const [reviewsList, setReviewsList] = useState<Review[]>([]);
 
+  useEffect(() => {
+    if (!productId) return;
+
+    async function fetchReviews() {
+      const { data, error } = await supabase
+        .from('reviews')
+        .select('*')
+        .eq('product_id', productId)
+        .order('id', { ascending: false });
+
+      if (!error && data) {
+        setReviewsList(data);
+      }
+    }
+
+    fetchReviews();
+
+    const channel = supabase
+      .channel(`public:reviews:product_id=eq.${productId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'reviews',
+          filter: `product_id=eq.${productId}`,
+        },
+        (payload) => {
+          setReviewsList((prev) => [payload.new as Review, ...prev]);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [productId]);
+
   const handleIncrement = () => setQuantity((prev) => prev + 1);
   const handleDecrement = () => setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
 
@@ -94,7 +133,7 @@ export default function ProductDetailPage() {
     }, 3000);
   };
 
-  const handleAddReview = (e: React.FormEvent) => {
+  const handleAddReview = async (e: React.FormEvent) => {
     e.preventDefault();
     setAlertMessage('');
 
@@ -111,16 +150,21 @@ export default function ProductDetailPage() {
       return;
     }
 
-    const newReview: Review = {
-      id: Date.now(),
-      username: userData.name,
-      avatar: userData.avatar,
-      rating: userRating,
-      comment: reviewText,
-      time: 'BARU SAJA',
-    };
+    const { error } = await supabase.from('reviews').insert([
+      {
+        product_id: productId,
+        username: userData.name || 'Pengguna',
+        avatar: userData.avatar,
+        rating: userRating,
+        comment: reviewText,
+      },
+    ]);
 
-    setReviewsList([newReview, ...reviewsList]);
+    if (error) {
+      triggerAlert('Gagal mengirim ulasan. Coba lagi.');
+      return;
+    }
+
     setReviewText('');
     setUserRating(0);
   };
@@ -342,7 +386,13 @@ export default function ProductDetailPage() {
                         </div>
                       </div>
                       <p className="text-xs text-black/70 italic">"{rev.comment}"</p>
-                      <span className="text-[10px] text-[#059669] font-bold block">{rev.time}</span>
+                      <span className="text-[10px] text-[#059669] font-bold block">
+                        {new Date(rev.created_at).toLocaleDateString('id-ID', {
+                          day: 'numeric',
+                          month: 'short',
+                          year: 'numeric',
+                        })}
+                      </span>
                     </div>
                   ))
                 )}
