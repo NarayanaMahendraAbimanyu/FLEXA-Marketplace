@@ -181,13 +181,14 @@ export default function ProductDetailPage() {
           </div>
         )}
 
-        <div className="mb-6">
+        <div className="flex items-center justify-between mb-6">
           <Link 
-            href="/" 
+            href={`/`} 
             className="inline-flex items-center gap-2 px-4 py-2 bg-[#059669] text-white rounded-xl font-semibold text-xs sm:text-sm hover:bg-emerald-700 hover:scale-[1.03] active:scale-[0.98] duration-200 transition-all shadow-sm"
           >
             <span>← Kembali</span>
           </Link>
+          <h1 className="text-lg sm:text-2xl font-black text-black/80 tracking-tight">Detail Produk</h1>
         </div>
 
         <div className="border border-[#059669]/40 rounded-3xl p-4 sm:p-6 lg:p-8 bg-white shadow-sm grid grid-cols-1 lg:grid-cols-12 gap-8 items-start relative">
@@ -430,7 +431,9 @@ export default function ProductDetailPage() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => router.push(`/checkout/${product.id}`)}
+                  onClick={() => {
+                    router.push(`/checkout/${product.id}?qty=${quantity}`);
+                  }}
                   className="py-2.5 px-2 bg-[#059669] text-white hover:bg-emerald-700 hover:scale-[1.03] active:scale-[0.98] duration-200 transition-all font-medium text-xs rounded-lg shadow-lg shadow-emerald-600/20 text-center truncate"
                 >
                   Beli Sekarang
