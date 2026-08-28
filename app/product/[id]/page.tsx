@@ -430,6 +430,7 @@ export default function ProductDetailPage() {
                 </button>
                 <button
                   type="button"
+                  onClick={() => router.push(`/checkout/${product.id}`)}
                   className="py-2.5 px-2 bg-[#059669] text-white hover:bg-emerald-700 hover:scale-[1.03] active:scale-[0.98] duration-200 transition-all font-medium text-xs rounded-lg shadow-lg shadow-emerald-600/20 text-center truncate"
                 >
                   Beli Sekarang
