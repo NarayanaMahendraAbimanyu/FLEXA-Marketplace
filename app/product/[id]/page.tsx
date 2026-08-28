@@ -28,6 +28,8 @@ export default function ProductDetailPage() {
     avatar: null,
   });
 
+  const [deliveryRange, setDeliveryRange] = useState('');
+
   useEffect(() => {
     async function fetchActiveUser() {
       const { data: { user } } = await supabase.auth.getUser();
@@ -38,6 +40,18 @@ export default function ProductDetailPage() {
       }
     }
     fetchActiveUser();
+
+    const start = new Date();
+    start.setDate(start.getDate() + 2);
+
+    const end = new Date();
+    end.setDate(end.getDate() + 4);
+
+    const options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short' };
+    const formattedStart = start.toLocaleDateString('id-ID', options);
+    const formattedEnd = end.toLocaleDateString('id-ID', options);
+
+    setDeliveryRange(`${formattedStart} - ${formattedEnd}`);
   }, []);
 
   const product = {
@@ -195,6 +209,17 @@ export default function ProductDetailPage() {
               <span className="text-xs sm:text-sm text-black/60 font-medium">{product.soldCount}</span>
             </div>
 
+            <div className="inline-flex items-center gap-3 px-4 py-2.5 bg-white border border-slate-200 rounded-xl shadow-sm text-xs sm:text-sm font-medium text-black/80">
+              <span className="text-black/50">Pengiriman</span>
+              <span className="text-slate-300">|</span>
+              <div className="flex items-center gap-1.5 text-[#059669]">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+                  <path d="M3.375 3C2.339 3 1.5 3.84 1.5 4.875v11.25c0 1.036.84 1.875 1.875 1.875h1.5a3.75 3.75 0 007.5 0h3.75a3.75 3.75 0 007.5 0h.75a.75.75 0 00.75-.75v-3.75c0-.212-.084-.416-.234-.568l-4.5-4.5a.75.75 0 00-.53-.22H16.5V4.875C16.5 3.84 15.66 3 14.625 3H3.375zM7.5 18.75a2.25 2.25 0 100-4.5 2.25 2.25 0 000 4.5zM19.5 18.75a2.25 2.25 0 100-4.5 2.25 2.25 0 000 4.5zM15 11.25V6h3.879l3.182 3.182V11.25H15z" />
+                </svg>
+                <span className="font-bold text-black/80">{deliveryRange || 'Memuat...'}</span>
+              </div>
+            </div>
+
             <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-200">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-full bg-slate-300 flex items-center justify-center text-white font-bold flex-shrink-0">
@@ -221,9 +246,9 @@ export default function ProductDetailPage() {
               </p>
             </div>
 
-            <div className="inline-flex flex-col p-4 bg-emerald-50/70 border border-[#059669]/30 rounded-2xl w-fit">
-              <span className="text-xs text-black/50 block font-medium mb-1">Stock tersedia</span>
-              <span className="text-2xl font-bold text-[#059669]">{product.stock}</span>
+            <div className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#059669] text-white rounded-xl font-bold text-xs sm:text-sm shadow-sm">
+              <span>Stock tersedia :</span>
+              <span>{product.stock}</span>
             </div>
 
             <div className="space-y-4 pt-2">
