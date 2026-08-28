@@ -66,36 +66,38 @@ export default function ChatPage() {
         </div>
       </header>
 
-      <main className="w-full flex-1 max-w-4xl mx-auto p-3 sm:p-6 lg:p-8 flex flex-col justify-between space-y-6">
-        <div className="space-y-6">
-          <div className="w-full bg-white border border-slate-200 rounded-2xl p-3 sm:p-4 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="space-y-1">
-              <span className="text-[11px] sm:text-xs text-black/50 block font-medium">
-                Kamu menanyakan tentang produk ini.
-              </span>
-              <div className="flex items-center gap-3 pt-1">
-                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-slate-100 flex items-center justify-center font-bold text-black/40 text-xs flex-shrink-0 border border-slate-200">
-                  {product.imageText}
-                </div>
-                <div>
-                  <h2 className="text-xs sm:text-sm font-bold text-black/80 line-clamp-1">
-                    {product.title}
-                  </h2>
-                  <span className="text-xs sm:text-sm font-bold text-[#059669]">
-                    {product.price}
-                  </span>
-                </div>
+      <div className="sticky top-[57px] sm:top-[56px] z-20 w-full bg-slate-50 px-3 sm:px-6 lg:px-8 pt-3 pb-2">
+        <div className="max-w-4xl mx-auto w-full bg-white border border-slate-200 rounded-2xl p-3 sm:p-4 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <span className="text-[11px] sm:text-xs text-black/50 block font-medium">
+              Kamu menanyakan tentang produk ini.
+            </span>
+            <div className="flex items-center gap-3 pt-1">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-slate-100 flex items-center justify-center font-bold text-black/40 text-xs flex-shrink-0 border border-slate-200">
+                {product.imageText}
+              </div>
+              <div>
+                <h2 className="text-xs sm:text-sm font-bold text-black/80 line-clamp-1">
+                  {product.title}
+                </h2>
+                <span className="text-xs sm:text-lg font-bold text-[#059669]">
+                  {product.price}
+                </span>
               </div>
             </div>
-
-            <Link
-              href={`/product/${product.id}`}
-              className="w-full sm:w-auto px-4 py-2 bg-[#059669] text-white rounded-lg font-medium text-xs sm:text-sm hover:bg-emerald-700 hover:scale-[1.03] active:scale-[0.98] duration-200 transition-all text-center shadow-sm flex-shrink-0"
-            >
-              Beli Sekarang
-            </Link>
           </div>
 
+          <Link
+            href={`/product/${product.id}`}
+            className="w-full sm:w-auto px-4 py-2 bg-[#059669] text-white rounded-lg font-medium text-xs sm:text-sm hover:bg-emerald-700 hover:scale-[1.03] active:scale-[0.98] duration-200 transition-all text-center shadow-sm flex-shrink-0"
+          >
+            Beli Sekarang
+          </Link>
+        </div>
+      </div>
+
+      <main className="w-full flex-1 max-w-4xl mx-auto p-3 sm:p-6 lg:p-8 flex flex-col justify-between space-y-6">
+        <div className="space-y-6">
           <div className="space-y-4 py-2">
             {messages.length === 0 ? (
               <div className="text-center py-10 text-black/40 text-xs sm:text-sm italic">
