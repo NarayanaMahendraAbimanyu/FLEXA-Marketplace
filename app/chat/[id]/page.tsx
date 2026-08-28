@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { PRODUCTS, Product } from '../../data/products';
+import { supabase } from '../../../lib/supabaseClient';
 
 interface Message {
   id: number;
@@ -28,22 +29,86 @@ export default function ChatPage() {
   };
 
   const [messages, setMessages] = useState<Message[]>([]);
-
   const [inputText, setInputText] = useState('');
 
-  const handleSendMessage = (e: React.FormEvent) => {
+  useEffect(() => {
+    const fetchMessages = async () => {
+      const { data, error } = await supabase
+        .from('messages')
+        .select('*')
+        .eq('product_id', productId)
+        .order('created_at', { ascending: true });
+
+      if (error) {
+        console.error('Error fetching messages:', error.message);
+      }
+
+      if (!error && data) {
+        const formattedMessages: Message[] = data.map((item) => ({
+          id: item.id,
+          sender: item.sender,
+          text: item.text,
+          time: new Date(item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        }));
+        setMessages(formattedMessages);
+      }
+    };
+
+    fetchMessages();
+
+    const channel = supabase
+      .channel(`room_product_${productId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'messages',
+          filter: `product_id=eq.${productId}`,
+        },
+        (payload) => {
+          const newItem = payload.new;
+          const newMsg: Message = {
+            id: newItem.id,
+            sender: newItem.sender,
+            text: newItem.text,
+            time: new Date(newItem.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          };
+
+          setMessages((prev) => {
+            if (prev.some((msg) => msg.id === newMsg.id)) return prev;
+            return [...prev, newMsg];
+          });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [productId]);
+
+  const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputText.trim()) return;
 
-    const newMessage: Message = {
-      id: Date.now(),
-      sender: 'user',
-      text: inputText,
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-    };
-
-    setMessages((prev) => [...prev, newMessage]);
+    const textToSend = inputText;
     setInputText('');
+
+    const { data, error } = await supabase.from('messages').insert([
+      {
+        product_id: productId,
+        sender: 'user',
+        text: textToSend,
+      },
+    ]).select();
+
+    if (error) {
+      console.error('Gagal mengirim pesan ke Supabase:', error.message);
+      alert('Gagal mengirim pesan: ' + error.message);
+    } else {
+      console.log('Pesan berhasil tersimpan:', data);
+    }
   };
 
   return (
