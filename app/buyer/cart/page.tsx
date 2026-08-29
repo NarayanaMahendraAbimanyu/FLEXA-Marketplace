@@ -102,14 +102,14 @@ export default function CartPage() {
                       <div className="w-16 h-16 sm:w-20 sm:h-20 bg-slate-200 rounded-xl flex items-center justify-center font-bold text-black/40 text-xs flex-shrink-0">
                         {item.image_text}
                       </div>
-                      <div className="flex-1 min-w-0 space-y-1">
-                        <span className="text-[10px] text-black/40 font-bold uppercase block">{item.store_name}</span>
-                        <h3 className="text-xs sm:text-sm font-bold text-black/80 truncate">{item.product_name}</h3>
+                      <div className="flex-1 min-w-0 space-y-0">
+                        <span className="text-xs text-black/60 font-medium uppercase">{item.store_name}</span>
+                        <h3 className="text-xs sm:text-lg font-bold text-black/80 truncate">{item.product_name}</h3>
                         <div className="text-xs sm:text-sm font-semibold text-black/60">
                           {item.quantity} x {item.product_price}
                         </div>
-                        <div className="text-xs sm:text-sm font-bold text-[#059669]">
-                          Total: {formatRupiah(subtotal)}
+                        <div className="text-xs sm:text-lg font-bold text-[#059669]">
+                          Total : {formatRupiah(subtotal)}
                         </div>
                       </div>
                     </div>
@@ -118,14 +118,14 @@ export default function CartPage() {
                       <button
                         type="button"
                         onClick={() => handleRemoveItem(item.id)}
-                        className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-red-600 rounded-xl font-semibold text-xs transition-all"
+                        className="px-4 py-2 shadow-md border hover:scale-105 active:scale-95 text-black/80 rounded-lg font-semibold text-xs transition-all"
                       >
                         Hapus
                       </button>
                       <button
                         type="button"
                         onClick={() => handleCheckout(item)}
-                        className="px-5 py-2 bg-[#059669] hover:bg-emerald-700 text-white rounded-xl font-bold text-xs sm:text-sm transition-all shadow-sm"
+                        className="px-5 py-2 bg-[#059669] hover:scale-105 active:scale-95 hover:bg-emerald-700 text-white rounded-lg font-medium text-xs sm:text-sm transition-all shadow-md"
                       >
                         Beli Sekarang
                       </button>
