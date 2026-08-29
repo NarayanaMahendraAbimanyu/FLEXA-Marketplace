@@ -188,7 +188,7 @@ export default function NavbarBuyer({ searchQuery, onSearchChange, onSearchSubmi
 
                 <div className="flex flex-col gap-1">
                   <Link
-                    href="/dashboard/buyer/profile"
+                    href="/buyer/profile"
                     onClick={() => setIsMobileMenuOpen(false)}
                     className="w-full text-left py-2 px-3 text-black/70 text-xs sm:text-sm font-medium rounded-lg transition-all duration-200 hover:bg-[#059669] hover:text-white flex items-center gap-2.5"
                   >
@@ -199,7 +199,7 @@ export default function NavbarBuyer({ searchQuery, onSearchChange, onSearchSubmi
                   </Link>
 
                   <Link
-                    href="/dashboard/buyer/orders"
+                    href="/buyer/orders"
                     onClick={() => setIsMobileMenuOpen(false)}
                     className="w-full text-left py-2 px-3 text-black/70 text-xs sm:text-sm font-medium rounded-lg transition-all duration-200 hover:bg-[#059669] hover:text-white flex items-center gap-2.5"
                   >
@@ -298,7 +298,7 @@ export default function NavbarBuyer({ searchQuery, onSearchChange, onSearchSubmi
               <div className="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-2xl py-3 px-3 flex flex-col gap-2 z-50 border border-[#059669] animate-in fade-in slide-in-from-top-2 duration-200">
                 <div className="flex flex-col gap-1">
                   <Link
-                    href="/dashboard/buyer/profile"
+                    href="/buyer/profile"
                     className="w-full text-left py-2 px-3 text-slate-700 text-xs sm:text-sm font-medium rounded-xl transition-all duration-200 hover:bg-[#059669] hover:text-white flex items-center gap-2.5"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -308,7 +308,7 @@ export default function NavbarBuyer({ searchQuery, onSearchChange, onSearchSubmi
                   </Link>
 
                   <Link
-                    href="/dashboard/buyer/orders"
+                    href="/buyer/orders"
                     className="w-full text-left py-2 px-3 text-slate-700 text-xs sm:text-sm font-medium rounded-xl transition-all duration-200 hover:bg-[#059669] hover:text-white flex items-center gap-2.5"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
