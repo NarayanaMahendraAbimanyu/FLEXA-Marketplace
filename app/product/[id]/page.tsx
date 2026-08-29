@@ -189,8 +189,8 @@ export default function ProductDetailPage() {
     <div className="w-full min-h-screen bg-slate-50 flex flex-col">
       <main className="w-full flex-1 pt-6 pb-12 px-4 sm:px-6 lg:px-8 relative max-w-7xl mx-auto">
         {alertMessage && (
-          <div className={`fixed top-24 left-1/2 -translate-x-1/2 z-50 bg-white border border-[#059669] text-black/80 px-5 py-3 rounded-2xl shadow-lg font-medium text-xs sm:text-sm flex items-center gap-3 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-            isAlertVisible ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 -translate-y-16 scale-95 pointer-events-none'
+          <div className={`fixed top-24 left-1/2 -translate-x-1/2 z-50 bg-white border border-[#059669] text-black/80 px-5 py-3 rounded-2xl shadow-lg font-medium text-xs sm:text-sm flex items-center gap-3 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+            isAlertVisible ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 -translate-y-24 scale-95 pointer-events-none'
           }`}>
             <svg className="w-5 h-5 stroke-[2] text-[#059669] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H19m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -200,8 +200,8 @@ export default function ProductDetailPage() {
         )}
 
         {reviewAlertMessage && (
-          <div className={`fixed top-24 left-1/2 -translate-x-1/2 z-50 bg-white border border-[#059669] text-black/80 px-5 py-3 rounded-2xl shadow-lg font-medium text-xs sm:text-sm flex items-center gap-3 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-            isReviewAlertVisible ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 -translate-y-16 scale-95 pointer-events-none'
+          <div className={`fixed top-24 left-1/2 -translate-x-1/2 z-50 bg-white border border-[#059669] text-black/80 px-5 py-3 rounded-2xl shadow-lg font-medium text-xs sm:text-sm flex items-center gap-3 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+            isReviewAlertVisible ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 -translate-y-24 scale-95 pointer-events-none'
           }`}>
             <span className="text-red-500 font-bold">✕</span>
             <span>{reviewAlertMessage}</span>
@@ -467,30 +467,35 @@ export default function ProductDetailPage() {
               <div className="grid grid-cols-2 gap-2 w-full">
                 <button
                   type="button"
-                  onClick={() => {
-                    const existingCart: any[] = JSON.parse(localStorage.getItem('flexa_cart') || '[]');
-                    const existingIndex = existingCart.findIndex((item) => item.id === product.id);
-
-                    if (existingIndex > -1) {
-                      existingCart[existingIndex].quantity += quantity;
-                    } else {
-                      const newItem = {
-                        id: product.id,
-                        title: product.title,
-                        price: product.price,
-                        storeName: product.storeName,
-                        categoryTag: product.categoryTag,
-                        quantity: quantity,
-                      };
-                      existingCart.push(newItem);
+                  onClick={async () => {
+                    const { data: { user } } = await supabase.auth.getUser();
+                    if (!user) {
+                      triggerAlert('Silakan login terlebih dahulu untuk memasukkan produk ke keranjang!');
+                      return;
                     }
-
-                    localStorage.setItem('flexa_cart', JSON.stringify(existingCart));
-
+                  
+                    const rawNumericPrice = Number(product.price.toString().replace(/[^0-9]/g, '')) || 0;
+                  
+                    const { error } = await supabase.from('cart').insert([
+                      {
+                        user_id: user.id,
+                        product_id: product.id,
+                        product_name: product.title,
+                        store_name: product.storeName,
+                        product_price: product.price,
+                        raw_price: rawNumericPrice,
+                        image_text: product.images[selectedImage] || 'PRODUK',
+                        quantity: quantity,
+                      }
+                    ]);
+                  
+                    if (error) {
+                      console.error(error);
+                      triggerAlert('Gagal memasukkan produk ke keranjang.');
+                      return;
+                    }
+                  
                     triggerAlert('Produk berhasil masuk ke dalam keranjang!');
-                    setTimeout(() => {
-                      router.push('/buyer/cart');
-                    }, 1500);
                   }}
                   className="py-2.5 px-2 bg-white border border-[#059669] text-[#059669] hover:scale-[1.03] active:scale-[0.98] duration-200 transition-all font-medium text-xs rounded-lg text-center shadow-sm truncate flex items-center justify-center gap-1.5"
                 >

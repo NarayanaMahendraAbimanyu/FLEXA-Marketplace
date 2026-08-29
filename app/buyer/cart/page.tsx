@@ -27,8 +27,10 @@ export default function CartPage() {
 
   const fetchCart = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+      const user = sessionData?.session?.user;
+
+      if (sessionError || !user) {
         setLoading(false);
         return;
       }
