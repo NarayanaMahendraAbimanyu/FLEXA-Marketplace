@@ -95,7 +95,7 @@ export default function CheckoutPage() {
           >
             <span>← Kembali</span>
           </Link>
-          <h1 className="text-lg sm:text-2xl font-black text-black/80 tracking-tight">Konfirmasi Pemesanan</h1>
+          <h1 className="text-lg sm:text-2xl font-semibold text-black/80 tracking-tight">Konfirmasi Pemesanan</h1>
         </div>
 
         <div className="bg-white border border-[#059669]/30 rounded-3xl p-5 sm:p-6 shadow-sm space-y-4">

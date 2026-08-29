@@ -188,7 +188,7 @@ export default function ProductDetailPage() {
           >
             <span>← Kembali</span>
           </Link>
-          <h1 className="text-lg sm:text-2xl font-black text-black/80 tracking-tight">Detail Produk</h1>
+          <h1 className="text-lg sm:text-2xl font-semibold text-black/80 tracking-tight">Detail Produk</h1>
         </div>
 
         <div className="border border-[#059669]/40 rounded-3xl p-4 sm:p-6 lg:p-8 bg-white shadow-sm grid grid-cols-1 lg:grid-cols-12 gap-8 items-start relative">
@@ -224,7 +224,7 @@ export default function ProductDetailPage() {
                 {' > '}
                 <span className="text-black/60 font-semibold">{product.title}</span>
               </span>
-              <h1 className="text-xl sm:text-3xl font-extrabold text-black/80 tracking-tight">
+              <h1 className="text-xl sm:text-3xl font-bold text-black/80 tracking-tight">
                 {product.title}
               </h1>
             </div>
@@ -400,7 +400,7 @@ export default function ProductDetailPage() {
               </div>
             </div>
 
-            <div className="sticky bottom-1 left-0 right-0 z-40 bg-white/95 sm:bg-white/90 backdrop-blur-md p-3 sm:p-4 border-t sm:border border-black/30 sm:rounded-2xl shadow-xl flex items-center justify-between gap-3">
+            <div className="sticky bottom-0.5 left-0 right-0 z-40 bg-white/95 sm:bg-white/90 backdrop-blur-md p-3 sm:p-4 border-t sm:border border-black/30 sm:rounded-2xl shadow-xl flex items-center justify-between gap-3">
               <div className="flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-lg flex-shrink-0">
                 <button
                   type="button"
