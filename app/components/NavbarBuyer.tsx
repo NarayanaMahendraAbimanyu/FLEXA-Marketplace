@@ -199,7 +199,7 @@ export default function NavbarBuyer({ searchQuery, onSearchChange, onSearchSubmi
                   </Link>
 
                   <Link
-                    href="/buyer/orders"
+                    href="/buyer/checkout"
                     onClick={() => setIsMobileMenuOpen(false)}
                     className="w-full text-left py-2 px-3 text-black/70 text-xs sm:text-sm font-medium rounded-lg transition-all duration-200 hover:bg-[#059669] hover:text-white flex items-center gap-2.5"
                   >
@@ -308,7 +308,7 @@ export default function NavbarBuyer({ searchQuery, onSearchChange, onSearchSubmi
                   </Link>
 
                   <Link
-                    href="/buyer/orders"
+                    href="/buyer/purchase"
                     className="w-full text-left py-2 px-3 text-slate-700 text-xs sm:text-sm font-medium rounded-xl transition-all duration-200 hover:bg-[#059669] hover:text-white flex items-center gap-2.5"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

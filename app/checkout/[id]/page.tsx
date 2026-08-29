@@ -73,7 +73,19 @@ export default function CheckoutPage() {
   };
 
   const handleCreateOrder = () => {
-    router.push('/order');
+    const randomId = Math.floor(100000 + Math.random() * 900000).toString();
+    const orderData = {
+      id: randomId,
+      name: product.title,
+      price: formatRupiah(totalBayar),
+      imageText: product.imageText,
+      qty: qtyParam,
+      storeName: product.storeName,
+      address: address,
+      paymentMethod: paymentMethod,
+    };
+    localStorage.setItem('last_purchase', JSON.stringify(orderData));
+    router.push('/buyer/purchase');
   };
 
   return (
