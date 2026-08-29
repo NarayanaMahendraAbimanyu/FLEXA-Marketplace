@@ -69,7 +69,7 @@ export default function LoginPage() {
     });
 
     if (error) {
-      setErrorMessage(error.message);
+      setErrorMessage('Email atau password Anda salah, silakan coba lagi');
       setIsLoading(false);
     } else {
       if (!rememberMe) {
@@ -150,7 +150,7 @@ export default function LoginPage() {
             className="h-7 sm:h-8 w-auto object-contain cursor-pointer"
             priority
           />
-          <span className="text-lg sm:text-xl font-medium text-slate-700">Masuk</span>
+          <span className="text-lg sm:text-xl font-medium text-black/80">Masuk</span>
         </Link>
       </header>
 
@@ -184,11 +184,11 @@ export default function LoginPage() {
                   <span>← Kembali</span>
                 </Link>
               </div>
-              <div className="mb-6 sm:mb-8 text-left">
-                <h2 className="text-2xl sm:text-3xl font-bold text-black/70 tracking-tight">
+              <div className="mb-2 sm:mb-3 text-left">
+                <h2 className="text-2xl sm:text-3xl font-bold text-black/80 tracking-tight">
                   Masuk
                 </h2>
-                <p className="text-xs sm:text-sm text-slate-500 mt-1 font-normal">
+                <p className="text-xs sm:text-sm text-black/60 mt-1 font-normal">
                   Pilih metode masuk untuk melanjutkan.
                 </p>
               </div>
@@ -201,7 +201,7 @@ export default function LoginPage() {
 
               <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
                 <div>
-                  <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-1.5">
+                  <label className="block text-xs sm:text-sm font-semibold text-black/80 mb-1.5">
                     Email
                   </label>
                   <div className="relative">
@@ -223,7 +223,7 @@ export default function LoginPage() {
 
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
-                    <label className="block text-xs sm:text-sm font-semibold text-slate-700">
+                    <label className="block text-xs sm:text-sm font-semibold text-black/80">
                       Password
                     </label>
                     <Link
@@ -275,7 +275,7 @@ export default function LoginPage() {
                     className="w-4 h-4 text-[#059669] rounded border-slate-300 focus:ring-[#059669] accent-[#059669] cursor-pointer"
                   />
                   <div className="flex items-center gap-1.5 relative">
-                    <label htmlFor="remember" className="text-xs sm:text-sm text-slate-700 font-medium cursor-pointer">
+                    <label htmlFor="remember" className="text-xs sm:text-sm text-black/80 font-medium cursor-pointer">
                       Ingat Saya
                     </label>
                   </div>
@@ -301,7 +301,7 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={handleGoogleAuth}
-                  className="cursor-pointer w-full py-2.5 px-3 bg-white border border-emerald-500/40 rounded-xl hover:border-[#059669] hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-all"
+                  className="cursor-pointer w-full py-2.5 px-3 bg-white border border-emerald-500/40 rounded-xl hover:border-[#059669] hover:bg-slate-50 text-black/80 text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-all"
                 >
                   <svg className="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24">
                     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -313,7 +313,7 @@ export default function LoginPage() {
                 </button>
               </div>
 
-              <p className="text-center text-xs sm:text-sm text-slate-600 mt-6 font-medium">
+              <p className="text-center text-xs sm:text-sm text-black/80 mt-6 font-medium">
                 Belum punya akun?{' '}
                 <Link href="/signin" className="text-[#059669] font-bold hover:underline">
                   Daftar
@@ -362,7 +362,7 @@ export default function LoginPage() {
                   </svg>
                 </div>
                 <span className="font-bold text-base mb-1">Penjual</span>
-                <span className={`text-xs ${selectedRole === 'penjual' ? 'text-emerald-50' : 'text-slate-500'}`}>Saya ingin berjualan menggunakan Flexa.</span>
+                <span className={`text-xs ${selectedRole === 'penjual' ? 'text-emerald-50' : 'text-slate-500'}`}>Ingin berjualan menggunakan Flexa.</span>
               </div>
             </div>
 

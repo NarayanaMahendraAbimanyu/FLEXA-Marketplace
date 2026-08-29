@@ -27,6 +27,8 @@ export default function BuyerProfilePage() {
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
   const [showNotification, setShowNotification] = useState(false);
 
+  const [isSendingResetEmail, setIsSendingResetEmail] = useState(false);
+
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -122,6 +124,36 @@ export default function BuyerProfilePage() {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       setAvatarUrl(URL.createObjectURL(file));
+    }
+  };
+
+  const handleRequestPasswordReset = async () => {
+    if (!formData.email) {
+      setNotification({ message: 'Email tidak ditemukan', type: 'error' });
+      return;
+    }
+
+    setIsSendingResetEmail(true);
+    setNotification(null);
+
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(formData.email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+
+      if (error) throw error;
+
+      setNotification({
+        message: 'Email instruksi ubah password telah dikirim. Silakan cek email Anda.',
+        type: 'success',
+      });
+    } catch (err: any) {
+      setNotification({
+        message: `Gagal mengirim email: ${err.message || 'Terjadi kesalahan'}`,
+        type: 'error',
+      });
+    } finally {
+      setIsSendingResetEmail(false);
     }
   };
 
@@ -292,10 +324,11 @@ export default function BuyerProfilePage() {
               />
               <button
                 type="button"
-                onClick={() => alert('Fitur ganti password akan segera hadir.')}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-[#059669] hover:underline"
+                onClick={handleRequestPasswordReset}
+                disabled={isSendingResetEmail}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-[#059669] hover:underline disabled:opacity-50"
               >
-                Ubah
+                {isSendingResetEmail ? 'Mengirim...' : 'Ubah'}
               </button>
             </div>
           </div>
