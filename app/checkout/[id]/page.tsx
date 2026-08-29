@@ -39,6 +39,7 @@ export default function CheckoutPage() {
 
   const [alertMessage, setAlertMessage] = useState('');
   const [isAlertVisible, setIsAlertVisible] = useState(false);
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
 
   const shippingCost = 10000;
   const subtotal = product.rawPrice * qtyParam;
@@ -72,7 +73,7 @@ export default function CheckoutPage() {
     }
   };
 
-  const handleCreateOrder = () => {
+  const handleCreateOrder = async () => {
     const randomId = Math.floor(100000 + Math.random() * 900000).toString();
     const orderData = {
       id: randomId,
@@ -84,8 +85,32 @@ export default function CheckoutPage() {
       address: address,
       paymentMethod: paymentMethod,
     };
+
     localStorage.setItem('last_purchase', JSON.stringify(orderData));
-    router.push('/buyer/purchase');
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from('orders').insert([
+          {
+            order_id: randomId,
+            user_id: user.id,
+            product_name: product.title,
+            product_price: formatRupiah(totalBayar),
+            image_text: product.imageText,
+            quantity: qtyParam,
+            store_name: product.storeName,
+            address: address,
+            payment_method: paymentMethod,
+            status: 'Belum dikirim'
+          }
+        ]);
+      }
+    } catch (error) {
+      console.error('Gagal menyimpan ke database:', error);
+    }
+
+    setIsSuccessModalOpen(true);
   };
 
   return (
@@ -97,6 +122,36 @@ export default function CheckoutPage() {
           }`}>
             <span className="text-[#059669] font-bold">✓</span>
             <span>{alertMessage}</span>
+          </div>
+        )}
+
+        {isSuccessModalOpen && (
+          <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+            <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-6 text-center animate-in fade-in zoom-in duration-200">
+              <div className="w-16 h-16 bg-emerald-100 text-[#059669] rounded-full flex items-center justify-center text-3xl mx-auto font-bold">
+                ✓
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-xl font-bold text-black/80">Pesanan Telah Dibuat</h3>
+                <p className="text-xs sm:text-sm text-black/60">
+                  Pesanan Anda berhasil diproses dan tersimpan ke akun Anda.
+                </p>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                <Link
+                  href="/"
+                  className="flex-1 py-3 px-4 bg-slate-100 hover:bg-slate-200 hover:scale-105 active:scale-95 text-black/80 font-medium text-xs sm:text-sm rounded-xl transition-all text-center"
+                >
+                  Lihat Produk Lainnya
+                </Link>
+                <Link
+                  href="/buyer/purchase"
+                  className="flex-1 py-3 px-4 bg-[#059669] hover:bg-emerald-700 hover:scale-105 active:scale-95 text-white font-medium text-xs sm:text-sm rounded-xl transition-all text-center shadow-lg shadow-emerald-600/20"
+                >
+                  Lihat Pesanan
+                </Link>
+              </div>
+            </div>
           </div>
         )}
 
