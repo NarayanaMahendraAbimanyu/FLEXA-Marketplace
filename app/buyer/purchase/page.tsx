@@ -171,7 +171,7 @@ export default function PurchasePage() {
             <button
               type="button"
               onClick={() => setSelectedOrder(null)}
-              className="w-full py-3 bg-[#059669] text-white font-bold text-sm rounded-xl hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-600/20"
+              className="w-full py-3 bg-[#059669] hover:scale-105 active:scale-95 duration-200   text-white font-bold text-sm rounded-xl hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-600/20"
             >
               Tutup
             </button>
