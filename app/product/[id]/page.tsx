@@ -64,14 +64,18 @@ export default function ProductDetailPage() {
     soldCount: foundProduct && 'soldCount' in foundProduct ? (foundProduct as any).soldCount : '0 Terjual',
     price: foundProduct ? foundProduct.price : 'Rp. 0',
     stock: foundProduct && 'stock' in foundProduct ? (foundProduct as any).stock : 0,
-    description: foundProduct 
+    description: foundProduct && 'description' in foundProduct && (foundProduct as any).description 
+      ? (foundProduct as any).description 
+      : foundProduct 
       ? `Deskripsi lengkap untuk ${foundProduct.title} yang dijual oleh ${foundProduct.storeName}. Kondisi mulus, berkualitas tinggi, dan siap digunakan untuk menunjang kebutuhan Anda.` 
       : 'Deskripsi tidak tersedia.',
-    images: [
-      foundProduct ? foundProduct.imageText : 'PRODUK', 
-      foundProduct ? `${foundProduct.imageText} 2` : 'DETAIL', 
-      foundProduct ? `${foundProduct.imageText} 3` : 'PREVIEW'
-    ],
+    images: foundProduct && 'images' in foundProduct && Array.isArray((foundProduct as any).images) && (foundProduct as any).images.length > 0
+      ? (foundProduct as any).images
+      : [
+          foundProduct ? foundProduct.imageText : 'PRODUK', 
+          foundProduct ? `${foundProduct.imageText} 2` : 'DETAIL', 
+          foundProduct ? `${foundProduct.imageText} 3` : 'PREVIEW'
+        ],
   };
 
   const [quantity, setQuantity] = useState(1);
@@ -79,8 +83,12 @@ export default function ProductDetailPage() {
   
   const [userRating, setUserRating] = useState(0);
   const [reviewText, setReviewText] = useState('');
+  
   const [alertMessage, setAlertMessage] = useState('');
   const [isAlertVisible, setIsAlertVisible] = useState(false);
+
+  const [reviewAlertMessage, setReviewAlertMessage] = useState('');
+  const [isReviewAlertVisible, setIsReviewAlertVisible] = useState(false);
   
   const [reviewsList, setReviewsList] = useState<Review[]>([]);
 
@@ -133,20 +141,28 @@ export default function ProductDetailPage() {
     }, 3000);
   };
 
+  const triggerReviewAlert = (msg: string) => {
+    setReviewAlertMessage(msg);
+    setIsReviewAlertVisible(true);
+    setTimeout(() => {
+      setIsReviewAlertVisible(false);
+    }, 3000);
+  };
+
   const handleAddReview = async (e: React.FormEvent) => {
     e.preventDefault();
-    setAlertMessage('');
+    setReviewAlertMessage('');
 
     if (userRating === 0 && !reviewText.trim()) {
-      triggerAlert('Silakan berikan bintang dan tulis komentar ulasan Anda!');
+      triggerReviewAlert('Silakan berikan bintang dan tulis komentar ulasan Anda!');
       return;
     }
     if (userRating === 0) {
-      triggerAlert('Silakan berikan rating bintang terlebih dahulu!');
+      triggerReviewAlert('Silakan berikan rating bintang terlebih dahulu!');
       return;
     }
     if (!reviewText.trim()) {
-      triggerAlert('Silakan tulis komentar ulasan Anda!');
+      triggerReviewAlert('Silakan tulis komentar ulasan Anda!');
       return;
     }
 
@@ -161,7 +177,7 @@ export default function ProductDetailPage() {
     ]);
 
     if (error) {
-      triggerAlert('Gagal mengirim ulasan. Coba lagi.');
+      triggerReviewAlert('Gagal mengirim ulasan. Coba lagi.');
       return;
     }
 
@@ -173,11 +189,22 @@ export default function ProductDetailPage() {
     <div className="w-full min-h-screen bg-slate-50 flex flex-col">
       <main className="w-full flex-1 pt-6 pb-12 px-4 sm:px-6 lg:px-8 relative max-w-7xl mx-auto">
         {alertMessage && (
-          <div className={`fixed top-24 left-1/2 -translate-x-1/2 z-50 bg-white border border-[#059669] text-black/80 px-5 py-3 rounded-2xl shadow-lg font-medium text-xs sm:text-sm flex items-center gap-3 transition-all duration-300 ${
-            isAlertVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-12'
+          <div className={`fixed top-24 left-1/2 -translate-x-1/2 z-50 bg-white border border-[#059669] text-black/80 px-5 py-3 rounded-2xl shadow-lg font-medium text-xs sm:text-sm flex items-center gap-3 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+            isAlertVisible ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 -translate-y-16 scale-95 pointer-events-none'
+          }`}>
+            <svg className="w-5 h-5 stroke-[2] text-[#059669] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H19m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            <span>{alertMessage}</span>
+          </div>
+        )}
+
+        {reviewAlertMessage && (
+          <div className={`fixed top-24 left-1/2 -translate-x-1/2 z-50 bg-white border border-[#059669] text-black/80 px-5 py-3 rounded-2xl shadow-lg font-medium text-xs sm:text-sm flex items-center gap-3 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+            isReviewAlertVisible ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 -translate-y-16 scale-95 pointer-events-none'
           }`}>
             <span className="text-red-500 font-bold">✕</span>
-            <span>{alertMessage}</span>
+            <span>{reviewAlertMessage}</span>
           </div>
         )}
 
@@ -193,23 +220,41 @@ export default function ProductDetailPage() {
 
         <div className="border border-[#059669]/40 rounded-3xl p-4 sm:p-6 lg:p-8 bg-white shadow-sm grid grid-cols-1 lg:grid-cols-12 gap-8 items-start relative">
           <div className="w-full lg:col-span-6 lg:sticky lg:top-15 space-y-4">
-            <div className="w-full aspect-[4/3] bg-slate-200 rounded-2xl flex items-center justify-center p-6 border border-slate-200 shadow-inner">
-              <span className="text-3xl sm:text-5xl font-black text-black/30 tracking-wider">
-                {product.images[selectedImage]}
-              </span>
+            <div className="w-full aspect-[4/3] bg-slate-200 rounded-2xl flex items-center justify-center p-6 border border-slate-200 shadow-inner overflow-hidden relative">
+              {foundProduct && 'image' in foundProduct && (foundProduct as any).image ? (
+                <Image
+                  src={(foundProduct as any).image}
+                  alt={product.title}
+                  fill
+                  className="object-cover rounded-2xl"
+                />
+              ) : (
+                <span className="text-3xl sm:text-5xl font-black text-black/30 tracking-wider">
+                  {product.images[selectedImage]}
+                </span>
+              )}
             </div>
 
             <div className="grid grid-cols-3 gap-3">
-              {product.images.map((img, idx) => (
+              {product.images.map((img: string, idx: number) => (
                 <button
                   key={idx}
                   type="button"
                   onClick={() => setSelectedImage(idx)}
-                  className={`w-full aspect-[4/3] rounded-xl bg-slate-100 flex items-center justify-center border-2 hover:scale-[1.03] active:scale-[0.98] duration-200 transition-all ${
+                  className={`w-full aspect-[4/3] rounded-xl bg-slate-100 flex items-center justify-center border-2 hover:scale-[1.03] active:scale-[0.98] duration-200 transition-all overflow-hidden relative ${
                     selectedImage === idx ? 'border-[#059669] bg-emerald-50/50' : 'border-transparent hover:border-black/20'
                   }`}
                 >
-                  <span className="text-xs sm:text-sm font-bold text-black/40">{img}</span>
+                  {foundProduct && 'image' in foundProduct && (foundProduct as any).image ? (
+                    <Image
+                      src={(foundProduct as any).image}
+                      alt={`${product.title} ${idx + 1}`}
+                      fill
+                      className="object-cover"
+                    />
+                  ) : (
+                    <span className="text-xs sm:text-sm font-bold text-black/40">{img}</span>
+                  )}
                 </button>
               ))}
             </div>
@@ -222,7 +267,7 @@ export default function ProductDetailPage() {
                 {' > '}
                 <Link href={`/?category=${product.categoryTag.toLowerCase()}`} className="hover:text-[#059669] transition-colors font-semibold">{product.categoryTag}</Link>
                 {' > '}
-                <span className="text-black/60 font-semibold">{product.title}</span>
+                <span className="text-[#059669] font-semibold">{product.title}</span>
               </span>
               <h1 className="text-xl sm:text-3xl font-bold text-black/80 tracking-tight">
                 {product.title}
@@ -261,7 +306,7 @@ export default function ProductDetailPage() {
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
                   <path d="M3.375 3C2.339 3 1.5 3.84 1.5 4.875v11.25c0 1.036.84 1.875 1.875 1.875h1.5a3.75 3.75 0 007.5 0h3.75a3.75 3.75 0 007.5 0h.75a.75.75 0 00.75-.75v-3.75c0-.212-.084-.416-.234-.568l-4.5-4.5a.75.75 0 00-.53-.22H16.5V4.875C16.5 3.84 15.66 3 14.625 3H3.375zM7.5 18.75a2.25 2.25 0 100-4.5 2.25 2.25 0 000 4.5zM19.5 18.75a2.25 2.25 0 100-4.5 2.25 2.25 0 000 4.5zM15 11.25V6h3.879l3.182 3.182V11.25H15z" />
                 </svg>
-                <span className="font-bold text-black/80">{deliveryRange || 'Memuat...'}</span>
+                <span className="font-bold text-[#059669]">{deliveryRange || 'Memuat...'}</span>
               </div>
             </div>
 
@@ -272,7 +317,7 @@ export default function ProductDetailPage() {
                 </div>
                 <div>
                   <span className="text-xs text-black/40 block">Toko</span>
-                  <span className="text-sm sm:text-base font-bold text-black/80">{product.storeName}</span>
+                  <span className="text-sm sm:text-base font-bold text-black/70">{product.storeName}</span>
                 </div>
               </div>
               <button
@@ -400,7 +445,7 @@ export default function ProductDetailPage() {
               </div>
             </div>
 
-            <div className="sticky bottom-0.5 left-0 right-0 z-40 bg-white/95 sm:bg-white/90 backdrop-blur-md p-3 sm:p-4 border-t sm:border border-black/30 sm:rounded-2xl shadow-xl flex items-center justify-between gap-3">
+            <div className="sticky bottom-0 left-0 right-0 z-40 bg-white/95 sm:bg-white/90 backdrop-blur-md p-3 sm:p-4 border-t sm:border border-black/30 sm:rounded-2xl shadow-xl flex items-center justify-between gap-3">
               <div className="flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-lg flex-shrink-0">
                 <button
                   type="button"
@@ -422,10 +467,35 @@ export default function ProductDetailPage() {
               <div className="grid grid-cols-2 gap-2 w-full">
                 <button
                   type="button"
+                  onClick={() => {
+                    const existingCart: any[] = JSON.parse(localStorage.getItem('flexa_cart') || '[]');
+                    const existingIndex = existingCart.findIndex((item) => item.id === product.id);
+
+                    if (existingIndex > -1) {
+                      existingCart[existingIndex].quantity += quantity;
+                    } else {
+                      const newItem = {
+                        id: product.id,
+                        title: product.title,
+                        price: product.price,
+                        storeName: product.storeName,
+                        categoryTag: product.categoryTag,
+                        quantity: quantity,
+                      };
+                      existingCart.push(newItem);
+                    }
+
+                    localStorage.setItem('flexa_cart', JSON.stringify(existingCart));
+
+                    triggerAlert('Produk berhasil masuk ke dalam keranjang!');
+                    setTimeout(() => {
+                      router.push('/buyer/cart');
+                    }, 1500);
+                  }}
                   className="py-2.5 px-2 bg-white border border-[#059669] text-[#059669] hover:scale-[1.03] active:scale-[0.98] duration-200 transition-all font-medium text-xs rounded-lg text-center shadow-sm truncate flex items-center justify-center gap-1.5"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 flex-shrink-0">
-                    <path d="M2.25 2.25a.75.75 0 000 1.5h1.386c.17 0 .318.114.362.278l2.558 9.592a3.752 3.752 0 00-2.806 3.63c0 .414.336.75.75.75h15.75a.75.75 0 000-1.5H5.378A2.25 2.25 0 017.5 15h11.218a.75.75 0 00.674-.421 60.358 60.358 0 002.96-7.286.75.75 0 00-.522-.965A61.276 61.276 0 0019.5 6H5.717L5.03 3.42A1.875 1.875 0 003.236 2.25H2.25zM7.5 20.25a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zM18.75 20.25a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0z" />
+                  <svg className="w-5 h-5 stroke-[2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H19m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                   </svg>
                   <span>Keranjang</span>
                 </button>
