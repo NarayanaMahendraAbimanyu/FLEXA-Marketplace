@@ -38,18 +38,27 @@ export default function SignInPage() {
         const userEmail = session.user.email;
         const selectedRole = localStorage.getItem('selected_role') || role;
         
+        // Cek apakah profil sudah ada di database
         const { data: existingUser } = await supabase
           .from('profiles')
           .select('role')
           .eq('email', userEmail)
-          .single();
+          .maybeSingle();
 
         if (existingUser) {
-          await supabase.auth.signOut();
-          setToastMessage(`Akun tersebut sudah terdaftar sebagai ${existingUser.role === 'seller' ? 'Penjual' : 'Pembeli'}, silahkan pilih akun yang lain`);
-          setStep('form');
+          // Jika sudah terdaftar, arahkan ke halaman yang sesuai dengan rolenya di database
+          const destination = existingUser.role === 'seller' ? '/seller' : '/';
+          router.push(destination);
         } else {
-          const destination = selectedRole === 'seller' ? '/dashboard/seller' : '/';
+          // Jika belum ada profilnya, buatkan data profil baru berdasarkan role yang dipilih saat klik Google Sign In
+          await supabase.from('profiles').upsert({
+            id: session.user.id,
+            email: userEmail,
+            role: selectedRole,
+            updated_at: new Date(),
+          });
+
+          const destination = selectedRole === 'seller' ? '/seller' : '/';
           router.push(destination);
         }
       }
@@ -127,7 +136,7 @@ export default function SignInPage() {
 
     const fullName = `${firstName} ${lastName}`.trim();
 
-    const { data, error } = await supabase.auth.signUp({
+    const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -139,32 +148,50 @@ export default function SignInPage() {
       },
     });
 
-    if (error) {
-      setErrorMessage(error.message);
+    if (authError) {
+      setErrorMessage(authError.message);
       setIsLoading(false);
-    } else {
-      const destination = role === 'seller' ? '/dashboard/seller' : '/';
+      return;
+    }
 
-      if (data.session) {
-        setSuccessMessage('Pendaftaran berhasil! Mengalihkan...');
+    if (authData.user) {
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .upsert({
+          id: authData.user.id,
+          email: email,
+          full_name: fullName,
+          whatsapp: whatsapp,
+          role: role,
+          updated_at: new Date(),
+        });
+
+      if (profileError) {
+        console.error('Gagal menyimpan profil:', profileError.message);
+      }
+    }
+
+    const destination = role === 'seller' ? '/seller' : '/';
+
+    if (authData.session) {
+      setSuccessMessage('Pendaftaran berhasil! Mengalihkan...');
+      setTimeout(() => {
+        router.push(destination);
+      }, 1500);
+    } else {
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (signInError) {
+        setSuccessMessage('Pendaftaran berhasil! Silakan masuk.');
+        setIsLoading(false);
+      } else {
+        setSuccessMessage('Berhasil masuk! Mengalihkan...');
         setTimeout(() => {
           router.push(destination);
         }, 1500);
-      } else {
-        const { error: signInError } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-
-        if (signInError) {
-          setSuccessMessage('Pendaftaran berhasil! Silakan masuk.');
-          setIsLoading(false);
-        } else {
-          setSuccessMessage('Berhasil masuk! Mengalihkan...');
-          setTimeout(() => {
-            router.push(destination);
-          }, 1500);
-        }
       }
     }
   };
@@ -173,28 +200,19 @@ export default function SignInPage() {
     setIsLoading(true);
     setErrorMessage('');
     setToastMessage('');
-
+    
     localStorage.setItem('selected_role', role);
 
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/signin`,
-        queryParams: {
-          access_type: 'offline',
-          prompt: 'consent',
-        },
+        redirectTo: `${window.location.origin}/auth/callback`,
       },
     });
 
     if (error) {
       setErrorMessage(error.message);
       setIsLoading(false);
-      return;
-    }
-
-    if (data?.url) {
-      window.location.href = data.url;
     }
   };
 
@@ -430,7 +448,6 @@ export default function SignInPage() {
 
               <button
                 type="button"
-                email-sign-in=""
                 onClick={handleGoogleSignIn}
                 disabled={isLoading}
                 className="w-full py-3.5 bg-white text-black/80 font-medium hover:scale-105 active:scale-98 transition-all duration-200 text-xs sm:text-sm rounded-xl shadow-md flex items-center justify-center gap-3"

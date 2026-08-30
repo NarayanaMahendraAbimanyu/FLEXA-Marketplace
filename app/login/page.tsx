@@ -26,18 +26,18 @@ export default function LoginPage() {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
         const user = session.user;
-        const { data: profile } = await supabase
+        const { data: profile, error } = await supabase
           .from('profiles')
           .select('role')
           .eq('id', user.id)
-          .single();
+          .maybeSingle();
 
-        if (!profile || !profile.role) {
+        if (error || !profile || !profile.role) {
           setPendingUser(user);
           setShowRoleModal(true);
         } else {
           if (profile.role === 'penjual') {
-            router.push('/dashboard/penjual');
+            router.push('/seller/dashboard');
           } else {
             router.push('/');
           }
@@ -87,19 +87,19 @@ export default function LoginPage() {
 
       const user = data.user;
       if (user) {
-        const { data: profile } = await supabase
+        const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('role')
           .eq('id', user.id)
-          .single();
+          .maybeSingle();
 
-        if (!profile || !profile.role) {
+        if (profileError || !profile || !profile.role) {
           setPendingUser(user);
           setShowRoleModal(true);
           setIsLoading(false);
         } else {
           if (profile.role === 'penjual') {
-            router.push('/dashboard/penjual');
+            router.push('/seller/dashboard');
           } else {
             router.push('/');
           }
@@ -131,7 +131,7 @@ export default function LoginPage() {
       });
 
     if (!error) {
-      router.push(selectedRole === 'penjual' ? '/dashboard/penjual' : '/');
+      router.push(selectedRole === 'penjual' ? '/seller/dashboard' : '/');
     } else {
       setErrorMessage(error.message);
       setShowRoleModal(false);
