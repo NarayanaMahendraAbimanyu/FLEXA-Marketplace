@@ -151,7 +151,7 @@ export default function BuyerSidebar() {
               <input type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" />
             </label>
           </div>
-          <h2 className="text-base font-bold text-black/70 text-center tracking-tight">{userName}</h2>
+          <h2 className="text-base font-medium text-black/70 text-center tracking-tight">{userName}</h2>
         </div>
 
         <nav className="mt-6 grid grid-cols-3 md:grid-cols-1 gap-2">
