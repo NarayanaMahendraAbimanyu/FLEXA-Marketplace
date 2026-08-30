@@ -237,8 +237,8 @@ export default function SellerProductPage() {
                 <thead>
                   <tr className="border-b border-slate-200 text-black/80 font-semibold text-sm">
                     <th className="py-4 px-6">Nama Produk</th>
-                    <th className="py-4 px-0">Harga</th>
-                    <th className="py-4 px-0">Stok</th>
+                    <th className="py-4 px-0 text-center">Harga</th>
+                    <th className="py-4 px-0 text-center">Stok</th>
                     <th className="py-4 px-0 text-center">Opsi</th>
                   </tr>
                 </thead>
@@ -252,12 +252,12 @@ export default function SellerProductPage() {
                           className="w-12 h-12 rounded-lg object-cover bg-slate-100 border border-slate-200"
                         />
                         <div>
-                          <p className="font-semibold text-slate-900">{product.name}</p>
-                          <p className="text-xs text-slate-500 mt-0.5">{product.category}</p>
+                          <p className="font-semibold text-black/80">{product.name}</p>
+                          <p className="text-xs text-black/50 mt-0.5">{product.category}</p>
                         </div>
                       </td>
-                      <td className="py-4 px-0 text-emerald-700 font-medium">{product.price}</td>
-                      <td className="py-4 px-3 text-black/80 font-semibold">{product.stock}</td>
+                      <td className="py-4 px-0 text-[#059669] font-semibold text-center">{product.price}</td>
+                      <td className="py-4 px-3 text-black/80 font-semibold text-center">{product.stock}</td>
                       <td className="py-4 px-6 text-center">
                         <button
                           onClick={() => handleOpenEditModal(product)}
