@@ -342,6 +342,7 @@ export default function SellerProductPage() {
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Foto Produk</label>
                 <input
+                  id="create-product-image-input"
                   type="file"
                   accept="image/*"
                   onChange={(e) => {
@@ -351,6 +352,19 @@ export default function SellerProductPage() {
                   }}
                   className="w-full px-4 py-2 border border-slate-200 rounded-xl text-sm text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100"
                 />
+                {imageFile && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setImageFile(null);
+                      const fileInput = document.getElementById('create-product-image-input') as HTMLInputElement;
+                      if (fileInput) fileInput.value = '';
+                    }}
+                    className="mt-2 text-xs font-medium text-red-600 py-2 px-4 bg-transparent border border-red-300 rounded-xl hover:border-red-600 hover:scale-105 active:scale-95 duration-200 transition-all"
+                  >
+                    Hilangkan Foto
+                  </button>
+                )}
               </div>
 
               <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
@@ -449,6 +463,7 @@ export default function SellerProductPage() {
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Foto Produk</label>
                 <input
+                  id="edit-product-image-input"
                   type="file"
                   accept="image/*"
                   onChange={(e) => {
@@ -458,6 +473,19 @@ export default function SellerProductPage() {
                   }}
                   className="w-full px-4 py-2 border border-slate-200 rounded-xl text-sm text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100"
                 />
+                {editImageFile && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditImageFile(null);
+                      const fileInput = document.getElementById('edit-product-image-input') as HTMLInputElement;
+                      if (fileInput) fileInput.value = '';
+                    }}
+                    className="mt-2 text-xs font-medium text-red-600 py-2 px-4 bg-transparent border border-red-300 rounded-xl hover:border-red-600 hover:scale-105 active:scale-95 duration-200 transition-all"
+                  >
+                    Hilangkan Foto
+                  </button>
+                )}
               </div>
 
               <div className="flex items-center justify-between pt-4 border-t border-slate-100">
