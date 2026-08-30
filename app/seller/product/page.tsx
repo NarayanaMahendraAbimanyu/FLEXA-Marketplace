@@ -208,6 +208,9 @@ export default function SellerProductPage() {
               notification.type === 'success' ? 'bg-[#059669]' : 'bg-red-600'
             } ${isNotifAnimatingOut ? '-translate-y-20 opacity-0' : ''}`}
           >
+            <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+            </svg>
             <span>{notification.message}</span>
           </div>
         </div>
@@ -219,9 +222,12 @@ export default function SellerProductPage() {
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-black/85">Katalog Produk</h1>
             <button
               onClick={() => setIsModalOpen(true)}
-              className="bg-[#059669] hover:scale-105 active:scale-95 duration-200 transition-all text-white px-5 py-2.5 rounded-xl font-medium text-sm shadow-sm"
+              className="bg-[#059669] hover:scale-105 active:scale-95 duration-200 transition-all text-white px-5 py-2.5 rounded-xl font-medium text-sm shadow-sm flex items-center gap-2"
             >
-              Tambah Produk
+              <span>Tambah Produk</span>
+              <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+              </svg>
             </button>
           </div>
 
@@ -255,7 +261,7 @@ export default function SellerProductPage() {
                       <td className="py-4 px-6 text-center">
                         <button
                           onClick={() => handleOpenEditModal(product)}
-                          className="bg-[#059669] hover:scale-105 active:scale-95 duration-200 text-white px-4 py-1.5 rounded-lg text-xs font-medium transition-all"
+                          className="bg-[#059669] hover:scale-105 active:scale-95 duration-200 text-white px-6 py-2 rounded-lg text-md font-medium transition-all"
                         >
                           Edit
                         </button>
