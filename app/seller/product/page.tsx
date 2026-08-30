@@ -18,7 +18,7 @@ export default function SellerProductPage() {
   const [category, setCategory] = useState('Elektronik');
   const [description, setDescription] = useState('');
   const [stock, setStock] = useState('');
-  const [price, setPrice] = useState('Rp. 150.000');
+  const [price, setPrice] = useState('');
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [editImageFile, setEditImageFile] = useState<File | null>(null);
 
@@ -51,8 +51,24 @@ export default function SellerProductPage() {
     }
   };
 
-  const isFormValid = name.trim() !== '' && category !== '' && description.trim() !== '' && stock !== '';
-  const isEditFormValid = selectedProduct && selectedProduct.name?.trim() !== '' && selectedProduct.category !== '' && selectedProduct.description?.trim() !== '' && selectedProduct.stock !== '' && selectedProduct.stock !== undefined;
+  const formatNumberWithDots = (value: string) => {
+    const numbers = value.replace(/\D/g, '');
+    if (!numbers) return '';
+    return Number(numbers).toLocaleString('id-ID');
+  };
+
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>, isEdit: boolean = false) => {
+    const rawValue = e.target.value;
+    const formatted = formatNumberWithDots(rawValue);
+    if (isEdit) {
+      setSelectedProduct({ ...selectedProduct, price: formatted });
+    } else {
+      setPrice(formatted);
+    }
+  };
+
+  const isFormValid = name.trim() !== '' && category !== '' && description.trim() !== '' && stock !== '' && price !== '';
+  const isEditFormValid = selectedProduct && selectedProduct.name?.trim() !== '' && selectedProduct.category !== '' && selectedProduct.description?.trim() !== '' && selectedProduct.stock !== '' && selectedProduct.stock !== undefined && selectedProduct.price !== '';
 
   const handleCreateProduct = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -80,10 +96,12 @@ export default function SellerProductPage() {
       }
     }
 
+    const formattedPrice = `Rp. ${price}`;
+
     const newProductData = {
       name: name,
       category: category,
-      price: price,
+      price: formattedPrice,
       stock: Number(stock),
       description: description,
       image: imageUrl
@@ -95,6 +113,7 @@ export default function SellerProductPage() {
       setName('');
       setDescription('');
       setStock('');
+      setPrice('');
       setImageFile(null);
       setIsModalOpen(false);
       triggerNotification('Produk baru berhasil ditambahkan!', 'success');
@@ -104,7 +123,9 @@ export default function SellerProductPage() {
   };
 
   const handleOpenEditModal = (product: any) => {
-    setSelectedProduct({ ...product });
+    const rawPriceNumber = product.price ? product.price.replace(/[^0-9]/g, '') : '';
+    const formattedExistingPrice = rawPriceNumber ? Number(rawPriceNumber).toLocaleString('id-ID') : '';
+    setSelectedProduct({ ...product, price: formattedExistingPrice });
     setEditImageFile(null);
     setIsEditModalOpen(true);
   };
@@ -135,12 +156,14 @@ export default function SellerProductPage() {
       }
     }
 
+    const formattedPrice = `Rp. ${selectedProduct.price}`;
+
     const updatedData = {
       name: selectedProduct.name,
       category: selectedProduct.category,
       description: selectedProduct.description,
       stock: Number(selectedProduct.stock),
-      price: selectedProduct.price,
+      price: formattedPrice,
       image: imageUrl
     };
 
@@ -290,6 +313,21 @@ export default function SellerProductPage() {
               </div>
 
               <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Harga Produk</label>
+                <div className="flex items-center w-full border border-slate-200 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-emerald-500 bg-white">
+                  <span className="px-4 py-2.5 bg-slate-50 text-slate-600 text-sm font-semibold border-r border-slate-200">Rp.</span>
+                  <input
+                    type="text"
+                    value={price}
+                    onChange={(e) => handlePriceChange(e, false)}
+                    placeholder="0"
+                    className="w-full px-4 py-2.5 text-sm focus:outline-none text-slate-900 bg-transparent"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div>
                 <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Stok Produk</label>
                 <input
                   type="number"
@@ -379,6 +417,21 @@ export default function SellerProductPage() {
                   className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900"
                   required
                 ></textarea>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Harga Produk</label>
+                <div className="flex items-center w-full border border-slate-200 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-emerald-500 bg-white">
+                  <span className="px-4 py-2.5 bg-slate-50 text-slate-600 text-sm font-semibold border-r border-slate-200">Rp.</span>
+                  <input
+                    type="text"
+                    value={selectedProduct.price}
+                    onChange={(e) => handlePriceChange(e, true)}
+                    placeholder="0"
+                    className="w-full px-4 py-2.5 text-sm focus:outline-none text-slate-900 bg-transparent"
+                    required
+                  />
+                </div>
               </div>
 
               <div>
