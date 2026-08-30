@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
@@ -20,15 +20,48 @@ export default function SignInPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const [toastMessage, setToastMessage] = useState('');
+
+  useEffect(() => {
+    if (toastMessage) {
+      const timer = setTimeout(() => {
+        setToastMessage('');
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [toastMessage]);
+
+  useEffect(() => {
+    const checkOAuthUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        const userEmail = session.user.email;
+        const selectedRole = localStorage.getItem('selected_role') || role;
+        
+        const { data: existingUser } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('email', userEmail)
+          .single();
+
+        if (existingUser) {
+          await supabase.auth.signOut();
+          setToastMessage(`Akun tersebut sudah terdaftar sebagai ${existingUser.role === 'seller' ? 'Penjual' : 'Pembeli'}, silahkan pilih akun yang lain`);
+          setStep('form');
+        } else {
+          const destination = selectedRole === 'seller' ? '/dashboard/seller' : '/';
+          router.push(destination);
+        }
+      }
+    };
+
+    checkOAuthUser();
+  }, [router, role]);
 
   const handleWhatsappChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value.replace(/\D/g, '');
-    if (value.startsWith('0')) {
+    if (value.length > 13) {
       value = value.substring(0, 13);
-    } else if (value.startsWith('8')) {
-      value = '0' + value.substring(0, 12);
-    } else {
-      value = '';
     }
 
     let formatted = '';
@@ -36,17 +69,18 @@ export default function SignInPage() {
       formatted += value.substring(0, 4);
     }
     if (value.length >= 5) {
-      formatted += '-' + value.substring(4, 9);
+      formatted += '-' + value.substring(4, 8);
     }
-    if (value.length >= 10) {
-      formatted += '-' + value.substring(9, 13);
+    if (value.length >= 9) {
+      formatted += '-' + value.substring(8, 13);
     }
 
     setWhatsapp(formatted);
   };
 
-  const isEmailValid = email.endsWith('0@gmail.com');
-  const isWhatsappValid = whatsapp.length >= 12;
+  const isEmailValid = email.includes('@');
+  const rawWhatsapp = whatsapp.replace(/\D/g, '');
+  const isWhatsappValid = rawWhatsapp.length >= 10 && rawWhatsapp.length <= 13;
   const isPasswordValid = password.length >= 8;
   const isFormValid = isEmailValid && isWhatsappValid && isPasswordValid && agreeTerms;
 
@@ -54,12 +88,12 @@ export default function SignInPage() {
     e.preventDefault();
     
     if (!isEmailValid) {
-      setErrorMessage('Email harus menggunakan format berakhiran "0@gmail.com".');
+      setErrorMessage('Format email tidak valid.');
       return;
     }
 
     if (!isWhatsappValid) {
-      setErrorMessage('No. Whatsapp belum lengkap.');
+      setErrorMessage('No. Whatsapp minimal 10 digit dan maksimal 13 digit.');
       return;
     }
 
@@ -76,6 +110,20 @@ export default function SignInPage() {
     setIsLoading(true);
     setErrorMessage('');
     setSuccessMessage('');
+    setToastMessage('');
+
+    const { data: existingProfiles } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('email', email)
+      .single();
+
+    if (existingProfiles) {
+      setIsLoading(false);
+      const roleName = existingProfiles.role === 'seller' ? 'Penjual' : 'Pembeli';
+      setToastMessage(`Akun tersebut sudah terdaftar sebagai ${roleName}, silahkan pilih akun yang lain`);
+      return;
+    }
 
     const fullName = `${firstName} ${lastName}`.trim();
 
@@ -124,11 +172,14 @@ export default function SignInPage() {
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
     setErrorMessage('');
+    setToastMessage('');
+
+    localStorage.setItem('selected_role', role);
 
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/`,
+        redirectTo: `${window.location.origin}/signin`,
         queryParams: {
           access_type: 'offline',
           prompt: 'consent',
@@ -148,7 +199,13 @@ export default function SignInPage() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-white flex flex-col justify-between font-sans text-slate-800">
+    <div className="min-h-screen w-full bg-white flex flex-col justify-between font-sans text-slate-800 relative">
+      {toastMessage && (
+        <div className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50 w-11/12 max-w-md bg-white border border-emerald-500 text-slate-800 px-6 py-4 rounded-full shadow-2xl text-xs sm:text-sm font-medium text-center">
+          {toastMessage}
+        </div>
+      )}
+
       <header className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-5">
         <Link href="/" className="inline-flex items-center gap-3">
           <Image
@@ -284,7 +341,7 @@ export default function SignInPage() {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Email (contoh: nama0@gmail.com)"
+                    placeholder="Email (contoh: nama@gmail.com)"
                     required
                     className="w-full px-4 pr-10 py-3 bg-white text-slate-800 placeholder-slate-400 rounded-xl text-xs sm:text-sm focus:outline-none shadow-sm"
                   />
@@ -300,7 +357,7 @@ export default function SignInPage() {
                     type="text"
                     value={whatsapp}
                     onChange={handleWhatsappChange}
-                    placeholder="No. Whatsapp (08xx-xxxx-xxxx)"
+                    placeholder="No. Whatsapp (0812-3456-7890)"
                     required
                     className="w-full px-4 pr-10 py-3 bg-white text-slate-800 placeholder-slate-400 rounded-xl text-xs sm:text-sm focus:outline-none shadow-sm"
                   />
@@ -373,6 +430,7 @@ export default function SignInPage() {
 
               <button
                 type="button"
+                email-sign-in=""
                 onClick={handleGoogleSignIn}
                 disabled={isLoading}
                 className="w-full py-3.5 bg-white text-black/80 font-medium hover:scale-105 active:scale-98 transition-all duration-200 text-xs sm:text-sm rounded-xl shadow-md flex items-center justify-center gap-3"
