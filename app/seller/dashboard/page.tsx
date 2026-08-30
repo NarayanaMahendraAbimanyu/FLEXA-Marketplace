@@ -6,35 +6,55 @@ import { useRouter } from 'next/navigation';
 export default function SellerDashboardPage() {
   const router = useRouter();
   const [timeFilter, setTimeFilter] = useState<'week' | 'month'>('week');
-  const [hoveredPoint, setHoveredPoint] = useState<{ index: number; day: string; sales: number; visitors: number; x: number; y: number } | null>(null);
+  const [hoveredPoint, setHoveredPoint] = useState<{ index: number; day: string; visitors: number; x: number; y: number } | null>(null);
 
   const weekData = [
-    { day: 'Sen', sales: 420, visitors: 350 },
-    { day: 'Sel', sales: 580, visitors: 480 },
-    { day: 'Rab', sales: 500, visitors: 420 },
-    { day: 'Kam', sales: 750, visitors: 680 },
-    { day: 'Jum', sales: 680, visitors: 610 },
-    { day: 'Sab', sales: 950, visitors: 890 },
-    { day: 'Min', sales: 880, visitors: 820 }
+    { day: 'Senin', visitors: 120 },
+    { day: 'Selasa', visitors: 180 },
+    { day: 'Rabu', visitors: 150 },
+    { day: 'Kamis', visitors: 260 },
+    { day: 'Jumat', visitors: 220 },
+    { day: 'Sabtu', visitors: 340 },
+    { day: 'Minggu', visitors: 310 }
   ];
 
   const monthData = [
-    { day: 'Minggu 1', sales: 3200, visitors: 2900 },
-    { day: 'Minggu 2', sales: 4100, visitors: 3800 },
-    { day: 'Minggu 3', sales: 3900, visitors: 3500 },
-    { day: 'Minggu 4', sales: 4800, visitors: 4400 }
+    { day: 'Minggu 1', visitors: 1200 },
+    { day: 'Minggu 2', visitors: 1500 },
+    { day: 'Minggu 3', visitors: 1400 },
+    { day: 'Minggu 4', visitors: 1800 }
   ];
 
   const currentData = timeFilter === 'week' ? weekData : monthData;
+  const maxVal = timeFilter === 'week' ? 1000 : 2500;
+
+  const getSmoothPath = (data: typeof weekData, valueKey: 'visitors') => {
+    const points = data.map((item, idx) => {
+      const x = (idx / (data.length - 1)) * 100;
+      const y = 100 - (item[valueKey] / maxVal) * 100;
+      return { x, y };
+    });
+
+    if (points.length === 0) return '';
+
+    return points.reduce((acc, point, idx, arr) => {
+      if (idx === 0) return `M ${point.x} ${point.y}`;
+      const prev = arr[idx - 1];
+      const controlX = (prev.x + point.x) / 2;
+      return `${acc} C ${controlX} ${prev.y}, ${controlX} ${point.y}, ${point.x} ${point.y}`;
+    }, '');
+  };
+
+  const visitorsPath = getSmoothPath(currentData, 'visitors');
 
   return (
-    <div className="w-full">
-      <div className="mb-8 border-b border-slate-200 pb-6">
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">Dashboard</h1>
+    <div className="w-full px-2 sm:px-2 lg:px-2">
+      <div className="mb-8 border-b border-black/30 pb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-black/80">Dashboard {"(Simulasi)"}</h1>
       </div>
 
       <section className="mb-10">
-        <h2 className="text-lg sm:text-xl font-bold text-slate-800 mb-4">Ringkasan Performa Toko</h2>
+        <h2 className="text-lg sm:text-xl font-bold text-black/80 mb-4">Ringkasan Performa Toko</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div
             onClick={() => router.push('/seller/product')}
@@ -86,27 +106,13 @@ export default function SellerDashboardPage() {
       <section className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
           <div>
-            <h2 className="text-lg sm:text-xl font-bold text-slate-800">Analisis Grafik Toko</h2>
+            <h2 className="text-lg sm:text-xl font-bold text-black/80">Analisis Grafik Toko {"(Simulasi)"}</h2>
             <div className="flex items-center gap-2 mt-3">
-              <div className="relative">
-                <button
-                  onClick={() => setTimeFilter(timeFilter === 'week' ? 'month' : 'week')}
-                  className="px-4 py-2 bg-[#059669] text-white font-medium text-xs sm:text-sm rounded-xl shadow-sm flex items-center gap-2 hover:bg-[#047857] transition-colors"
-                >
-                  <span>{timeFilter === 'week' ? 'Minggu ini' : 'Bulan ini'}</span>
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                  </svg>
-                </button>
-              </div>
+              <span className="font-semibold text-black/50 text-xs sm:text-sm">Minggu Ini</span>
             </div>
           </div>
 
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 px-3 py-1.5 border border-slate-200 rounded-full text-xs font-medium text-slate-700">
-              <span className="w-3 h-3 rounded-full bg-[#006143]"></span>
-              <span>Penjualan</span>
-            </div>
             <div className="flex items-center gap-2 px-3 py-1.5 border border-slate-200 rounded-full text-xs font-medium text-slate-700">
               <span className="w-3 h-3 rounded-full bg-[#059669]"></span>
               <span>Pengunjung Toko</span>
@@ -117,11 +123,10 @@ export default function SellerDashboardPage() {
         <div className="relative h-64 w-full pt-8 pb-4">
           {hoveredPoint && (
             <div
-              className="absolute z-20 transform -translate-x-1/2 -translate-y-full bg-slate-900 text-white text-xs px-3 py-1.5 rounded-lg shadow-lg pointer-events-none mb-2"
+              className="absolute z-25 transform -translate-x-1/2 -translate-y-full bg-slate-900 text-white text-xs px-3 py-1.5 rounded-lg shadow-lg pointer-events-none mb-2"
               style={{ left: `${hoveredPoint.x}%`, top: `${hoveredPoint.y}%` }}
             >
               <p className="font-bold">{hoveredPoint.day}</p>
-              <p>Penjualan: {hoveredPoint.sales}</p>
               <p>Pengunjung: {hoveredPoint.visitors}</p>
             </div>
           )}
@@ -134,29 +139,34 @@ export default function SellerDashboardPage() {
             <div className="border-b border-slate-100 flex justify-between"><span>0</span></div>
           </div>
 
+          <div className="absolute inset-0 pl-12 pr-4 pt-8 pb-6 pointer-events-none z-10">
+            <svg className="w-full h-full overflow-visible" viewBox="0 0 100 100" preserveAspectRatio="none">
+              <path
+                d={visitorsPath}
+                fill="none"
+                stroke="#059669"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </div>
+
           <div className="absolute inset-0 pl-12 pr-4 pt-8 pb-6 flex items-end justify-between">
             {currentData.map((item, idx) => {
-              const maxVal = 1000;
-              const salesHeight = (item.sales / maxVal) * 100;
               const visitorsHeight = (item.visitors / maxVal) * 100;
               const xPercent = (idx / (currentData.length - 1)) * 100;
 
               return (
                 <div key={idx} className="relative flex-1 flex flex-col items-center h-full group">
                   <div
-                    className="absolute w-4 h-4 rounded-full bg-[#006143] border-2 border-white shadow cursor-pointer transition-transform hover:scale-125 z-10"
-                    style={{ bottom: `${salesHeight}%`, transform: 'translateY(50%)' }}
-                    onMouseEnter={() => setHoveredPoint({ index: idx, day: item.day, sales: item.sales, visitors: item.visitors, x: xPercent, y: 100 - salesHeight })}
-                    onMouseLeave={() => setHoveredPoint(null)}
-                  ></div>
-                  <div
-                    className="absolute w-4 h-4 rounded-full bg-[#059669] border-2 border-white shadow cursor-pointer transition-transform hover:scale-125 z-10"
+                    className="absolute w-4 h-4 rounded-full bg-[#059669] border-2 border-white shadow cursor-pointer transition-transform hover:scale-125 z-20"
                     style={{ bottom: `${visitorsHeight}%`, transform: 'translateY(50%)' }}
-                    onMouseEnter={() => setHoveredPoint({ index: idx, day: item.day, sales: item.sales, visitors: item.visitors, x: xPercent, y: 100 - visitorsHeight })}
+                    onMouseEnter={() => setHoveredPoint({ index: idx, day: item.day, visitors: item.visitors, x: xPercent, y: 100 - visitorsHeight })}
                     onMouseLeave={() => setHoveredPoint(null)}
                   ></div>
 
-                  <div className="absolute bottom-[-24px] text-xs font-medium text-slate-500">
+                  <div className="absolute bottom-[-24px] text-xs font-medium text-white">
                     {item.day}
                   </div>
                 </div>

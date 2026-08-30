@@ -20,7 +20,7 @@ export default function SellerSideBar() {
               alt="Flexa Logo"
               width={120}
               height={36}
-              className="h-8 w-auto object-contain cursor-pointer"
+              className="h-12 w-auto object-contain cursor-pointer hover:scale-105 active:scale-95 duration-200 transition-all"
               priority
             />
           </Link>
@@ -31,19 +31,19 @@ export default function SellerSideBar() {
           <nav className="space-y-1">
             <Link
               href="/seller/dashboard"
-              className={`flex items-center px-4 py-2.5 rounded-xl font-medium text-sm transition-colors ${
+              className={`flex items-center px-4 py-2.5 rounded-xl text-sm transition-colors ${
                 isActive('/seller/dashboard')
-                  ? 'bg-[#059669]/20 text-[#059669]'
-                  : 'text-slate-600 hover:bg-slate-50'
+                  ? 'bg-[#059669]/20 text-[#059669] font-bold'
+                  : 'text-slate-600 hover:bg-slate-100'
               }`}
             >
               Dashboard
             </Link>
             <Link
               href="/seller/product"
-              className={`flex items-center px-4 py-2.5 rounded-xl font-medium text-sm transition-colors ${
+              className={`flex items-center px-4 py-2.5 rounded-xl text-sm transition-colors ${
                 isActive('/seller/product')
-                  ? 'bg-[#059669]/20 text-[#059669]'
+                  ? 'bg-[#059669]/20 text-[#059669] font-bold'
                   : 'text-slate-600 hover:bg-slate-50'
               }`}
             >
@@ -51,9 +51,9 @@ export default function SellerSideBar() {
             </Link>
             <Link
               href="/seller/pesanan"
-              className={`flex items-center px-4 py-2.5 rounded-xl font-medium text-sm transition-colors ${
+              className={`flex items-center px-4 py-2.5 rounded-xl text-sm transition-colors ${
                 isActive('/seller/pesanan')
-                  ? 'bg-[#059669]/20 text-[#059669]'
+                  ? 'bg-[#059669]/20 text-[#059669] font-bold'
                   : 'text-slate-600 hover:bg-slate-50'
               }`}
             >
@@ -61,9 +61,9 @@ export default function SellerSideBar() {
             </Link>
             <Link
               href="/seller/income"
-              className={`flex items-center px-4 py-2.5 rounded-xl font-medium text-sm transition-colors ${
+              className={`flex items-center px-4 py-2.5 rounded-xl text-sm transition-colors ${
                 isActive('/seller/income')
-                  ? 'bg-[#059669]/20 text-[#059669]'
+                  ? 'bg-[#059669]/20 text-[#059669] font-bold'
                   : 'text-slate-600 hover:bg-slate-50'
               }`}
             >
@@ -77,13 +77,13 @@ export default function SellerSideBar() {
           <nav className="space-y-1">
             <Link
               href="/seller/edit-toko"
-              className={`flex items-center px-4 py-2.5 rounded-xl font-medium text-sm transition-colors ${
+              className={`flex items-center px-4 py-2.5 rounded-xl text-sm transition-colors ${
                 isActive('/seller/edit-toko')
-                  ? 'bg-[#059669]/20 text-[#059669]'
+                  ? 'bg-[#059669]/20 text-[#059669] font-bold'
                   : 'text-slate-600 hover:bg-slate-50'
               }`}
             >
-              Edit Toko
+              Pengaturan Toko
             </Link>
           </nav>
         </div>
