@@ -78,7 +78,7 @@ export default function SellerSideBar() {
             <Link
               href="/seller/storeSettings"
               className={`flex items-center px-4 py-2.5 rounded-xl text-sm transition-colors ${
-                isActive('/seller/edit-toko')
+                isActive('/seller/storeSettings')
                   ? 'bg-[#059669]/20 text-[#059669] font-bold'
                   : 'text-slate-600 hover:bg-slate-50'
               }`}
