@@ -50,9 +50,9 @@ export default function SellerSideBar() {
               Katalog
             </Link>
             <Link
-              href="/seller/pesanan"
+              href="/seller/orders"
               className={`flex items-center px-4 py-2.5 rounded-xl text-sm transition-colors ${
-                isActive('/seller/pesanan')
+                isActive('/seller/orders')
                   ? 'bg-[#059669]/20 text-[#059669] font-bold'
                   : 'text-slate-600 hover:bg-slate-50'
               }`}
