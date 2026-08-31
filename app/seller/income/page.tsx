@@ -1,0 +1,139 @@
+'use client';
+
+import React, { useState } from 'react';
+
+export default function SellerIncomePage() {
+  const [balance, setBalance] = useState(2550000);
+  const [showNotification, setShowNotification] = useState(false);
+  const [isLeaving, setIsLeaving] = useState(false);
+
+  const [transactions, setTransactions] = useState([
+    {
+      id: 'TRX-9820',
+      date: '28 Agustus 2026',
+      description: 'Pendapatan Pesanan #934362',
+      amount: 270000,
+      type: 'income',
+      status: 'Selesai'
+    },
+    {
+      id: 'TRX-9819',
+      date: '25 Agustus 2026',
+      description: 'Pendapatan Pesanan #482190',
+      amount: 249000,
+      type: 'income',
+      status: 'Selesai'
+    }
+  ]);
+
+  const handleWithdraw = () => {
+    if (balance <= 0) return;
+    
+    const currentBalance = balance;
+    setBalance(0);
+
+    const newTrx = {
+      id: `TRX-${Math.floor(1000 + Math.random() * 9000)}`,
+      date: '31 Agustus 2026',
+      description: 'Pencairan Dana ke Rekening BCA (***4582)',
+      amount: -currentBalance,
+      type: 'withdraw',
+      status: 'Berhasil'
+    };
+
+    setTransactions((prev) => [newTrx, ...prev]);
+
+    setShowNotification(true);
+    setIsLeaving(false);
+
+    setTimeout(() => {
+      setIsLeaving(true);
+      setTimeout(() => {
+        setShowNotification(false);
+        setIsLeaving(false);
+      }, 400);
+    }, 2600);
+  };
+
+  return (
+    <div className="w-full px-2 sm:px-2 lg:px-2 relative">
+      {showNotification && (
+        <div className={`fixed top-6 left-1/2 -translate-x-1/2 z-50 bg-[#059669] text-white px-6 py-3 rounded-xl shadow-lg font-medium text-sm flex items-center gap-2.5 transition-all duration-400 ease-out ${
+          isLeaving ? '-translate-y-20 opacity-0' : 'translate-y-0 opacity-100 animate-in fade-in slide-in-from-top-6 duration-400'
+        }`}>
+          <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+          Pencairan dana berhasil diajukan.
+        </div>
+      )}
+
+      <div className="mb-8 border-b border-black/30 pb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-black/80">Keuangan Toko {"(Simulasi)"}</h1>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col justify-between">
+          <div>
+            <p className="text-sm font-semibold text-black/60 mb-1">Saldo Dapat Ditarik</p>
+            <h2 className="text-2xl sm:text-3xl font-bold text-[#059669]">
+              Rp {balance.toLocaleString('id-ID')}
+            </h2>
+          </div>
+          <div className="mt-6 flex justify-end">
+            <button
+              onClick={handleWithdraw}
+              disabled={balance <= 0}
+              className={`px-5 py-2.5 font-semibold rounded-xl text-sm shadow transition-all duration-200 ${
+                balance > 0
+                  ? 'bg-[#059669] hover:bg-[#047857] text-white hover:scale-105 active:scale-95'
+                  : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+              }`}
+            >
+              Tarik Saldo
+            </button>
+          </div>
+        </div>
+
+        <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col justify-between">
+          <div>
+            <p className="text-sm font-semibold text-black/60 mb-1">Total Penjualan {"(Simulasi)"}</p>
+            <h2 className="text-2xl sm:text-3xl font-bold text-black/90">
+              Rp 2.550.000
+            </h2>
+          </div>
+          <div className="mt-6">
+            <p className="text-xs text-black/60 font-medium">
+              Pendapatan bersih setelah dikurangi biaya layanan dan simulasi.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 shadow-sm">
+        <h3 className="text-lg font-bold text-black/90 mb-4">Riwayat Transaksi</h3>
+        
+        <div className="space-y-4">
+          {transactions.map((trx) => (
+            <div key={trx.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-4 bg-white rounded-xl border border-slate-200">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-black/90 text-sm">{trx.description}</span>
+                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                    trx.type === 'income' ? 'bg-[#059669]/10 text-[#059669]' : 'bg-amber-500/10 text-amber-600'
+                  }`}>
+                    {trx.status}
+                  </span>
+                </div>
+                <p className="text-xs text-black/60 mt-0.5">{trx.date} • {trx.id}</p>
+              </div>
+              <div className={`font-bold text-sm ${trx.amount > 0 ? 'text-[#059669]' : 'text-black/80'}`}>
+                {trx.amount > 0 ? `+ Rp ${trx.amount.toLocaleString('id-ID')}` : `- Rp ${Math.abs(trx.amount).toLocaleString('id-ID')}`}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
