@@ -62,7 +62,7 @@ export default function SellerDashboardPage() {
           >
             <div className="absolute right-[-10px] bottom-[-10px] opacity-20 pointer-events-none">
               <svg className="w-32 h-32" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16zM12 3.18l6 3.43-6 3.43-6-3.43 6-3.43zM5 9.77l6 3.43v6.86L5 16.63V9.77zm14 6.86l-6 3.43v-6.86l6-3.43v6.86z" />
               </svg>
             </div>
             <div>
@@ -77,7 +77,7 @@ export default function SellerDashboardPage() {
           >
             <div className="absolute right-[-10px] bottom-[-10px] opacity-20 pointer-events-none">
               <svg className="w-32 h-32" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <path d="M21 18v1a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h14a2 2 0 012 2v1h-9a2 2 0 00-2 2v8a2 2 0 002 2h9zm-9-2h10V8H12v8zm4-2.5a1.5 1.5 0 110-3 1.5 1.5 0 010 3z" />
               </svg>
             </div>
             <div>
