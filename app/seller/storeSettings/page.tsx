@@ -19,20 +19,26 @@ export default function StoreSettingsPage() {
   const [logoUrl, setLogoUrl] = useState<string>('')
   const [bannerFile, setBannerFile] = useState<File | null>(null)
   const [logoFile, setLogoFile] = useState<File | null>(null)
-  
-  const userId: string = 'USER_ID_HERE'
+  const [userId, setUserId] = useState<string | null>(null)
 
   useEffect(() => {
-    fetchStoreSettings()
+    const getSessionAndSettings = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        setUserId(user.id)
+        fetchStoreSettings(user.id)
+      }
+    }
+    getSessionAndSettings()
   }, [])
 
-  const fetchStoreSettings = async (): Promise<void> => {
+  const fetchStoreSettings = async (currentUserId: string): Promise<void> => {
     try {
       setLoading(true)
       const { data, error } = await supabase
         .from('store_settings')
         .select('*')
-        .eq('user_id', userId)
+        .eq('user_id', currentUserId)
         .single()
 
       if (data) {
@@ -70,6 +76,11 @@ export default function StoreSettingsPage() {
 
   const handleSave = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault()
+    if (!userId) {
+      alert('User tidak ditemukan. Silakan login terlebih dahulu.')
+      return
+    }
+
     try {
       setLoading(true)
 
@@ -99,7 +110,7 @@ export default function StoreSettingsPage() {
       if (error) throw error
 
       alert('Pengaturan toko berhasil disimpan!')
-      fetchStoreSettings()
+      fetchStoreSettings(userId)
       setBannerFile(null)
       setLogoFile(null)
     } catch (error: any) {
@@ -110,7 +121,7 @@ export default function StoreSettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-4 px-4 sm:py-8 sm:px-6 lg:px-8 flex justify-center items-start">
+    <div className="min-h-screen flex justify-center items-start">
       <div className="w-full max-w-3xl bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
         <div className="px-6 py-5 border-b border-gray-100">
           <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Pengaturan Toko</h1>
@@ -118,8 +129,11 @@ export default function StoreSettingsPage() {
 
         <form onSubmit={handleSave} className="p-4 sm:p-8 space-y-6">
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Banner Toko</label>
-            <div className="relative w-full h-40 sm:h-56 bg-gray-200 rounded-xl overflow-hidden border-2 border-dashed border-gray-300 flex items-center justify-center group">
+            <div className="flex justify-between items-center mb-2">
+              <label className="block text-sm font-semibold text-gray-700">Banner Toko</label>
+              <span className="text-xs text-gray-500">Rekomendasi rasio 4:1 (Contoh: 1200 x 300 px)</span>
+            </div>
+            <div className="w-full h-40 sm:h-56 bg-gray-200 rounded-xl overflow-hidden border-2 border-dashed border-gray-300 flex items-center justify-center">
               {bannerFile ? (
                 <img src={URL.createObjectURL(bannerFile)} alt="Banner Preview" className="w-full h-full object-cover" />
               ) : bannerUrl ? (
@@ -127,39 +141,49 @@ export default function StoreSettingsPage() {
               ) : (
                 <span className="text-gray-500 font-medium">Banner Toko</span>
               )}
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
-                <label className="cursor-pointer bg-white text-gray-800 px-4 py-2 rounded-lg text-sm font-medium shadow hover:bg-gray-100">
-                  {bannerUrl || bannerFile ? 'Ganti' : 'Tambah'}
-                  <input type="file" accept="image/*" className="hidden" onChange={(e: React.ChangeEvent<HTMLInputElement>) => e.target.files?.[0] && setBannerFile(e.target.files[0])} />
+            </div>
+            <div className="flex items-center gap-3 mt-3">
+              <label className="cursor-pointer bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-xl text-sm font-medium shadow-sm hover:bg-gray-50 transition-all">
+                {bannerUrl || bannerFile ? 'Ganti Banner' : 'Tambah Banner'}
+                <input type="file" accept="image/*" className="hidden" onChange={(e: React.ChangeEvent<HTMLInputElement>) => e.target.files?.[0] && setBannerFile(e.target.files[0])} />
+              </label>
+              {(bannerUrl || bannerFile) && (
+                <button type="button" onClick={() => { setBannerFile(null); setBannerUrl(''); }} className="bg-red-600 text-white px-4 py-2 rounded-xl text-sm font-medium shadow-sm hover:bg-red-700 transition-all">
+                  Hapus
+                </button>
+              )}
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+            <div className="flex flex-col items-center">
+              <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-gray-200 border-2 border-dashed border-gray-300 overflow-hidden flex items-center justify-center">
+                {logoFile ? (
+                  <img src={URL.createObjectURL(logoFile)} alt="Logo Preview" className="w-full h-full object-cover" />
+                ) : logoUrl ? (
+                  <img src={logoUrl} alt="Foto Toko" className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-gray-500 text-xs sm:text-sm font-medium text-center px-2">Foto Toko</span>
+                )}
+              </div>
+              <div className="flex items-center gap-2 mt-3">
+                <label className="cursor-pointer bg-white border border-gray-300 text-gray-700 px-3 py-1.5 rounded-xl text-xs font-medium shadow-sm hover:bg-gray-50 transition-all">
+                  {logoUrl || logoFile ? 'Ganti' : 'Tambah'}
+                  <input type="file" accept="image/*" className="hidden" onChange={(e: React.ChangeEvent<HTMLInputElement>) => e.target.files?.[0] && setLogoFile(e.target.files[0])} />
                 </label>
-                {(bannerUrl || bannerFile) && (
-                  <button type="button" onClick={() => { setBannerFile(null); setBannerUrl(''); }} className="bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium shadow hover:bg-red-700">
+                {(logoUrl || logoFile) && (
+                  <button type="button" onClick={() => { setLogoFile(null); setLogoUrl(''); }} className="bg-red-600 text-white px-3 py-1.5 rounded-xl text-xs font-medium shadow-sm hover:bg-red-700 transition-all">
                     Hapus
                   </button>
                 )}
               </div>
             </div>
-          </div>
-
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
-            <div className="relative w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-gray-200 border-2 border-dashed border-gray-300 overflow-hidden flex-shrink-0 flex items-center justify-center group">
-              {logoFile ? (
-                <img src={URL.createObjectURL(logoFile)} alt="Logo Preview" className="w-full h-full object-cover" />
-              ) : logoUrl ? (
-                <img src={logoUrl} alt="Foto Toko" className="w-full h-full object-cover" />
-              ) : (
-                <span className="text-gray-500 text-xs sm:text-sm font-medium text-center px-2">Foto Toko</span>
-              )}
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                <label className="cursor-pointer bg-white text-gray-800 p-2 rounded-full shadow hover:bg-gray-100 text-xs font-medium">
-                  {logoUrl || logoFile ? 'Ganti' : 'Tambah'}
-                  <input type="file" accept="image/*" className="hidden" onChange={(e: React.ChangeEvent<HTMLInputElement>) => e.target.files?.[0] && setLogoFile(e.target.files[0])} />
-                </label>
-              </div>
-            </div>
 
             <div className="w-full">
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Nama Toko</label>
+              <div className="flex justify-between items-center mb-2">
+                <label className="block text-sm font-semibold text-gray-700">Nama Toko</label>
+                <span className="text-xs text-gray-500">Rekomendasi rasio 1:1 (Contoh: 500 x 500 px)</span>
+              </div>
               <input
                 type="text"
                 value={storeName}
@@ -168,11 +192,6 @@ export default function StoreSettingsPage() {
                 required
                 className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all text-gray-800 text-sm sm:text-base"
               />
-              {(logoUrl || logoFile) && (
-                <button type="button" onClick={() => { setLogoFile(null); setLogoUrl(''); }} className="mt-2 text-xs text-red-600 hover:underline font-medium">
-                  Hapus Foto Toko
-                </button>
-              )}
             </div>
           </div>
 
