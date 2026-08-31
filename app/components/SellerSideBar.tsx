@@ -51,13 +51,20 @@ export default function SellerSideBar() {
             </Link>
             <Link
               href="/seller/orders"
-              className={`flex items-center px-4 py-2.5 rounded-xl text-sm transition-colors ${
+              className={`flex items-center justify-between px-4 py-2.5 rounded-xl text-sm transition-colors ${
                 isActive('/seller/orders')
                   ? 'bg-[#059669]/20 text-[#059669] font-bold'
                   : 'text-slate-600 hover:bg-slate-50'
               }`}
             >
-              Pesanan
+              <span>Pesanan</span>
+              <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                isActive('/seller/orders')
+                  ? 'bg-[#059669] text-white'
+                  : 'bg-slate-200 text-black/80'
+              }`}>
+                2
+              </span>
             </Link>
             <Link
               href="/seller/income"
