@@ -12,6 +12,11 @@ interface StoreSettingsData {
   updated_at?: string
 }
 
+interface NotificationState {
+  message: string
+  type: 'success' | 'error'
+}
+
 export default function StoreSettingsPage() {
   const [loading, setLoading] = useState<boolean>(false)
   const [storeName, setStoreName] = useState<string>('')
@@ -20,6 +25,9 @@ export default function StoreSettingsPage() {
   const [bannerFile, setBannerFile] = useState<File | null>(null)
   const [logoFile, setLogoFile] = useState<File | null>(null)
   const [userId, setUserId] = useState<string | null>(null)
+  
+  const [notification, setNotification] = useState<NotificationState | null>(null)
+  const [isNotifAnimatingOut, setIsNotifAnimatingOut] = useState<boolean>(false)
 
   useEffect(() => {
     const getSessionAndSettings = async () => {
@@ -31,6 +39,19 @@ export default function StoreSettingsPage() {
     }
     getSessionAndSettings()
   }, [])
+
+  const triggerNotification = (message: string, type: 'success' | 'error') => {
+    setIsNotifAnimatingOut(false)
+    setNotification({ message, type })
+
+    setTimeout(() => {
+      setIsNotifAnimatingOut(true)
+      setTimeout(() => {
+        setNotification(null)
+        setIsNotifAnimatingOut(false)
+      }, 500)
+    }, 3000)
+  }
 
   const fetchStoreSettings = async (currentUserId: string): Promise<void> => {
     try {
@@ -77,7 +98,7 @@ export default function StoreSettingsPage() {
   const handleSave = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault()
     if (!userId) {
-      alert('User tidak ditemukan. Silakan login terlebih dahulu.')
+      triggerNotification('User tidak ditemukan. Silakan login terlebih dahulu.', 'error')
       return
     }
 
@@ -109,19 +130,35 @@ export default function StoreSettingsPage() {
 
       if (error) throw error
 
-      alert('Pengaturan toko berhasil disimpan!')
+      triggerNotification('Pengaturan toko berhasil disimpan!', 'success')
       fetchStoreSettings(userId)
       setBannerFile(null)
       setLogoFile(null)
     } catch (error: any) {
-      alert('Terjadi kesalahan saat menyimpan: ' + error.message)
+      triggerNotification('Terjadi kesalahan saat menyimpan: ' + error.message, 'error')
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div className="min-h-screen flex justify-center items-start">
+    <div className="min-h-screen flex justify-center items-start relative">
+      {notification && (
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50">
+          <div
+            className={`px-6 py-3 rounded-xl shadow-2xl text-white font-medium text-sm flex items-center gap-3 transition-all duration-300 transform ${
+              notification.type === 'success' ? 'bg-[#059669]' : 'bg-red-600'
+            } ${isNotifAnimatingOut ? '-translate-y-20 opacity-0' : 'translate-y-0 opacity-100'}`}
+          >
+            <svg className="w-6 h-6 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <span>{notification.message}</span>
+          </div>
+        </div>
+      )}
+
       <div className="w-full max-w-3xl bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
         <div className="px-6 py-5 border-b border-gray-100">
           <h1 className="text-xl sm:text-2xl font-bold text-black/80">Pengaturan Toko</h1>
