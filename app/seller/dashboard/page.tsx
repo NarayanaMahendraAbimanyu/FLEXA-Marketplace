@@ -58,7 +58,7 @@ export default function SellerDashboardPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div
             onClick={() => router.push('/seller/product')}
-            className="cursor-pointer relative overflow-hidden bg-[#059669] text-white p-6 rounded-2xl shadow-md hover:scale-101 transition-transform flex flex-col justify-between h-36"
+            className="cursor-pointer relative overflow-hidden bg-[#059669] text-white p-6 rounded-2xl shadow-md hover:scale-103 active:scale-97 transition-transform flex flex-col justify-between h-36"
           >
             <div className="absolute right-[-10px] bottom-[-10px] opacity-20 pointer-events-none">
               <svg className="w-32 h-32" fill="currentColor" viewBox="0 0 24 24">
@@ -73,7 +73,7 @@ export default function SellerDashboardPage() {
 
           <div
             onClick={() => router.push('/seller/income')}
-            className="cursor-pointer relative overflow-hidden bg-[#059669] text-white p-6 rounded-2xl shadow-md hover:scale-101 transition-transform flex flex-col justify-between h-36"
+            className="cursor-pointer relative overflow-hidden bg-[#059669] text-white p-6 rounded-2xl shadow-md hover:scale-103 active:scale-97 transition-transform flex flex-col justify-between h-36"
           >
             <div className="absolute right-[-10px] bottom-[-10px] opacity-20 pointer-events-none">
               <svg className="w-32 h-32" fill="currentColor" viewBox="0 0 24 24">
@@ -81,14 +81,13 @@ export default function SellerDashboardPage() {
               </svg>
             </div>
             <div>
-              <p className="text-xs font-semibold tracking-wider uppercase text-emerald-100">Total Penjualan</p>
+              <p className="text-xs font-semibold tracking-wider uppercase text-emerald-100">Total Penjualan {"(Simulasi)"}</p>
               <p className="text-3xl font-bold mt-2">Rp. 550.000</p>
             </div>
           </div>
 
           <div
-            onClick={() => router.push('/seller/income')}
-            className="cursor-pointer relative overflow-hidden bg-[#059669] text-white p-6 rounded-2xl shadow-md hover:scale-101 transition-transform flex flex-col justify-between h-36"
+            className="cursor-pointer relative overflow-hidden bg-[#059669] text-white p-6 rounded-2xl shadow-md hover:scale-103 active:scale-97 transition-transform flex flex-col justify-between h-36"
           >
             <div className="absolute right-[-10px] bottom-[-10px] opacity-20 pointer-events-none">
               <svg className="w-32 h-32" fill="currentColor" viewBox="0 0 24 24">
@@ -96,7 +95,7 @@ export default function SellerDashboardPage() {
               </svg>
             </div>
             <div>
-              <p className="text-xs font-semibold tracking-wider uppercase text-emerald-100">Rating Toko</p>
+              <p className="text-xs font-semibold tracking-wider uppercase text-emerald-100">Rating Toko {"(Simulasi)"}</p>
               <p className="text-3xl font-bold mt-2">4.9</p>
             </div>
           </div>
@@ -106,7 +105,7 @@ export default function SellerDashboardPage() {
       <section className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
           <div>
-            <h2 className="text-lg sm:text-xl font-bold text-black/80">Analisis Grafik Toko {"(Simulasi)"}</h2>
+            <h2 className="text-lg sm:text-xl font-bold text-black/80">Analisis Grafik Toko - RealTime Data {"(Simulasi)"}</h2>
             <div className="flex items-center gap-2 mt-3">
               <span className="font-semibold text-black/50 text-xs sm:text-sm">Minggu Ini</span>
             </div>
