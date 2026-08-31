@@ -124,14 +124,14 @@ export default function StoreSettingsPage() {
     <div className="min-h-screen flex justify-center items-start">
       <div className="w-full max-w-3xl bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
         <div className="px-6 py-5 border-b border-gray-100">
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Pengaturan Toko</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-black/80">Pengaturan Toko</h1>
         </div>
 
         <form onSubmit={handleSave} className="p-4 sm:p-8 space-y-6">
           <div>
             <div className="flex justify-between items-center mb-2">
-              <label className="block text-sm font-semibold text-gray-700">Banner Toko</label>
-              <span className="text-xs text-gray-500">Rekomendasi rasio 4:1 (Contoh: 1200 x 300 px)</span>
+              <label className="block text-sm font-semibold text-black/80">Banner Toko</label>
+              <span className="text-xs text-black/50">Rekomendasi rasio 4:1 (Contoh: 1200 x 300 px)</span>
             </div>
             <div className="w-full h-40 sm:h-56 bg-gray-200 rounded-xl overflow-hidden border-2 border-dashed border-gray-300 flex items-center justify-center">
               {bannerFile ? (
@@ -143,12 +143,12 @@ export default function StoreSettingsPage() {
               )}
             </div>
             <div className="flex items-center gap-3 mt-3">
-              <label className="cursor-pointer bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-xl text-sm font-medium shadow-sm hover:bg-gray-50 transition-all">
+              <label className="cursor-pointer bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium shadow-sm hover:border-gray-700 hover:scale-105 active:scale-95 duration-200 transition-all">
                 {bannerUrl || bannerFile ? 'Ganti Banner' : 'Tambah Banner'}
                 <input type="file" accept="image/*" className="hidden" onChange={(e: React.ChangeEvent<HTMLInputElement>) => e.target.files?.[0] && setBannerFile(e.target.files[0])} />
               </label>
               {(bannerUrl || bannerFile) && (
-                <button type="button" onClick={() => { setBannerFile(null); setBannerUrl(''); }} className="bg-red-600 text-white px-4 py-2 rounded-xl text-sm font-medium shadow-sm hover:bg-red-700 transition-all">
+                <button type="button" onClick={() => { setBannerFile(null); setBannerUrl(''); }} className="bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-sm hover:scale-105 active:scale-95 duration-200 transition-all">
                   Hapus
                 </button>
               )}
@@ -163,16 +163,16 @@ export default function StoreSettingsPage() {
                 ) : logoUrl ? (
                   <img src={logoUrl} alt="Foto Toko" className="w-full h-full object-cover" />
                 ) : (
-                  <span className="text-gray-500 text-xs sm:text-sm font-medium text-center px-2">Foto Toko</span>
+                  <span className="text-black/60 text-xs sm:text-sm font-medium text-center px-2">Foto Toko</span>
                 )}
               </div>
               <div className="flex items-center gap-2 mt-3">
-                <label className="cursor-pointer bg-white border border-gray-300 text-gray-700 px-3 py-1.5 rounded-xl text-xs font-medium shadow-sm hover:bg-gray-50 transition-all">
+                <label className="cursor-pointer bg-white border border-gray-300 text-black/80 px-3 py-1.5 rounded-lg text-xs font-medium shadow-sm hover:border-gray-700 hover:scale-105 active:scale-95 duration-200 transition-all">
                   {logoUrl || logoFile ? 'Ganti' : 'Tambah'}
                   <input type="file" accept="image/*" className="hidden" onChange={(e: React.ChangeEvent<HTMLInputElement>) => e.target.files?.[0] && setLogoFile(e.target.files[0])} />
                 </label>
                 {(logoUrl || logoFile) && (
-                  <button type="button" onClick={() => { setLogoFile(null); setLogoUrl(''); }} className="bg-red-600 text-white px-3 py-1.5 rounded-xl text-xs font-medium shadow-sm hover:bg-red-700 transition-all">
+                  <button type="button" onClick={() => { setLogoFile(null); setLogoUrl(''); }} className="bg-red-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium shadow-sm hover:scale-105 active:scale-95 duration-200 transition-all">
                     Hapus
                   </button>
                 )}
@@ -181,8 +181,8 @@ export default function StoreSettingsPage() {
 
             <div className="w-full">
               <div className="flex justify-between items-center mb-2">
-                <label className="block text-sm font-semibold text-gray-700">Nama Toko</label>
-                <span className="text-xs text-gray-500">Rekomendasi rasio 1:1 (Contoh: 500 x 500 px)</span>
+                <label className="block text-sm font-semibold text-black/80">Nama Toko</label>
+                <span className="text-xs text-black/50">Rekomendasi rasio 1:1 (Contoh: 500 x 500 px)</span>
               </div>
               <input
                 type="text"
@@ -199,7 +199,7 @@ export default function StoreSettingsPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full sm:w-auto px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl shadow-md transition-all disabled:opacity-50 text-sm sm:text-base"
+              className="w-full sm:w-auto px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl shadow-md hover:scale-105 active:scale-95 duration-200 transition-all disabled:opacity-50 text-sm sm:text-base"
             >
               {loading ? 'Menyimpan...' : 'Simpan Perubahan'}
             </button>
