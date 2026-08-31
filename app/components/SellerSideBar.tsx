@@ -76,7 +76,7 @@ export default function SellerSideBar() {
           <p className="text-xs font-bold text-slate-400 tracking-wider uppercase mb-3">AKUN</p>
           <nav className="space-y-1">
             <Link
-              href="/seller/edit-toko"
+              href="/seller/storeSettings"
               className={`flex items-center px-4 py-2.5 rounded-xl text-sm transition-colors ${
                 isActive('/seller/edit-toko')
                   ? 'bg-[#059669]/20 text-[#059669] font-bold'
