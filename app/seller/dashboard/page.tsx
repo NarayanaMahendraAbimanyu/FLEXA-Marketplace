@@ -82,7 +82,7 @@ export default function SellerDashboardPage() {
             </div>
             <div>
               <p className="text-xs font-semibold tracking-wider uppercase text-emerald-100">Total Penjualan {"(Simulasi)"}</p>
-              <p className="text-3xl font-bold mt-2">Rp. 550.000</p>
+              <p className="text-3xl font-bold mt-2">Rp. 2.550.000</p>
             </div>
           </div>
 
@@ -105,8 +105,9 @@ export default function SellerDashboardPage() {
       <section className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
           <div>
-            <h2 className="text-lg sm:text-xl font-bold text-black/80">Analisis Grafik Toko - RealTime Data {"(Simulasi)"}</h2>
-            <div className="flex items-center gap-2 mt-3">
+            <h2 className="text-lg sm:text-xl font-bold text-[#059669]">Analisis Grafik Toko {"(Simulasi)"}</h2>
+            <p className='text-sm font-medium text-black/80'>Real-Time Data</p>
+            <div className="flex items-center gap-2 mt-2">
               <span className="font-semibold text-black/50 text-xs sm:text-sm">Minggu Ini</span>
             </div>
           </div>
