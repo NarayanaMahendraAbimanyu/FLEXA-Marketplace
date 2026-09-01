@@ -96,6 +96,8 @@ function AnimatedCard({ product, index, onClick }: AnimatedCardProps) {
   const columnIndex = index % 4;
   const delayMs = columnIndex * 150;
 
+  const fallbackText = product.title ? product.title.trim().split(' ')[0].toUpperCase() : 'PRODUK';
+
   return (
     <div
       ref={cardRef}
@@ -107,7 +109,7 @@ function AnimatedCard({ product, index, onClick }: AnimatedCardProps) {
         isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
       }`}
     >
-      <div className="relative w-full aspect-[4/3] bg-black/10 flex items-center justify-center p-4 overflow-hidden">
+      <div className="relative w-full aspect-[4/3] bg-[#e5e7eb] flex items-center justify-center overflow-hidden">
         {product.imageUrl ? (
           <img 
             src={product.imageUrl} 
@@ -115,8 +117,8 @@ function AnimatedCard({ product, index, onClick }: AnimatedCardProps) {
             className="w-full h-full object-cover rounded-t-2xl" 
           />
         ) : (
-          <span className="text-2xl sm:text-3xl font-black text-black/20 tracking-wider text-center uppercase">
-            {product.imageText}
+          <span className="text-2xl sm:text-3xl font-extrabold text-[#9ca3af] tracking-widest text-center uppercase">
+            {fallbackText}
           </span>
         )}
         <span className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm border border-emerald-500/30 text-[#059669] font-medium text-[10px] sm:text-xs px-2.5 py-0.5 rounded-full">
@@ -169,19 +171,13 @@ export default function RecommendationSection({ searchQuery, isLoggedIn, initial
     const fetchRealProducts = async () => {
       const { data: productsData, error: productsError } = await supabase
         .from('products')
-        .select('*')
-        .order('created_at', { ascending: false });
+        .select('*');
 
       if (!productsError && productsData) {
-        const { data: storeData } = await supabase
-          .from('store_settings')
-          .select('store_name, user_id')
-          .single();
-
         const formattedRealProducts = productsData.map((item: any) => {
-          const title = String(item.title || item.name || item.product_name);
+          const title = String(item.title || item.name || item.product_name || 'Produk');
           const priceValue = item.price;
-          const storeName = String(item.store_name || storeData?.store_name);
+          const storeName = String(item.store_name || 'Store Product');
 
           let formattedPrice = 'Rp. 50.000';
           if (typeof priceValue === 'number') {
@@ -199,7 +195,7 @@ export default function RecommendationSection({ searchQuery, isLoggedIn, initial
             category: String(item.category || 'fashion').toLowerCase(),
             categoryTag: item.category ? String(item.category).charAt(0).toUpperCase() + String(item.category).slice(1) : 'Fashion',
             imageText: firstWord,
-            imageUrl: item.image_url || item.image || item.photo || undefined,
+            imageUrl: item.image_url || item.image || item.photo || item.image_path || undefined,
             storeName: storeName,
             rating: Number(item.rating) || 5,
             soldCount: String(item.sold_count || '0 Terjual'),
@@ -218,7 +214,7 @@ export default function RecommendationSection({ searchQuery, isLoggedIn, initial
     const matchesSearch =
       searchQuery.trim() === '' ||
       product.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      product.imageText.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (product.imageText && product.imageText.toLowerCase().includes(searchQuery.toLowerCase())) ||
       product.storeName.toLowerCase().includes(searchQuery.toLowerCase());
 
     return matchesCategory && matchesSearch;
