@@ -74,7 +74,8 @@ export default function SellerProductPage() {
     e.preventDefault();
     if (!isFormValid) return;
 
-    let imageUrl = `https://placehold.co/100x100?text=${encodeURIComponent(name || 'Product')}`;
+    const firstWord = name.trim().split(/\s+/)[0].toUpperCase() || 'PRODUCT';
+    let imageUrl = `https://placehold.co/600x600?text=${encodeURIComponent(firstWord)}`;
 
     if (imageFile) {
       const fileExt = imageFile.name.split('.').pop();
@@ -154,6 +155,10 @@ export default function SellerProductPage() {
           imageUrl = publicUrlData.publicUrl;
         }
       }
+    } 
+    else if (!selectedProduct.image) {
+      const firstWord = selectedProduct.name.trim().split(/\s+/)[0].toUpperCase() || 'PRODUCT';
+      imageUrl = `https://placehold.co/100x100?text=${encodeURIComponent(firstWord)}`;
     }
 
     const formattedPrice = `Rp. ${selectedProduct.price}`;
@@ -244,12 +249,12 @@ export default function SellerProductPage() {
                 </thead>
                 <tbody className="divide-y divide-slate-100 text-sm">
                   {products.map((product) => (
-                    <tr key={product.id} className="hover:bg-slate-50/50 transition-colors">
+                    <tr key={product.id} className="hover:bg-slate-50 transition-colors">
                       <td className="py-4 px-6 flex items-center gap-4">
                         <img
                           src={product.image}
                           alt={product.name}
-                          className="w-12 h-12 rounded-lg object-cover bg-slate-100 border border-slate-200"
+                          className="w-12 h-12 rounded-lg object-cover bg-[#e5e7eb] border border-slate-200"
                         />
                         <div>
                           <p className="font-semibold text-black/80">{product.name}</p>
@@ -468,6 +473,20 @@ export default function SellerProductPage() {
 
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Foto Produk</label>
+                
+                {(editImageFile || selectedProduct.image) && (
+                  <div className="mb-3 flex items-center gap-3">
+                    <img
+                      src={editImageFile ? URL.createObjectURL(editImageFile) : selectedProduct.image}
+                      alt="Preview Produk"
+                      className="w-16 h-16 object-cover rounded-xl border border-slate-200"
+                    />
+                    <div className="text-xs text-slate-500">
+                      <p className="font-medium text-slate-700">{editImageFile ? 'Foto Baru Diganti' : 'Foto Saat Ini'}</p>
+                    </div>
+                  </div>
+                )}
+
                 <input
                   id="edit-product-image-input"
                   type="file"
@@ -479,11 +498,14 @@ export default function SellerProductPage() {
                   }}
                   className="w-full px-4 py-2 border border-slate-200 rounded-xl text-sm text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100"
                 />
-                {editImageFile && (
+
+                {/* Tombol Hapus Foto muncul jika ada foto terpasang atau ada file baru */}
+                {(editImageFile || (selectedProduct.image && !selectedProduct.image.includes('placehold.co'))) && (
                   <button
                     type="button"
                     onClick={() => {
                       setEditImageFile(null);
+                      setSelectedProduct({ ...selectedProduct, image: '' });
                       const fileInput = document.getElementById('edit-product-image-input') as HTMLInputElement;
                       if (fileInput) fileInput.value = '';
                     }}

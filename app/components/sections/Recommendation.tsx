@@ -109,7 +109,7 @@ function AnimatedCard({ product, index, onClick }: AnimatedCardProps) {
         isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
       }`}
     >
-      <div className="relative w-full aspect-[4/3] bg-[#e5e7eb] flex items-center justify-center overflow-hidden">
+      <div className="relative w-full aspect-[4/3] bg-[#DDDDDD] flex items-center justify-center overflow-hidden">
         {product.imageUrl ? (
           <img 
             src={product.imageUrl} 
