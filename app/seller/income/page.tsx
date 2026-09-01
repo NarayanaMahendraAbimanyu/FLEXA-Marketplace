@@ -6,6 +6,11 @@ export default function SellerIncomePage() {
   const [balance, setBalance] = useState(2550000);
   const [showNotification, setShowNotification] = useState(false);
   const [isLeaving, setIsLeaving] = useState(false);
+  const [notificationMessage, setNotificationMessage] = useState('');
+
+  const [selectedBank, setSelectedBank] = useState('BCA');
+  const [accountNumber, setAccountNumber] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
   const [transactions, setTransactions] = useState([
     {
@@ -26,16 +31,46 @@ export default function SellerIncomePage() {
     }
   ]);
 
+  const getBankDigitRules = (bank: string) => {
+    switch (bank) {
+      case 'BCA':
+        return { min: 9, max: 11, label: '9 - 11 digit' };
+      case 'Mandiri':
+        return { min: 12, max: 14, label: '12 - 14 digit' };
+      case 'BNI':
+        return { min: 9, max: 11, label: '9 - 11 digit' };
+      case 'BRI':
+        return { min: 14, max: 16, label: '14 - 16 digit' };
+      default:
+        return { min: 1, max: 20, label: 'digit valid' };
+    }
+  };
+
+  const handleBankChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedBank(e.target.value);
+    setAccountNumber('');
+    setErrorMessage('');
+  };
+
   const handleWithdraw = () => {
     if (balance <= 0) return;
-    
+
+    const rules = getBankDigitRules(selectedBank);
+    const cleanAccount = accountNumber.trim();
+
+    if (cleanAccount.length < rules.min || cleanAccount.length > rules.max) {
+      setErrorMessage(`Nomor rekening ${selectedBank} harus antara ${rules.min} sampai ${rules.max} digit.`);
+      return;
+    }
+
+    setErrorMessage('');
     const currentBalance = balance;
     setBalance(0);
 
     const newTrx = {
       id: `TRX-${Math.floor(1000 + Math.random() * 9000)}`,
       date: '31 Agustus 2026',
-      description: 'Pencairan Dana ke Rekening BCA (***4582)',
+      description: `Pencairan Dana ke Rekening ${selectedBank} (***${cleanAccount.slice(-4)})`,
       amount: -currentBalance,
       type: 'withdraw',
       status: 'Berhasil'
@@ -43,6 +78,7 @@ export default function SellerIncomePage() {
 
     setTransactions((prev) => [newTrx, ...prev]);
 
+    setNotificationMessage(`Pencairan dana ke rekening ${selectedBank} berhasil diajukan.`);
     setShowNotification(true);
     setIsLeaving(false);
 
@@ -55,6 +91,8 @@ export default function SellerIncomePage() {
     }, 2600);
   };
 
+  const currentRules = getBankDigitRules(selectedBank);
+
   return (
     <div className="w-full px-2 sm:px-2 lg:px-2 relative">
       {showNotification && (
@@ -64,7 +102,7 @@ export default function SellerIncomePage() {
           <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
           </svg>
-          Pencairan dana berhasil diajukan.
+          {notificationMessage}
         </div>
       )}
 
@@ -76,10 +114,48 @@ export default function SellerIncomePage() {
         <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col justify-between">
           <div>
             <p className="text-sm font-semibold text-black/60 mb-1">Saldo Dapat Ditarik</p>
-            <h2 className="text-2xl sm:text-3xl font-bold text-[#059669]">
+            <h2 className="text-2xl sm:text-3xl font-bold text-[#059669] mb-4">
               Rp {balance.toLocaleString('id-ID')}
             </h2>
+
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs font-semibold text-black/70 mb-1">Pilih Bank</label>
+                <select
+                  value={selectedBank}
+                  onChange={handleBankChange}
+                  className="w-full px-3 py-2 text-sm font-semibold bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-[#059669]"
+                >
+                  <option value="BCA">BCA</option>
+                  <option value="Mandiri">Mandiri</option>
+                  <option value="BNI">BNI</option>
+                  <option value="BRI">BRI</option>
+                </select>
+              </div>
+              <div>
+                <div className="flex justify-between items-center mb-1">
+                  <label className="block text-xs font-semibold text-black/70">Nomor Rekening</label>
+                  <span className="text-[10px] font-medium text-black/50">Ketentuan: {currentRules.label}</span>
+                </div>
+                <input
+                  type="text"
+                  placeholder={`Masukkan nomor rekening ${selectedBank}`}
+                  value={accountNumber}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/\D/g, '');
+                    setAccountNumber(val);
+                    if (errorMessage) setErrorMessage('');
+                  }}
+                  maxLength={currentRules.max}
+                  className="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-[#059669]"
+                />
+                {errorMessage && (
+                  <p className="text-xs text-red-500 mt-1 font-medium">{errorMessage}</p>
+                )}
+              </div>
+            </div>
           </div>
+
           <div className="mt-6 flex justify-end">
             <button
               onClick={handleWithdraw}
@@ -98,13 +174,13 @@ export default function SellerIncomePage() {
         <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col justify-between">
           <div>
             <p className="text-sm font-semibold text-black/60 mb-1">Total Penjualan {"(Simulasi)"}</p>
-            <h2 className="text-2xl sm:text-3xl font-bold text-black/90">
+            <h2 className="text-2xl sm:text-4xl font-bold text-black/90">
               Rp 2.550.000
             </h2>
           </div>
           <div className="mt-6">
             <p className="text-xs text-black/60 font-medium">
-              Pendapatan bersih setelah dikurangi biaya layanan dan simulasi.
+              Pendapatan bersih setelah dikurangi biaya layanan.
             </p>
           </div>
         </div>
