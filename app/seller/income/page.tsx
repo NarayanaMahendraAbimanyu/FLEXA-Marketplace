@@ -121,16 +121,23 @@ export default function SellerIncomePage() {
             <div className="space-y-3">
               <div>
                 <label className="block text-xs font-semibold text-black/70 mb-1">Pilih Bank</label>
-                <select
-                  value={selectedBank}
-                  onChange={handleBankChange}
-                  className="w-full px-3 py-2 text-sm font-semibold bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-[#059669]"
-                >
-                  <option value="BCA">BCA</option>
-                  <option value="Mandiri">Mandiri</option>
-                  <option value="BNI">BNI</option>
-                  <option value="BRI">BRI</option>
-                </select>
+                <div className="relative">
+                  <select
+                    value={selectedBank}
+                    onChange={handleBankChange}
+                    className="w-full pl-3 pr-10 py-2 text-sm font-semibold bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-[#059669] appearance-none"
+                  >
+                    <option value="BCA">BCA</option>
+                    <option value="Mandiri">Mandiri</option>
+                    <option value="BNI">BNI</option>
+                    <option value="BRI">BRI</option>
+                  </select>
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-black/60">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
               </div>
               <div>
                 <div className="flex justify-between items-center mb-1">
