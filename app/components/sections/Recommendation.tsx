@@ -5,6 +5,12 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import PopupLogin from './LoginModal';
 import { PRODUCTS, Product } from '../../data/products';
+import { supabase } from '@/lib/supabaseClient';
+
+interface ExtendedProduct extends Omit<Product, 'id'> {
+  id: string | number;
+  imageUrl?: string;
+}
 
 interface RecommendationSectionProps {
   searchQuery: string;
@@ -62,7 +68,7 @@ const CATEGORIES = [
 ];
 
 interface AnimatedCardProps {
-  product: Product;
+  product: ExtendedProduct;
   index: number;
   onClick: () => void;
 }
@@ -101,13 +107,20 @@ function AnimatedCard({ product, index, onClick }: AnimatedCardProps) {
         isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
       }`}
     >
-      <div className="relative w-full aspect-[4/3] bg-black/10 flex items-center justify-center p-4">
+      <div className="relative w-full aspect-[4/3] bg-black/10 flex items-center justify-center p-4 overflow-hidden">
+        {product.imageUrl ? (
+          <img 
+            src={product.imageUrl} 
+            alt={product.title} 
+            className="w-full h-full object-cover rounded-t-2xl" 
+          />
+        ) : (
+          <span className="text-2xl sm:text-3xl font-black text-black/20 tracking-wider text-center uppercase">
+            {product.imageText}
+          </span>
+        )}
         <span className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm border border-emerald-500/30 text-[#059669] font-medium text-[10px] sm:text-xs px-2.5 py-0.5 rounded-full">
           {product.categoryTag}
-        </span>
-
-        <span className="text-2xl sm:text-3xl font-black text-black/20 tracking-wider">
-          {product.imageText}
         </span>
       </div>
 
@@ -144,6 +157,7 @@ export default function RecommendationSection({ searchQuery, isLoggedIn, initial
   const router = useRouter();
   const [activeCategory, setActiveCategory] = useState('trending');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [allProducts, setAllProducts] = useState<any[]>(PRODUCTS);
 
   useEffect(() => {
     if (initialCategory) {
@@ -151,7 +165,55 @@ export default function RecommendationSection({ searchQuery, isLoggedIn, initial
     }
   }, [initialCategory]);
 
-  const filteredProducts = PRODUCTS.filter((product) => {
+  useEffect(() => {
+    const fetchRealProducts = async () => {
+      const { data: productsData, error: productsError } = await supabase
+        .from('products')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (!productsError && productsData) {
+        const { data: storeData } = await supabase
+          .from('store_settings')
+          .select('store_name, user_id')
+          .single();
+
+        const formattedRealProducts = productsData.map((item: any) => {
+          const title = String(item.title || item.name || item.product_name);
+          const priceValue = item.price;
+          const storeName = String(item.store_name || storeData?.store_name);
+
+          let formattedPrice = 'Rp. 50.000';
+          if (typeof priceValue === 'number') {
+            formattedPrice = `Rp. ${priceValue.toLocaleString('id-ID')}`;
+          } else if (typeof priceValue === 'string' && priceValue.trim() !== '') {
+            formattedPrice = priceValue;
+          }
+
+          const firstWord = title.trim().split(' ')[0].toUpperCase();
+
+          return {
+            id: item.id,
+            title: title,
+            price: formattedPrice,
+            category: String(item.category || 'fashion').toLowerCase(),
+            categoryTag: item.category ? String(item.category).charAt(0).toUpperCase() + String(item.category).slice(1) : 'Fashion',
+            imageText: firstWord,
+            imageUrl: item.image_url || item.image || item.photo || undefined,
+            storeName: storeName,
+            rating: Number(item.rating) || 5,
+            soldCount: String(item.sold_count || '0 Terjual'),
+          };
+        });
+
+        setAllProducts([...formattedRealProducts, ...PRODUCTS]);
+      }
+    };
+
+    fetchRealProducts();
+  }, []);
+
+  const filteredProducts = allProducts.filter((product) => {
     const matchesCategory = activeCategory === 'trending' || product.category === activeCategory;
     const matchesSearch =
       searchQuery.trim() === '' ||
@@ -162,7 +224,7 @@ export default function RecommendationSection({ searchQuery, isLoggedIn, initial
     return matchesCategory && matchesSearch;
   });
 
-  const handleCardClick = (productId: number) => {
+  const handleCardClick = (productId: number | string) => {
     if (!isLoggedIn) {
       setIsModalOpen(true);
     } else {
@@ -215,7 +277,7 @@ export default function RecommendationSection({ searchQuery, isLoggedIn, initial
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
             {filteredProducts.map((product, idx) => (
               <AnimatedCard
-                key={product.id}
+                key={`${product.id}-${idx}`}
                 product={product}
                 index={idx}
                 onClick={() => handleCardClick(product.id)}
