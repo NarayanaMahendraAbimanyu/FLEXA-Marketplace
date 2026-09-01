@@ -14,7 +14,7 @@ export default function SellerSideBar() {
     <aside className="w-64 border-r border-slate-200 bg-white flex flex-col justify-between p-6 md:flex">
       <div>
         <div className="mb-8">
-          <Link href="/">
+          <div>
             <Image
               src="/flexa-logo-green.png"
               alt="Flexa Logo"
@@ -23,7 +23,7 @@ export default function SellerSideBar() {
               className="h-12 w-auto object-contain cursor-pointer hover:scale-105 active:scale-95 duration-200 transition-all"
               priority
             />
-          </Link>
+          </div>
         </div>
 
         <div className="mb-6">

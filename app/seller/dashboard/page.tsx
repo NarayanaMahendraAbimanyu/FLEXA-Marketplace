@@ -66,7 +66,7 @@ export default function SellerDashboardPage() {
               </svg>
             </div>
             <div>
-              <p className="text-xs font-semibold tracking-wider uppercase text-emerald-100">Total Katalog</p>
+              <p className="text-xs font-semibold tracking-wider uppercase text-emerald-100">Total Katalog {"(Simulasi)"}</p>
               <p className="text-3xl font-bold mt-2">18</p>
             </div>
           </div>
