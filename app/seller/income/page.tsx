@@ -180,12 +180,31 @@ export default function SellerIncomePage() {
 
         <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col justify-between">
           <div>
-            <p className="text-sm font-semibold text-black/60 mb-1">Total Penjualan {"(Simulasi)"}</p>
-            <h2 className="text-2xl sm:text-4xl font-bold text-black/90">
+            <div className="flex items-center justify-between mb-1">
+              <p className="text-sm font-semibold text-black/60">Total Penjualan {"(Simulasi)"}</p>
+              <span className="p-2 bg-[#059669]/10 text-[#059669] rounded-xl">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-bold text-black/90 mb-4">
               Rp 2.550.000
             </h2>
+
+            <div className="grid grid-cols-2 gap-3 pt-4 border-t border-slate-200/60">
+              <div className="bg-white p-3 rounded-xl border border-slate-200">
+                <p className="text-[11px] font-semibold text-black/50 mb-0.5">Total Pesanan</p>
+                <p className="text-sm font-bold text-black/80">14 Pesanan</p>
+              </div>
+              <div className="bg-white p-3 rounded-xl border border-slate-200">
+                <p className="text-[11px] font-semibold text-black/50 mb-0.5">Pesanan Selesai</p>
+                <p className="text-sm font-bold text-[#059669]">14 Selesai</p>
+              </div>
+            </div>
           </div>
-          <div className="mt-6">
+
+          <div className="mt-6 pt-4 border-t border-slate-200/60">
             <p className="text-xs text-black/60 font-medium">
               Pendapatan bersih setelah dikurangi biaya layanan.
             </p>
