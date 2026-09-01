@@ -75,7 +75,7 @@ export default function SellerProductPage() {
     if (!isFormValid) return;
 
     const firstWord = name.trim().split(/\s+/)[0].toUpperCase() || 'PRODUCT';
-    let imageUrl = `https://placehold.co/600x600?text=${encodeURIComponent(firstWord)}`;
+    let imageUrl = `https://placehold.co/100x100?text=${encodeURIComponent(firstWord)}`;
 
     if (imageFile) {
       const fileExt = imageFile.name.split('.').pop();
@@ -205,7 +205,7 @@ export default function SellerProductPage() {
   };
 
   return (
-    <div className="w-full px-2 sm:px-2 lg:px-2 relative">
+    <div className="w-full px-2 sm:px-2 lg:px-2 relative font-poppins">
       {notification && (
         <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50">
           <div
