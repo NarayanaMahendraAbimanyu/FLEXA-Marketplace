@@ -19,6 +19,7 @@ export default function SellerProductPage() {
   const [description, setDescription] = useState('');
   const [stock, setStock] = useState('');
   const [price, setPrice] = useState('');
+  const [storeName, setStoreName] = useState('');
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [editImageFile, setEditImageFile] = useState<File | null>(null);
 
@@ -30,7 +31,23 @@ export default function SellerProductPage() {
 
   useEffect(() => {
     fetchProducts();
+    fetchStoreName();
   }, []);
+
+  const fetchStoreName = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const { data } = await supabase
+        .from('store_settings')
+        .select('store_name')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      
+      if (data && data.store_name) {
+        setStoreName(data.store_name);
+      }
+    }
+  };
 
   const triggerNotification = (message: string, type: 'success' | 'error') => {
     setIsNotifAnimatingOut(false);
@@ -74,6 +91,27 @@ export default function SellerProductPage() {
     e.preventDefault();
     if (!isFormValid) return;
 
+    let finalStoreName = storeName;
+
+    if (!finalStoreName) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data } = await supabase
+          .from('store_settings')
+          .select('store_name')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (data && data.store_name) {
+          finalStoreName = data.store_name;
+        } else {
+          finalStoreName = user.user_metadata?.store_name || user.user_metadata?.full_name || 'Toko Saya';
+        }
+      } else {
+        finalStoreName = 'Toko Saya';
+      }
+    }
+
     const firstWord = name.trim().split(/\s+/)[0].toUpperCase() || 'PRODUCT';
     let imageUrl = `https://placehold.co/100x100?text=${encodeURIComponent(firstWord)}`;
 
@@ -105,7 +143,8 @@ export default function SellerProductPage() {
       price: formattedPrice,
       stock: Number(stock),
       description: description,
-      image: imageUrl
+      image: imageUrl,
+      store_name: finalStoreName
     };
 
     const { data, error } = await supabase.from('products').insert([newProductData]).select();
@@ -499,7 +538,6 @@ export default function SellerProductPage() {
                   className="w-full px-4 py-2 border border-slate-200 rounded-xl text-sm text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100"
                 />
 
-                {/* Tombol Hapus Foto muncul jika ada foto terpasang atau ada file baru */}
                 {(editImageFile || (selectedProduct.image && !selectedProduct.image.includes('placehold.co'))) && (
                   <button
                     type="button"
