@@ -117,7 +117,7 @@ function AnimatedCard({ product, index, onClick }: AnimatedCardProps) {
             className="w-full h-full object-cover rounded-t-2xl" 
           />
         ) : (
-          <span className="text-2xl sm:text-6xl font-bold text-black/30 text-center uppercase">
+          <span className="text-2xl sm:text-7xl font-semibold text-black/30 text-center uppercase">
             {fallbackText}
           </span>
         )}

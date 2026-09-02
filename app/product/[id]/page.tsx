@@ -24,12 +24,32 @@ export default function ProductDetailPage() {
 
   const foundProduct: Product | undefined = PRODUCTS.find((p) => p.id === productId);
 
+  const [dbProduct, setDbProduct] = useState<any>(null);
+
   const [userData, setUserData] = useState<{ name: string; avatar: string | null }>({
     name: '',
     avatar: null,
   });
 
   const [deliveryRange, setDeliveryRange] = useState('');
+
+  useEffect(() => {
+    async function fetchDbProduct() {
+      if (!productId) return;
+      if (!foundProduct) {
+        const { data, error } = await supabase
+          .from('products')
+          .select('*')
+          .eq('id', productId)
+          .single();
+
+        if (!error && data) {
+          setDbProduct(data);
+        }
+      }
+    }
+    fetchDbProduct();
+  }, [productId, foundProduct]);
 
   useEffect(() => {
     async function fetchActiveUser() {
@@ -55,27 +75,34 @@ export default function ProductDetailPage() {
     setDeliveryRange(`${formattedStart} - ${formattedEnd}`);
   }, []);
 
+  const activeProduct = foundProduct || dbProduct;
+
   const product = {
-    id: foundProduct ? foundProduct.id : 1,
-    categoryTag: foundProduct ? foundProduct.categoryTag : 'Elektronik',
-    title: foundProduct ? foundProduct.title : 'Produk Tidak Ditemukan',
-    storeName: foundProduct ? foundProduct.storeName : 'Toko Tidak Ditemukan',
-    rating: foundProduct ? foundProduct.rating : 5.0,
-    soldCount: foundProduct && 'soldCount' in foundProduct ? (foundProduct as any).soldCount : '0 Terjual',
-    price: foundProduct ? foundProduct.price : 'Rp. 0',
-    stock: foundProduct && 'stock' in foundProduct ? (foundProduct as any).stock : 0,
-    description: foundProduct && 'description' in foundProduct && (foundProduct as any).description 
-      ? (foundProduct as any).description 
-      : foundProduct 
-      ? `Deskripsi lengkap untuk ${foundProduct.title} yang dijual oleh ${foundProduct.storeName}. Kondisi mulus, berkualitas tinggi, dan siap digunakan untuk menunjang kebutuhan Anda.` 
+    id: activeProduct ? activeProduct.id : 1,
+    categoryTag: activeProduct ? (activeProduct.categoryTag || activeProduct.category || 'Elektronik') : 'Elektronik',
+    title: activeProduct ? (activeProduct.title || activeProduct.name || 'Produk Tidak Ditemukan') : 'Produk Tidak Ditemukan',
+    storeName: activeProduct ? (activeProduct.storeName || activeProduct.store_name || 'Toko Seller') : 'Toko Tidak Ditemukan',
+    rating: activeProduct ? (activeProduct.rating || 5.0) : 5.0,
+    soldCount: activeProduct && ('soldCount' in activeProduct || 'sold_count' in activeProduct) 
+      ? (activeProduct.soldCount || activeProduct.sold_count) 
+      : '0 Terjual',
+    price: activeProduct 
+      ? (typeof activeProduct.price === 'number' ? `Rp. ${activeProduct.price.toLocaleString('id-ID')}` : activeProduct.price) 
+      : 'Rp. 0',
+    stock: activeProduct && ('stock' in activeProduct) ? activeProduct.stock : 0,
+    description: activeProduct && (activeProduct.description) 
+      ? activeProduct.description 
+      : activeProduct 
+      ? `Deskripsi lengkap untuk ${activeProduct.title || activeProduct.name} yang dijual oleh ${activeProduct.storeName || activeProduct.store_name || 'Seller'}. Kondisi mulus, berkualitas tinggi, dan siap digunakan untuk menunjang kebutuhan Anda.` 
       : 'Deskripsi tidak tersedia.',
-    images: foundProduct && 'images' in foundProduct && Array.isArray((foundProduct as any).images) && (foundProduct as any).images.length > 0
-      ? (foundProduct as any).images
+    images: activeProduct && Array.isArray(activeProduct.images) && activeProduct.images.length > 0
+      ? activeProduct.images
       : [
-          foundProduct ? foundProduct.imageText : 'PRODUK', 
-          foundProduct ? `${foundProduct.imageText} 2` : 'DETAIL', 
-          foundProduct ? `${foundProduct.imageText} 3` : 'PREVIEW'
+          activeProduct ? (activeProduct.imageText || activeProduct.title || activeProduct.name || 'PRODUK') : 'PRODUK', 
+          activeProduct ? `${activeProduct.imageText || activeProduct.title || activeProduct.name} 2` : 'DETAIL', 
+          activeProduct ? `${activeProduct.imageText || activeProduct.title || activeProduct.name} 3` : 'PREVIEW'
         ],
+    image: activeProduct ? (activeProduct.image || activeProduct.image_url || null) : null,
   };
 
   const [quantity, setQuantity] = useState(1);
@@ -221,9 +248,9 @@ export default function ProductDetailPage() {
         <div className="border border-[#059669]/40 rounded-3xl p-4 sm:p-6 lg:p-8 bg-white shadow-sm grid grid-cols-1 lg:grid-cols-12 gap-8 items-start relative">
           <div className="w-full lg:col-span-6 lg:sticky lg:top-15 space-y-4">
             <div className="w-full aspect-[4/3] bg-slate-200 rounded-2xl flex items-center justify-center p-6 border border-slate-200 shadow-inner overflow-hidden relative">
-              {foundProduct && 'image' in foundProduct && (foundProduct as any).image ? (
+              {product.image ? (
                 <Image
-                  src={(foundProduct as any).image}
+                  src={product.image}
                   alt={product.title}
                   fill
                   className="object-cover rounded-2xl"
@@ -245,9 +272,9 @@ export default function ProductDetailPage() {
                     selectedImage === idx ? 'border-[#059669] bg-emerald-50/50' : 'border-transparent hover:border-black/20'
                   }`}
                 >
-                  {foundProduct && 'image' in foundProduct && (foundProduct as any).image ? (
+                  {product.image ? (
                     <Image
-                      src={(foundProduct as any).image}
+                      src={product.image}
                       alt={`${product.title} ${idx + 1}`}
                       fill
                       className="object-cover"
