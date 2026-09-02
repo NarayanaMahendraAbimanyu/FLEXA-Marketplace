@@ -17,6 +17,15 @@ interface Review {
   created_at: string;
 }
 
+const getStoreAvatarUrl = (path: string | null | undefined) => {
+  if (!path) return null;
+  if (path.startsWith('http://') || path.startsWith('https://')) return path;
+  
+  const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+  const { data } = supabase.storage.from('store-assets').getPublicUrl(cleanPath);
+  return data?.publicUrl || null;
+};
+
 export default function ProductDetailPage() {
   const params = useParams();
   const router = useRouter();
@@ -82,6 +91,9 @@ export default function ProductDetailPage() {
     categoryTag: activeProduct ? (activeProduct.categoryTag || activeProduct.category || 'Elektronik') : 'Elektronik',
     title: activeProduct ? (activeProduct.title || activeProduct.name || 'Produk Tidak Ditemukan') : 'Produk Tidak Ditemukan',
     storeName: activeProduct ? (activeProduct.storeName || activeProduct.store_name || 'Toko Seller') : 'Toko Tidak Ditemukan',
+    storeAvatar: activeProduct 
+      ? getStoreAvatarUrl(activeProduct.storeAvatar || activeProduct.store_avatar || activeProduct.store_logo || null) 
+      : null,
     rating: activeProduct ? (activeProduct.rating || 5.0) : 5.0,
     soldCount: activeProduct && ('soldCount' in activeProduct || 'sold_count' in activeProduct) 
       ? (activeProduct.soldCount || activeProduct.sold_count) 
@@ -339,9 +351,20 @@ export default function ProductDetailPage() {
 
             <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-200">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-slate-300 flex items-center justify-center text-white font-bold flex-shrink-0">
-                  {product.storeName.charAt(0)}
-                </div>
+                {product.storeAvatar ? (
+                  <div className="w-12 h-12 rounded-full overflow-hidden relative border border-slate-200 flex-shrink-0">
+                    <Image
+                      src={product.storeAvatar}
+                      alt={product.storeName}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                ) : (
+                  <div className="w-12 h-12 rounded-full bg-slate-300 flex items-center justify-center text-white font-bold flex-shrink-0">
+                    {product.storeName.charAt(0)}
+                  </div>
+                )}
                 <div>
                   <span className="text-xs text-black/40 block">Toko</span>
                   <span className="text-sm sm:text-base font-bold text-black/70">{product.storeName}</span>
