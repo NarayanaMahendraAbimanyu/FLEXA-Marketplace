@@ -21,6 +21,7 @@ export default function ChatPage() {
   const foundProduct: Product | undefined = PRODUCTS.find((p) => p.id === productId);
   const [dbProduct, setDbProduct] = useState<any>(null);
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const [dynamicStoreName, setDynamicStoreName] = useState<string>('');
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -43,6 +44,7 @@ export default function ChatPage() {
           .single();
 
         if (!error && data) {
+          console.log('DATA MENTAH PRODUK DARI SUPABASE:', data);
           setDbProduct(data);
         }
       }
@@ -52,14 +54,43 @@ export default function ChatPage() {
 
   const activeProduct = foundProduct || dbProduct;
 
+  useEffect(() => {
+    const fetchStoreName = async () => {
+      if (!activeProduct) return;
+      
+      const ownerId = activeProduct.user_id || activeProduct.store_id;
+      if (ownerId) {
+        const { data: storeData } = await supabase
+          .from('store_settings')
+          .select('store_name')
+          .eq('user_id', ownerId)
+          .single();
+
+        if (storeData?.store_name) {
+          setDynamicStoreName(storeData.store_name);
+          return;
+        }
+      }
+
+      setDynamicStoreName(activeProduct.storeName || activeProduct.store_name || 'Name Shop');
+    };
+
+    fetchStoreName();
+  }, [activeProduct]);
+
+  const rawImageUrl = activeProduct 
+    ? (activeProduct.image_url || activeProduct.imageUrl || activeProduct.image || activeProduct.photo || activeProduct.photo_url || activeProduct.img || activeProduct.thumbnail || activeProduct.image_path)
+    : undefined;
+
   const product = {
     id: activeProduct ? activeProduct.id : 1,
     title: activeProduct ? (activeProduct.title || activeProduct.name || 'Name of Product') : 'Name of Product',
-    storeName: activeProduct ? (activeProduct.storeName || activeProduct.store_name || 'Name Shop') : 'Name Shop',
+    storeName: dynamicStoreName || 'Name Shop',
     price: activeProduct
       ? (typeof activeProduct.price === 'number' ? `Rp. ${activeProduct.price.toLocaleString('id-ID')}` : activeProduct.price)
       : 'Rp. 50.000,00',
     imageText: activeProduct ? (activeProduct.imageText || activeProduct.title || activeProduct.name || 'PRODUK') : 'PRODUK',
+    imageUrl: rawImageUrl,
   };
 
   const [messages, setMessages] = useState<Message[]>([]);
@@ -167,7 +198,7 @@ export default function ChatPage() {
           >
             ←
           </button>
-          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-slate-200 flex items-center justify-center font-bold text-black/60 text-xs sm:text-sm flex-shrink-0">
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-slate-200 flex items-center justify-center font-bold text-black/60 text-xs sm:text-sm flex-shrink-0 overflow-hidden">
             {product.storeName.charAt(0)}
           </div>
           <h1 className="text-sm sm:text-base lg:text-lg font-bold text-black/80 truncate">
@@ -183,8 +214,12 @@ export default function ChatPage() {
               Kamu menanyakan tentang produk ini.
             </span>
             <div className="flex items-center gap-3 pt-1">
-              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-slate-100 flex items-center justify-center font-bold text-black/40 text-xs flex-shrink-0 border border-slate-200">
-                {product.imageText}
+              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-slate-100 flex items-center justify-center font-bold text-black/40 text-xs flex-shrink-0 border border-slate-200 overflow-hidden">
+                {product.imageUrl ? (
+                  <img src={product.imageUrl} alt={product.title} className="w-full h-full object-cover" />
+                ) : (
+                  <span>{product.imageText}</span>
+                )}
               </div>
               <div>
                 <h2 className="text-xs sm:text-sm font-bold text-black/80 line-clamp-1">
