@@ -20,6 +20,17 @@ export default function ChatPage() {
 
   const foundProduct: Product | undefined = PRODUCTS.find((p) => p.id === productId);
   const [dbProduct, setDbProduct] = useState<any>(null);
+  const [currentUser, setCurrentUser] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setCurrentUser(user);
+      }
+    };
+    fetchUser();
+  }, []);
 
   useEffect(() => {
     const fetchDbProduct = async () => {
@@ -55,11 +66,14 @@ export default function ChatPage() {
   const [inputText, setInputText] = useState('');
 
   useEffect(() => {
+    if (!productId || !currentUser) return;
+
     const fetchMessages = async () => {
       const { data, error } = await supabase
         .from('messages')
         .select('*')
         .eq('product_id', productId)
+        .eq('user_id', currentUser.id)
         .order('created_at', { ascending: true });
 
       if (error) {
@@ -80,7 +94,7 @@ export default function ChatPage() {
     fetchMessages();
 
     const channel = supabase
-      .channel(`room_product_${productId}`)
+      .channel(`room_product_${productId}_user_${currentUser.id}`)
       .on(
         'postgres_changes',
         {
@@ -91,6 +105,8 @@ export default function ChatPage() {
         },
         (payload) => {
           const newItem = payload.new;
+          if (newItem.user_id !== currentUser.id) return;
+
           const newMsg: Message = {
             id: newItem.id,
             sender: newItem.sender,
@@ -109,11 +125,16 @@ export default function ChatPage() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [productId]);
+  }, [productId, currentUser]);
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputText.trim()) return;
+
+    if (!currentUser) {
+      alert('Silakan login terlebih dahulu untuk mengirim pesan.');
+      return;
+    }
 
     const textToSend = inputText;
     setInputText('');
@@ -121,6 +142,7 @@ export default function ChatPage() {
     const { data, error } = await supabase.from('messages').insert([
       {
         product_id: productId,
+        user_id: currentUser.id,
         sender: 'user',
         text: textToSend,
       },
