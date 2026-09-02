@@ -129,8 +129,8 @@ function AnimatedCard({ product, index, onClick }: AnimatedCardProps) {
       <div className="p-4 flex flex-col justify-between flex-1 bg-white">
         <div>
           <div className="flex items-center justify-between gap-2 text-[10px] sm:text-xs text-black/40 font-semibold tracking-wider uppercase mb-1">
-            <span>{product.storeName}</span>
-            <div className="flex items-center gap-1 text-amber-500">
+            <span className="truncate">{product.storeName}</span>
+            <div className="flex items-center gap-1 text-amber-500 shrink-0">
               <span>★</span>
               <span className="text-amber-500 font-bold">{product.rating}</span>
             </div>
@@ -174,33 +174,49 @@ export default function RecommendationSection({ searchQuery, isLoggedIn, initial
         .select('*');
 
       if (!productsError && productsData) {
-        const formattedRealProducts = productsData.map((item: any) => {
-          const title = String(item.title || item.name || item.product_name || 'Produk');
-          const priceValue = item.price;
-          const storeName = String(item.store_name || 'Store Product');
+        const formattedRealProducts = await Promise.all(
+          productsData.map(async (item: any) => {
+            const title = String(item.title || item.name || item.product_name || 'Produk');
+            const priceValue = item.price;
+            
+            let storeName = item.store_name || item.storeName || 'Toko Seller';
+            const ownerId = item.user_id || item.store_id;
 
-          let formattedPrice = 'Rp. 50.000';
-          if (typeof priceValue === 'number') {
-            formattedPrice = `Rp. ${priceValue.toLocaleString('id-ID')}`;
-          } else if (typeof priceValue === 'string' && priceValue.trim() !== '') {
-            formattedPrice = priceValue;
-          }
+            if (ownerId) {
+              const { data: storeData } = await supabase
+                .from('store_settings')
+                .select('store_name')
+                .eq('user_id', ownerId)
+                .single();
 
-          const firstWord = title.trim().split(' ')[0].toUpperCase();
+              if (storeData?.store_name) {
+                storeName = storeData.store_name;
+              }
+            }
 
-          return {
-            id: item.id,
-            title: title,
-            price: formattedPrice,
-            category: String(item.category || 'fashion').toLowerCase(),
-            categoryTag: item.category ? String(item.category).charAt(0).toUpperCase() + String(item.category).slice(1) : 'Fashion',
-            imageText: firstWord,
-            imageUrl: item.image_url || item.image || item.photo || item.image_path || undefined,
-            storeName: storeName,
-            rating: Number(item.rating) || 5,
-            soldCount: String(item.sold_count || '0 Terjual'),
-          };
-        });
+            let formattedPrice = 'Rp. 50.000';
+            if (typeof priceValue === 'number') {
+              formattedPrice = `Rp. ${priceValue.toLocaleString('id-ID')}`;
+            } else if (typeof priceValue === 'string' && priceValue.trim() !== '') {
+              formattedPrice = priceValue;
+            }
+
+            const firstWord = title.trim().split(' ')[0].toUpperCase();
+
+            return {
+              id: item.id,
+              title: title,
+              price: formattedPrice,
+              category: String(item.category || 'fashion').toLowerCase(),
+              categoryTag: item.category ? String(item.category).charAt(0).toUpperCase() + String(item.category).slice(1) : 'Fashion',
+              imageText: firstWord,
+              imageUrl: item.image_url || item.image || item.photo || item.image_path || undefined,
+              storeName: storeName,
+              rating: Number(item.rating) || 5,
+              soldCount: String(item.sold_count || '0 Terjual'),
+            };
+          })
+        );
 
         setAllProducts([...formattedRealProducts, ...PRODUCTS]);
       }
