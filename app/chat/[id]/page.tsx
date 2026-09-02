@@ -19,13 +19,36 @@ export default function ChatPage() {
   const productId = Number(params?.id);
 
   const foundProduct: Product | undefined = PRODUCTS.find((p) => p.id === productId);
+  const [dbProduct, setDbProduct] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchDbProduct = async () => {
+      if (!productId) return;
+      if (!foundProduct) {
+        const { data, error } = await supabase
+          .from('products')
+          .select('*')
+          .eq('id', productId)
+          .single();
+
+        if (!error && data) {
+          setDbProduct(data);
+        }
+      }
+    };
+    fetchDbProduct();
+  }, [productId, foundProduct]);
+
+  const activeProduct = foundProduct || dbProduct;
 
   const product = {
-    id: foundProduct ? foundProduct.id : 1,
-    title: foundProduct ? foundProduct.title : 'Name of Product',
-    storeName: foundProduct ? foundProduct.storeName : 'Name Shop',
-    price: foundProduct ? foundProduct.price : 'Rp. 50.000,00',
-    imageText: foundProduct ? foundProduct.imageText : 'PRODUK',
+    id: activeProduct ? activeProduct.id : 1,
+    title: activeProduct ? (activeProduct.title || activeProduct.name || 'Name of Product') : 'Name of Product',
+    storeName: activeProduct ? (activeProduct.storeName || activeProduct.store_name || 'Name Shop') : 'Name Shop',
+    price: activeProduct
+      ? (typeof activeProduct.price === 'number' ? `Rp. ${activeProduct.price.toLocaleString('id-ID')}` : activeProduct.price)
+      : 'Rp. 50.000,00',
+    imageText: activeProduct ? (activeProduct.imageText || activeProduct.title || activeProduct.name || 'PRODUK') : 'PRODUK',
   };
 
   const [messages, setMessages] = useState<Message[]>([]);
