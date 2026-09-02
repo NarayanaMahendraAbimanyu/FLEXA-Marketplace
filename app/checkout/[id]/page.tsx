@@ -11,21 +11,65 @@ export default function CheckoutPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  const productId = Number(params?.id);
-  const qtyParam = Number(searchParams.get('qty')) || 1;
+  const rawId = params?.id;
+  const productId = Number(rawId);
 
-  const foundProduct: Product | undefined = PRODUCTS.find((p) => p.id === productId);
+  // Cari dulu di data statis PRODUCTS
+  const foundProduct: Product | undefined = PRODUCTS.find((p) => p.id === productId || String(p.id) === String(rawId));
+
+  const [dbProduct, setDbProduct] = useState<any>(null);
+
+  useEffect(() => {
+    async function fetchDbProduct() {
+      if (!rawId) return;
+      if (!foundProduct) {
+        // Coba ambil dari tabel products (mendukung id angka maupun string/uuid)
+        let query = supabase.from('products').select('*');
+        
+        if (!isNaN(productId)) {
+          query = query.eq('id', productId);
+        } else {
+          query = query.eq('id', String(rawId));
+        }
+
+        const { data, error } = await query.single();
+
+        if (!error && data) {
+          setDbProduct(data);
+        } else {
+          // Jika gagal atau tabel berbeda, coba ambil dari localStorage jika dikirim dari halaman sebelumnya
+          const savedCart = localStorage.getItem('checkout_product');
+          if (savedCart) {
+            try {
+              setDbProduct(JSON.parse(savedCart));
+            } catch (e) {
+              console.error(e);
+            }
+          }
+        }
+      }
+    }
+    fetchDbProduct();
+  }, [rawId, productId, foundProduct]);
+
+  const activeProduct = foundProduct || dbProduct;
+
+  const rawNumericPrice = activeProduct 
+    ? (typeof activeProduct.price === 'number' 
+        ? activeProduct.price 
+        : Number(String(activeProduct.price || activeProduct.product_price || 0).replace(/[^0-9]/g, '')) || 0)
+    : 0;
 
   const product = {
-    id: foundProduct ? foundProduct.id : 1,
-    title: foundProduct ? foundProduct.title : 'Produk Tidak Ditemukan',
-    storeName: foundProduct ? foundProduct.storeName : 'Toko Tidak Ditemukan',
-    price: foundProduct ? foundProduct.price : 'Rp 0',
-    imageText: foundProduct ? foundProduct.imageText : 'PRODUK',
-    rawPrice: foundProduct 
-      ? Number(foundProduct.price.replace(/[^0-9]/g, '')) 
-      : 0,
+    id: activeProduct ? (activeProduct.id || rawId) : 1,
+    title: activeProduct ? (activeProduct.title || activeProduct.name || activeProduct.product_name || 'Produk Tidak Ditemukan') : 'Produk Tidak Ditemukan',
+    storeName: activeProduct ? (activeProduct.storeName || activeProduct.store_name || 'Toko Seller') : 'Toko Tidak Ditemukan',
+    price: activeProduct ? (typeof activeProduct.price === 'number' ? `Rp ${activeProduct.price.toLocaleString('id-ID')}` : (activeProduct.price || `Rp ${rawNumericPrice.toLocaleString('id-ID')}`)) : 'Rp 0',
+    imageText: activeProduct ? (activeProduct.imageText || activeProduct.image_text || activeProduct.title || activeProduct.name || 'PRODUK') : 'PRODUK',
+    rawPrice: rawNumericPrice,
   };
+
+  const qtyParam = Number(searchParams.get('qty')) || Number(activeProduct?.qty) || 1;
 
   const [address, setAddress] = useState('Jl. Merdeka No. 45, RT 01 / RW 05, Kel. Menteng, Kec. Menteng, Kota Jakarta Pusat, DKI Jakarta, 10350');
   const [isEditingAddress, setIsEditingAddress] = useState(false);
@@ -157,7 +201,7 @@ export default function CheckoutPage() {
 
         <div className="flex items-center justify-between">
           <Link 
-            href={`/product/${productId}`} 
+            href={`/product/${rawId}`} 
             className="inline-flex items-center gap-2 px-4 py-2 bg-[#059669] text-white rounded-xl font-semibold text-xs sm:text-sm hover:bg-emerald-700 hover:scale-[1.03] active:scale-[0.98] duration-200 transition-all shadow-sm"
           >
             <span>← Kembali</span>
@@ -201,7 +245,7 @@ export default function CheckoutPage() {
           </div>
 
           <div className="flex items-center gap-4 p-3 bg-slate-50 rounded-2xl border border-slate-100">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-slate-200 rounded-xl flex items-center justify-center font-bold text-black/40 text-xs flex-shrink-0">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-slate-200 rounded-xl flex items-center justify-center text-center font-bold text-black/40 text-xs flex-shrink-0">
               {product.imageText}
             </div>
             <div className="flex-1 min-w-0 space-y-1">
