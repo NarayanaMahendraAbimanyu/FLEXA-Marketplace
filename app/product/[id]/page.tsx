@@ -34,6 +34,8 @@ export default function ProductDetailPage() {
   const foundProduct: Product | undefined = PRODUCTS.find((p) => p.id === productId);
 
   const [dbProduct, setDbProduct] = useState<any>(null);
+  const [liveStoreName, setLiveStoreName] = useState<string>('');
+  const [liveStoreLogo, setLiveStoreLogo] = useState<string | null>(null);
 
   const [userData, setUserData] = useState<{ name: string; avatar: string | null }>({
     name: '',
@@ -43,22 +45,75 @@ export default function ProductDetailPage() {
   const [deliveryRange, setDeliveryRange] = useState('');
 
   useEffect(() => {
-    async function fetchDbProduct() {
+    async function fetchDbProductWithStore() {
       if (!productId) return;
-      if (!foundProduct) {
-        const { data, error } = await supabase
-          .from('products')
-          .select('*')
-          .eq('id', productId)
-          .single();
 
-        if (!error && data) {
-          setDbProduct(data);
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('id', productId)
+        .single();
+
+      if (!error && data) {
+        setDbProduct(data);
+        const ownerId = data.user_id || data.store_id;
+
+        if (ownerId) {
+          const { data: storeData } = await supabase
+            .from('store_settings')
+            .select('store_name, logo_url')
+            .eq('user_id', ownerId)
+            .single();
+
+          if (storeData) {
+            setLiveStoreName(storeData.store_name);
+            setLiveStoreLogo(storeData.logo_url);
+          } else {
+            setLiveStoreName(data.store_name || data.storeName || 'Toko Seller');
+          }
+        } else {
+          setLiveStoreName(data.store_name || data.storeName || 'Toko Seller');
         }
+      } else if (foundProduct) {
+        setDbProduct(foundProduct);
+        setLiveStoreName(foundProduct.storeName || 'Toko Seller');
       }
     }
-    fetchDbProduct();
+
+    fetchDbProductWithStore();
   }, [productId, foundProduct]);
+
+  const activeProduct = foundProduct || dbProduct;
+
+  useEffect(() => {
+    const storeId = activeProduct?.user_id || activeProduct?.store_id;
+    if (!storeId) return;
+
+    const storeChannel = supabase
+      .channel(`public:store_settings:user_id=eq.${storeId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'store_settings',
+          filter: `user_id=eq.${storeId}`,
+        },
+        (payload: any) => {
+          if (payload.new?.store_name) {
+            setLiveStoreName(payload.new.store_name);
+          }
+          if (payload.new?.logo_url !== undefined) {
+            setLiveStoreLogo(payload.new.logo_url);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(storeChannel);
+    };
+  }, [activeProduct]);
 
   useEffect(() => {
     async function fetchActiveUser() {
@@ -84,16 +139,17 @@ export default function ProductDetailPage() {
     setDeliveryRange(`${formattedStart} - ${formattedEnd}`);
   }, []);
 
-  const activeProduct = foundProduct || dbProduct;
-
   const product = {
     id: activeProduct ? activeProduct.id : 1,
     categoryTag: activeProduct ? (activeProduct.categoryTag || activeProduct.category || 'Elektronik') : 'Elektronik',
     title: activeProduct ? (activeProduct.title || activeProduct.name || 'Produk Tidak Ditemukan') : 'Produk Tidak Ditemukan',
-    storeName: activeProduct ? (activeProduct.storeName || activeProduct.store_name || 'Toko Seller') : 'Toko Tidak Ditemukan',
-    storeAvatar: activeProduct 
-      ? getStoreAvatarUrl(activeProduct.storeAvatar || activeProduct.store_avatar || activeProduct.store_logo || null) 
-      : null,
+    storeName: liveStoreName || (activeProduct ? (activeProduct.storeName || activeProduct.store_name || 'Toko Seller') : 'Toko Tidak Ditemukan'),
+    storeAvatar: getStoreAvatarUrl(
+      liveStoreLogo || 
+      activeProduct?.store_avatar || 
+      activeProduct?.storeLogo || 
+      null
+    ),
     rating: activeProduct ? (activeProduct.rating || 5.0) : 5.0,
     soldCount: activeProduct && ('soldCount' in activeProduct || 'sold_count' in activeProduct) 
       ? (activeProduct.soldCount || activeProduct.sold_count) 
@@ -105,7 +161,7 @@ export default function ProductDetailPage() {
     description: activeProduct && (activeProduct.description) 
       ? activeProduct.description 
       : activeProduct 
-      ? `Deskripsi lengkap untuk ${activeProduct.title || activeProduct.name} yang dijual oleh ${activeProduct.storeName || activeProduct.store_name || 'Seller'}. Kondisi mulus, berkualitas tinggi, dan siap digunakan untuk menunjang kebutuhan Anda.` 
+      ? `Deskripsi lengkap untuk ${activeProduct.title || activeProduct.name} yang dijual oleh ${liveStoreName || activeProduct.storeName || activeProduct.store_name || 'Seller'}.` 
       : 'Deskripsi tidak tersedia.',
     images: activeProduct && Array.isArray(activeProduct.images) && activeProduct.images.length > 0
       ? activeProduct.images

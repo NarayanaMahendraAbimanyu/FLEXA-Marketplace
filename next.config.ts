@@ -11,6 +11,12 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'placehold.co',
       },
+      {
+        protocol: 'https',
+        hostname: 'olmekyhmduxbahjmebsd.supabase.co',
+        port: '',
+        pathname: '/**',
+      },
     ],
   },
 };

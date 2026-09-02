@@ -9,6 +9,7 @@ interface StoreSettingsData {
   store_name: string
   banner_url: string | null
   logo_url: string | null
+  store_avatar?: string | null
   updated_at?: string
 }
 
@@ -66,7 +67,7 @@ export default function StoreSettingsPage() {
         const storeData = data as StoreSettingsData
         setStoreName(storeData.store_name || '')
         setBannerUrl(storeData.banner_url || '')
-        setLogoUrl(storeData.logo_url || '')
+        setLogoUrl(storeData.logo_url || storeData.store_avatar || '')
       }
     } catch (error: any) {
       console.error('Error fetching settings:', error.message)

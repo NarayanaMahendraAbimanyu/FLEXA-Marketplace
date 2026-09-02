@@ -20,6 +20,7 @@ export default function SellerProductPage() {
   const [stock, setStock] = useState('');
   const [price, setPrice] = useState('');
   const [storeName, setStoreName] = useState('');
+  const [storeAvatar, setStoreAvatar] = useState('');
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [editImageFile, setEditImageFile] = useState<File | null>(null);
 
@@ -31,20 +32,25 @@ export default function SellerProductPage() {
 
   useEffect(() => {
     fetchProducts();
-    fetchStoreName();
+    fetchStoreInfo();
   }, []);
 
-  const fetchStoreName = async () => {
+  const fetchStoreInfo = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
       const { data } = await supabase
         .from('store_settings')
-        .select('store_name')
+        .select('store_name, store_avatar, logo_url')
         .eq('user_id', user.id)
         .maybeSingle();
       
-      if (data && data.store_name) {
-        setStoreName(data.store_name);
+      if (data) {
+        if (data.store_name) {
+          setStoreName(data.store_name);
+        }
+        if (data.store_avatar || data.logo_url) {
+          setStoreAvatar(data.store_avatar || data.logo_url);
+        }
       }
     }
   };
@@ -92,10 +98,12 @@ export default function SellerProductPage() {
     if (!isFormValid) return;
 
     let finalStoreName = storeName;
+    let currentUserId = null;
 
-    if (!finalStoreName) {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      currentUserId = user.id;
+      if (!finalStoreName) {
         const { data } = await supabase
           .from('store_settings')
           .select('store_name')
@@ -107,9 +115,9 @@ export default function SellerProductPage() {
         } else {
           finalStoreName = user.user_metadata?.store_name || user.user_metadata?.full_name || 'Toko Saya';
         }
-      } else {
-        finalStoreName = 'Toko Saya';
       }
+    } else {
+      finalStoreName = 'Toko Saya';
     }
 
     const firstWord = name.trim().split(/\s+/)[0].toUpperCase() || 'PRODUCT';
@@ -144,7 +152,8 @@ export default function SellerProductPage() {
       stock: Number(stock),
       description: description,
       image: imageUrl,
-      store_name: finalStoreName
+      store_name: finalStoreName,
+      user_id: currentUserId
     };
 
     const { data, error } = await supabase.from('products').insert([newProductData]).select();
@@ -263,7 +272,16 @@ export default function SellerProductPage() {
       <main className="flex-1 min-h-screen">
         <div className="w-full max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-8 border-b border-black/30 pb-6">
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-black/85">Katalog Produk</h1>
+            <div className="flex items-center gap-3">
+              {storeAvatar && (
+                <img
+                  src={storeAvatar}
+                  alt={storeName || 'Logo Toko'}
+                  className="w-10 h-10 rounded-full object-cover border border-slate-200 shadow-sm"
+                />
+              )}
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-black/85">Katalog Produk</h1>
+            </div>
             <button
               onClick={() => setIsModalOpen(true)}
               className="bg-[#059669] hover:scale-105 active:scale-95 duration-200 transition-all text-white px-5 py-2.5 rounded-xl font-medium text-sm shadow-sm flex items-center gap-2"
