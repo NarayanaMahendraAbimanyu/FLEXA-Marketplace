@@ -177,6 +177,7 @@ export default function ProductDetailPage() {
 
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
+  const [mainImageError, setMainImageError] = useState(false);
   
   const [userRating, setUserRating] = useState(0);
   const [reviewText, setReviewText] = useState('');
@@ -318,16 +319,17 @@ export default function ProductDetailPage() {
         <div className="border border-[#059669]/40 rounded-3xl p-4 sm:p-6 lg:p-8 bg-white shadow-sm grid grid-cols-1 lg:grid-cols-12 gap-8 items-start relative">
           <div className="w-full lg:col-span-6 lg:sticky lg:top-15 space-y-4">
             <div className="w-full aspect-[4/3] bg-slate-200 rounded-2xl flex items-center justify-center p-6 border border-slate-200 shadow-inner overflow-hidden relative">
-              {product.image ? (
+              {product.image && !mainImageError ? (
                 <Image
                   src={product.image}
                   alt={product.title}
                   fill
                   className="object-cover rounded-2xl"
+                  onError={() => setMainImageError(true)}
                 />
               ) : (
-                <span className="text-3xl sm:text-5xl font-black text-black/30 tracking-wider">
-                  {product.images[selectedImage]}
+                <span className="text-sm sm:text-lg lg:text-xl font-medium text-slate-400 text-center px-4">
+                  Belum Ada Foto Produk
                 </span>
               )}
             </div>
@@ -342,15 +344,18 @@ export default function ProductDetailPage() {
                     selectedImage === idx ? 'border-[#059669] bg-emerald-50/50' : 'border-transparent hover:border-black/20'
                   }`}
                 >
-                  {product.image ? (
+                  {product.image && !mainImageError ? (
                     <Image
                       src={product.image}
                       alt={`${product.title} ${idx + 1}`}
                       fill
                       className="object-cover"
+                      onError={() => setMainImageError(true)}
                     />
                   ) : (
-                    <span className="text-xs sm:text-sm font-bold text-black/40">{img}</span>
+                    <span className="text-[9px] sm:text-[11px] lg:text-xs font-semibold text-slate-400 text-center px-1">
+                      Tidak Ada Foto
+                    </span>
                   )}
                 </button>
               ))}

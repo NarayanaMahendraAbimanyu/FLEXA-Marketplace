@@ -120,8 +120,7 @@ export default function SellerProductPage() {
       finalStoreName = 'Toko Saya';
     }
 
-    const firstWord = name.trim().split(/\s+/)[0].toUpperCase() || 'PRODUCT';
-    let imageUrl = `https://placehold.co/100x100?text=${encodeURIComponent(firstWord)}`;
+    let imageUrl = '';
 
     if (imageFile) {
       const fileExt = imageFile.name.split('.').pop();
@@ -205,8 +204,7 @@ export default function SellerProductPage() {
       }
     } 
     else if (!selectedProduct.image) {
-      const firstWord = selectedProduct.name.trim().split(/\s+/)[0].toUpperCase() || 'PRODUCT';
-      imageUrl = `https://placehold.co/100x100?text=${encodeURIComponent(firstWord)}`;
+      imageUrl = '';
     }
 
     const formattedPrice = `Rp. ${selectedProduct.price}`;
@@ -308,11 +306,19 @@ export default function SellerProductPage() {
                   {products.map((product) => (
                     <tr key={product.id} className="hover:bg-slate-50 transition-colors">
                       <td className="py-4 px-6 flex items-center gap-4">
-                        <img
-                          src={product.image}
-                          alt={product.name}
-                          className="w-12 h-12 rounded-lg object-cover bg-[#e5e7eb] border border-slate-200"
-                        />
+                        {product.image ? (
+                          <img
+                            src={product.image}
+                            alt={product.name}
+                            className="w-12 h-12 rounded-lg object-cover bg-[#e5e7eb] border border-slate-200"
+                          />
+                        ) : (
+                          <div className="w-12 h-12 rounded-lg bg-[#e5e7eb] border border-slate-200 flex items-center justify-center">
+                            <span className="text-[8px] sm:text-[9px] font-medium text-slate-400 text-center leading-tight px-0.5">
+                              Tanpa Foto
+                            </span>
+                          </div>
+                        )}
                         <div>
                           <p className="font-semibold text-black/80">{product.name}</p>
                           <p className="text-xs text-black/50 mt-0.5">{product.category}</p>
