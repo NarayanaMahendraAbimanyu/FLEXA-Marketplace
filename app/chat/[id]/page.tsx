@@ -22,6 +22,7 @@ export default function ChatPage() {
   const [dbProduct, setDbProduct] = useState<any>(null);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [dynamicStoreName, setDynamicStoreName] = useState<string>('');
+  const [storeLogoUrl, setStoreLogoUrl] = useState<string>('');
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -55,28 +56,55 @@ export default function ChatPage() {
   const activeProduct = foundProduct || dbProduct;
 
   useEffect(() => {
-    const fetchStoreName = async () => {
-      if (!activeProduct) return;
-      
-      const ownerId = activeProduct.user_id || activeProduct.store_id;
-      if (ownerId) {
-        const { data: storeData } = await supabase
-          .from('store_settings')
-          .select('store_name')
-          .eq('user_id', ownerId)
-          .single();
+  const ownerId = activeProduct ? (activeProduct.user_id || activeProduct.store_id) : undefined;
 
-        if (storeData?.store_name) {
-          setDynamicStoreName(storeData.store_name);
-          return;
-        }
+  const fetchStoreName = async () => {
+    if (!activeProduct) return;
+
+    if (ownerId) {
+      const { data: storeData } = await supabase
+        .from('store_settings')
+        .select('store_name, logo_url')
+        .eq('user_id', ownerId)
+        .single();
+
+      if (storeData) {
+        setDynamicStoreName(storeData.store_name || activeProduct.storeName || activeProduct.store_name || 'Name Shop');
+        setStoreLogoUrl(storeData.logo_url || '');
+        return;
       }
+    }
 
-      setDynamicStoreName(activeProduct.storeName || activeProduct.store_name || 'Name Shop');
-    };
+    setDynamicStoreName(activeProduct.storeName || activeProduct.store_name || 'Name Shop');
+    setStoreLogoUrl('');
+  };
 
-    fetchStoreName();
-  }, [activeProduct]);
+  fetchStoreName();
+
+  if (!ownerId) return;
+
+  const storeChannel = supabase
+    .channel(`store_settings_${ownerId}`)
+    .on(
+      'postgres_changes',
+      {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'store_settings',
+        filter: `user_id=eq.${ownerId}`,
+      },
+      (payload) => {
+        const updated = payload.new;
+        if (updated.store_name) setDynamicStoreName(updated.store_name);
+        setStoreLogoUrl(updated.logo_url || '');
+      }
+    )
+    .subscribe();
+
+  return () => {
+    supabase.removeChannel(storeChannel);
+  };
+}, [activeProduct]);
 
   const rawImageUrl = activeProduct 
     ? (activeProduct.image_url || activeProduct.imageUrl || activeProduct.image || activeProduct.photo || activeProduct.photo_url || activeProduct.img || activeProduct.thumbnail || activeProduct.image_path)
@@ -198,8 +226,12 @@ export default function ChatPage() {
           >
             ←
           </button>
-          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-slate-200 flex items-center justify-center font-bold text-black/60 text-xs sm:text-sm flex-shrink-0 overflow-hidden">
-            {product.storeName.charAt(0)}
+          <div className="w-9 h-9 sm:w-10 sm:h-10 lg:w-11 lg:h-11 rounded-full bg-slate-200 flex items-center justify-center font-bold text-black/60 text-xs sm:text-sm flex-shrink-0 overflow-hidden">
+            {storeLogoUrl ? (
+              <img src={storeLogoUrl} alt={product.storeName} className="w-full h-full object-cover" />
+            ) : (
+              product.storeName.charAt(0)
+            )}
           </div>
           <h1 className="text-sm sm:text-base lg:text-lg font-bold text-black/80 truncate">
             {product.storeName}
@@ -292,7 +324,7 @@ export default function ChatPage() {
               ➔
             </button>
           </form>
-        </div>
+        </div>  
       </main>
     </div>
   );
