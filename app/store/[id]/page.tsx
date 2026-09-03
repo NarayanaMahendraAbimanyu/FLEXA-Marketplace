@@ -103,13 +103,14 @@ export default function StorePage() {
   return (
     <div className="w-full min-h-screen bg-slate-50 flex flex-col">
       <header className="w-full bg-white border-b border-[#059669]/30 px-4 sm:px-6 lg:px-8 py-3.5 flex items-center gap-3 sm:gap-4 sticky top-0 z-30 shadow-sm">
-        <button
-          type="button"
-          onClick={() => router.back()}
-          className="text-[#059669] hover:scale-110 active:scale-95 duration-200 transition-all font-bold text-xl sm:text-2xl"
-        >
-          ←
-        </button>
+        <div className="flex items-center justify-between">
+          <button 
+            onClick={() => router.back()}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-[#059669] text-white rounded-xl font-semibold text-xs sm:text-sm hover:bg-emerald-700 hover:scale-[1.03] active:scale-[0.98] duration-200 transition-all shadow-sm"
+          >
+            <span>← Kembali</span>
+          </button>
+        </div>
         <h1 className="text-sm sm:text-base lg:text-lg font-bold text-black/80 truncate">
           Detail Toko
         </h1>

@@ -221,12 +221,11 @@ export default function ChatPage() {
     <div className="w-full min-h-screen bg-slate-50 flex flex-col">
       <header className="w-full bg-white border-b border-[#059669]/30 px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between sticky top-0 z-30 shadow-sm">
         <div className="flex items-center gap-3 sm:gap-4 max-w-7xl mx-auto w-full">
-          <button
-            type="button"
+          <button 
             onClick={() => router.back()}
-            className="text-[#059669] hover:scale-110 active:scale-95 duration-200 transition-all font-bold text-xl sm:text-2xl"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-[#059669] text-white rounded-xl font-semibold text-xs sm:text-sm hover:bg-emerald-700 hover:scale-[1.03] active:scale-[0.98] duration-200 transition-all shadow-sm"
           >
-            ←
+            <span>← Kembali</span>
           </button>
           <Link href={storeOwnerId ? `/store/${storeOwnerId}` : '#'}>
             <div className="w-9 h-9 sm:w-10 sm:h-10 lg:w-11 lg:h-11 rounded-full bg-slate-200 flex items-center justify-center font-bold text-black/60 text-xs sm:text-sm flex-shrink-0 overflow-hidden">

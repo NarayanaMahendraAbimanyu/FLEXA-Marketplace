@@ -36,6 +36,7 @@ export default function ProductDetailPage() {
   const [dbProduct, setDbProduct] = useState<any>(null);
   const [liveStoreName, setLiveStoreName] = useState<string>('');
   const [liveStoreLogo, setLiveStoreLogo] = useState<string | null>(null);
+  const [storeOwnerId, setStoreOwnerId] = useState<string>('');
 
   const [userData, setUserData] = useState<{ name: string; avatar: string | null }>({
     name: '',
@@ -57,6 +58,7 @@ export default function ProductDetailPage() {
       if (!error && data) {
         setDbProduct(data);
         const ownerId = data.user_id || data.store_id;
+        setStoreOwnerId(ownerId || '');
 
         if (ownerId) {
           const { data: storeData } = await supabase
@@ -406,7 +408,10 @@ export default function ProductDetailPage() {
             </div>
 
             <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-200">
-              <div className="flex items-center gap-3">
+              <Link
+                href={storeOwnerId ? `/store/${storeOwnerId}` : '#'}
+                className="flex items-center gap-3 hover:opacity-80 duration-200 transition-opacity"
+              >
                 {product.storeAvatar ? (
                   <div className="w-12 h-12 rounded-full overflow-hidden relative border border-slate-200 flex-shrink-0">
                     <Image
@@ -423,9 +428,9 @@ export default function ProductDetailPage() {
                 )}
                 <div>
                   <span className="text-xs text-black/40 block">Toko</span>
-                  <span className="text-sm sm:text-base font-bold text-black/70">{product.storeName}</span>
+                  <span className="text-sm sm:text-base font-bold text-black/70 hover:text-[#059669]">{product.storeName}</span>
                 </div>
-              </div>
+              </Link>
               <button
                 type="button"
                 onClick={() => router.push(`/chat/${product.id}`)}
