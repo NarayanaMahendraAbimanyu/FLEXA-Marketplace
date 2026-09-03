@@ -23,6 +23,7 @@ export default function ChatPage() {
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [dynamicStoreName, setDynamicStoreName] = useState<string>('');
   const [storeLogoUrl, setStoreLogoUrl] = useState<string>('');
+  const [storeOwnerId, setStoreOwnerId] = useState<string>('');62
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -57,6 +58,7 @@ export default function ChatPage() {
 
   useEffect(() => {
   const ownerId = activeProduct ? (activeProduct.user_id || activeProduct.store_id) : undefined;
+  setStoreOwnerId(ownerId || '');
 
   const fetchStoreName = async () => {
     if (!activeProduct) return;
@@ -226,16 +228,21 @@ export default function ChatPage() {
           >
             ←
           </button>
-          <div className="w-9 h-9 sm:w-10 sm:h-10 lg:w-11 lg:h-11 rounded-full bg-slate-200 flex items-center justify-center font-bold text-black/60 text-xs sm:text-sm flex-shrink-0 overflow-hidden">
-            {storeLogoUrl ? (
-              <img src={storeLogoUrl} alt={product.storeName} className="w-full h-full object-cover" />
-            ) : (
-              product.storeName.charAt(0)
-            )}
-          </div>
-          <h1 className="text-sm sm:text-base lg:text-lg font-bold text-black/80 truncate">
+          <Link href={storeOwnerId ? `/store/${storeOwnerId}` : '#'}>
+            <div className="w-9 h-9 sm:w-10 sm:h-10 lg:w-11 lg:h-11 rounded-full bg-slate-200 flex items-center justify-center font-bold text-black/60 text-xs sm:text-sm flex-shrink-0 overflow-hidden">
+              {storeLogoUrl ? (
+                <img src={storeLogoUrl} alt={product.storeName} className="w-full h-full object-cover" />
+              ) : (
+                product.storeName.charAt(0)
+              )}
+            </div>
+          </Link>
+          <Link
+            href={storeOwnerId ? `/store/${storeOwnerId}` : '#'}
+            className="text-sm sm:text-base lg:text-lg font-bold text-black/80 truncate hover:text-[#059669] duration-200 transition-colors"
+          >
             {product.storeName}
-          </h1>
+          </Link>
         </div>
       </header>
 

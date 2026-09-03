@@ -11,6 +11,9 @@ interface StoreProduct {
   title: string;
   price: string | number;
   imageUrl?: string;
+  categoryTag: string;
+  rating: number;
+  soldCount: string;
 }
 
 export default function StorePage() {
@@ -40,24 +43,33 @@ export default function StorePage() {
         setBannerUrl(storeData.banner_url || '');
       }
 
-      const { data: productsData } = await supabase
-        .from('products')
-        .select('*')
-        .or(`user_id.eq.${sellerId},store_id.eq.${sellerId}`);
+      const { data: productsData, error: productsError } = await supabase
+            .from('products')
+            .select('*')
+            .eq('user_id', sellerId);
 
-      if (productsData) {
-        const mapped: StoreProduct[] = productsData.map((item) => ({
-          id: item.id,
-          title: item.title || item.name || 'Name of Product',
-          price:
-            typeof item.price === 'number'
-              ? `Rp. ${item.price.toLocaleString('id-ID')}`
-              : item.price,
-          imageUrl:
-            item.image_url || item.imageUrl || item.image || item.photo || item.photo_url || item.img,
-        }));
-        setProducts(mapped);
-      }
+        console.log('SELLER ID DI URL:', sellerId);
+        console.log('ERROR PRODUCTS:', productsError);
+        console.log('DATA PRODUCTS:', productsData);
+
+        if (productsData) {
+          const mapped: StoreProduct[] = productsData.map((item) => ({
+            id: item.id,
+            title: item.title || item.name || 'Name of Product',
+            price:
+              typeof item.price === 'number'
+                ? `Rp. ${item.price.toLocaleString('id-ID')}`
+                : item.price,
+            imageUrl:
+              item.image_url || item.imageUrl || item.image || item.photo || item.photo_url || item.img,
+            categoryTag: item.category
+              ? String(item.category).charAt(0).toUpperCase() + String(item.category).slice(1)
+              : 'Fashion',
+            rating: Number(item.rating) || 5,
+            soldCount: String(item.sold_count || '0 Terjual'),
+          }));
+          setProducts(mapped);
+        }
 
       setLoading(false);
     };
@@ -145,24 +157,49 @@ export default function StorePage() {
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-5">
             {products.map((product) => (
               <Link
-                key={product.id}
-                href={`/product/${product.id}`}
-                className="bg-white border border-slate-200 rounded-2xl p-2.5 sm:p-3 shadow-sm hover:shadow-md hover:scale-[1.02] duration-200 transition-all"
-              >
-                <div className="w-full aspect-square rounded-xl bg-slate-100 flex items-center justify-center overflow-hidden mb-2">
-                  {product.imageUrl ? (
-                    <img src={product.imageUrl} alt={product.title} className="w-full h-full object-cover" />
-                  ) : (
-                    <span className="text-black/30 text-xs font-medium">PRODUK</span>
-                  )}
-                </div>
-                <h4 className="text-[11px] sm:text-xs lg:text-sm font-semibold text-black/80 line-clamp-2 mb-1">
-                  {product.title}
-                </h4>
-                <span className="text-[11px] sm:text-xs lg:text-sm font-bold text-[#059669]">
-                  {product.price}
-                </span>
-              </Link>
+                  key={product.id}
+                  href={`/product/${product.id}`}
+                  className="bg-white rounded-2xl border border-slate-200/85 hover:border-[#059669] shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden group flex flex-col"
+                >
+                  <div className="relative w-full aspect-[4/3] bg-[#DDDDDD] flex items-center justify-center overflow-hidden">
+                    {product.imageUrl ? (
+                      <img
+                        src={product.imageUrl}
+                        alt={product.title}
+                        className="w-full h-full object-cover rounded-t-2xl"
+                      />
+                    ) : (
+                      <span className="text-lg sm:text-3xl lg:text-4xl font-semibold text-black/30 text-center uppercase">
+                        {product.title.trim().split(' ')[0]}
+                      </span>
+                    )}
+                    <span className="absolute top-2 sm:top-3 left-2 sm:left-3 bg-white/90 backdrop-blur-sm border border-emerald-500/30 text-[#059669] font-medium text-[9px] sm:text-[10px] lg:text-xs px-2 sm:px-2.5 py-0.5 rounded-full">
+                      {product.categoryTag}
+                    </span>
+                  </div>
+                
+                  <div className="p-2.5 sm:p-3 lg:p-4 flex flex-col justify-between flex-1 bg-white">
+                    <div>
+                      <h3 className="text-[11px] sm:text-xs lg:text-sm font-bold text-slate-800 line-clamp-1 group-hover:text-[#059669] transition-colors">
+                        {product.title}
+                      </h3>
+                      <div className="flex items-center justify-start gap-1 text-amber-500 text-[9px] sm:text-[10px] lg:text-xs font-semibold mb-1">
+                        <span>★</span>
+                        <span className="font-bold">{product.rating}</span>
+                      </div>
+                    </div>
+                
+                    <div className="mt-2 sm:mt-3 flex items-center justify-between pt-1.5 sm:pt-2 border-t border-slate-100">
+                      <span className="text-xs sm:text-sm lg:text-lg font-bold text-[#059669]">
+                        {product.price}
+                      </span>
+                
+                      <span className="text-[10px] sm:text-xs lg:text-sm text-black/50 font-medium">
+                        {product.soldCount}
+                      </span>
+                    </div>
+                  </div>
+                </Link>
             ))}
           </div>
         )}
