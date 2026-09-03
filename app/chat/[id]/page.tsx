@@ -23,7 +23,7 @@ export default function ChatPage() {
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [dynamicStoreName, setDynamicStoreName] = useState<string>('');
   const [storeLogoUrl, setStoreLogoUrl] = useState<string>('');
-  const [storeOwnerId, setStoreOwnerId] = useState<string>('');62
+  const [storeOwnerId, setStoreOwnerId] = useState<string>('');
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -46,7 +46,6 @@ export default function ChatPage() {
           .single();
 
         if (!error && data) {
-          console.log('DATA MENTAH PRODUK DARI SUPABASE:', data);
           setDbProduct(data);
         }
       }
@@ -57,56 +56,56 @@ export default function ChatPage() {
   const activeProduct = foundProduct || dbProduct;
 
   useEffect(() => {
-  const ownerId = activeProduct ? (activeProduct.user_id || activeProduct.store_id) : undefined;
-  setStoreOwnerId(ownerId || '');
+    const ownerId = activeProduct ? (activeProduct.user_id || activeProduct.store_id) : undefined;
+    setStoreOwnerId(ownerId || '');
 
-  const fetchStoreName = async () => {
-    if (!activeProduct) return;
+    const fetchStoreName = async () => {
+      if (!activeProduct) return;
 
-    if (ownerId) {
-      const { data: storeData } = await supabase
-        .from('store_settings')
-        .select('store_name, logo_url')
-        .eq('user_id', ownerId)
-        .single();
+      if (ownerId) {
+        const { data: storeData } = await supabase
+          .from('store_settings')
+          .select('store_name, logo_url')
+          .eq('user_id', ownerId)
+          .single();
 
-      if (storeData) {
-        setDynamicStoreName(storeData.store_name || activeProduct.storeName || activeProduct.store_name || 'Name Shop');
-        setStoreLogoUrl(storeData.logo_url || '');
-        return;
+        if (storeData) {
+          setDynamicStoreName(storeData.store_name || activeProduct.storeName || activeProduct.store_name || 'Name Shop');
+          setStoreLogoUrl(storeData.logo_url || '');
+          return;
+        }
       }
-    }
 
-    setDynamicStoreName(activeProduct.storeName || activeProduct.store_name || 'Name Shop');
-    setStoreLogoUrl('');
-  };
+      setDynamicStoreName(activeProduct.storeName || activeProduct.store_name || 'Name Shop');
+      setStoreLogoUrl('');
+    };
 
-  fetchStoreName();
+    fetchStoreName();
 
-  if (!ownerId) return;
+    if (!ownerId) return;
 
-  const storeChannel = supabase
-    .channel(`store_settings_${ownerId}`)
-    .on(
-      'postgres_changes',
-      {
-        event: 'UPDATE',
-        schema: 'public',
-        table: 'store_settings',
-        filter: `user_id=eq.${ownerId}`,
-      },
-      (payload) => {
-        const updated = payload.new;
-        if (updated.store_name) setDynamicStoreName(updated.store_name);
-        setStoreLogoUrl(updated.logo_url || '');
-      }
-    )
-    .subscribe();
+    const storeChannel = supabase
+      .channel(`store_settings_${ownerId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'store_settings',
+          filter: `user_id=eq.${ownerId}`,
+        },
+        (payload) => {
+          const updated = payload.new;
+          if (updated.store_name) setDynamicStoreName(updated.store_name);
+          setStoreLogoUrl(updated.logo_url || '');
+        }
+      )
+      .subscribe();
 
-  return () => {
-    supabase.removeChannel(storeChannel);
-  };
-}, [activeProduct]);
+    return () => {
+      supabase.removeChannel(storeChannel);
+    };
+  }, [activeProduct]);
 
   const rawImageUrl = activeProduct 
     ? (activeProduct.image_url || activeProduct.imageUrl || activeProduct.image || activeProduct.photo || activeProduct.photo_url || activeProduct.img || activeProduct.thumbnail || activeProduct.image_path)
@@ -188,17 +187,13 @@ export default function ChatPage() {
     };
   }, [productId, currentUser]);
 
-  const handleSendMessage = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!inputText.trim()) return;
+  const handleSendMessage = async (textToSend: string) => {
+    if (!textToSend.trim()) return;
 
     if (!currentUser) {
       alert('Silakan login terlebih dahulu untuk mengirim pesan.');
       return;
     }
-
-    const textToSend = inputText;
-    setInputText('');
 
     const { data, error } = await supabase.from('messages').insert([
       {
@@ -210,11 +205,19 @@ export default function ChatPage() {
     ]).select();
 
     if (error) {
-      console.error('Gagal mengirim pesan ke Supabase:', error.message);
       alert('Gagal mengirim pesan: ' + error.message);
-    } else {
-      console.log('Pesan berhasil tersimpan:', data);
     }
+  };
+
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const textToSend = inputText;
+    setInputText('');
+    await handleSendMessage(textToSend);
+  };
+
+  const handleQuickQuestion = async (questionText: string) => {
+    await handleSendMessage(questionText);
   };
 
   return (
@@ -245,7 +248,7 @@ export default function ChatPage() {
         </div>
       </header>
 
-      <div className="sticky top-[57px] sm:top-[56px] z-20 w-full bg-slate-50 px-3 sm:px-6 lg:px-8 pt-3 pb-2">
+      <div className="sticky top-[57px] sm:top-[73px] z-20 w-full bg-slate-50 px-3 sm:px-6 lg:px-8 pt-3 pb-2">
         <div className="max-w-4xl mx-auto w-full bg-white border border-slate-200 rounded-2xl p-3 sm:p-4 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="space-y-1">
             <span className="text-[11px] sm:text-xs text-black/50 block font-medium">
@@ -314,8 +317,35 @@ export default function ChatPage() {
           </div>
         </div>
 
-        <div className="sticky bottom-3 left-0 right-0 bg-white border border-slate-200 rounded-2xl p-2 sm:p-3 shadow-lg">
-          <form onSubmit={handleSendMessage} className="flex items-center gap-2">
+        <div className="sticky bottom-3 left-0 right-0 bg-white border border-slate-200 rounded-2xl p-2 sm:p-3 shadow-lg flex flex-col gap-2">
+          <div className="flex flex-col gap-1.5 pb-2 border-b border-slate-100">
+            <button
+              type="button"
+              onClick={() => handleQuickQuestion("Halo, apakah barangnya masih ada?")}
+              className="w-full text-left px-3 py-2 bg-slate-50 hover:bg-[#059669] hover:text-white text-black/70 rounded-lg text-xs sm:text-xs font-normal transition-all duration-200 border border-slate-200 active:scale-[0.99] flex items-center justify-between group"
+            >
+              <span>Halo, apakah barangnya masih ada?</span>
+              <span className="text-black/40 group-hover:text-white transition-colors">⤴</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => handleQuickQuestion("Bisa kurang harganya kak?")}
+              className="w-full text-left px-3 py-2 bg-slate-50 hover:bg-[#059669] hover:text-white text-black/70 rounded-lg text-xs sm:text-xs font-normal transition-all duration-200 border border-slate-200 active:scale-[0.99] flex items-center justify-between group"
+            >
+              <span>Bisa kurang harganya kak?</span>
+              <span className="text-black/40 group-hover:text-white transition-colors">⤴</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => handleQuickQuestion("Kapan pesanan ini bisa dikirim?")}
+              className="w-full text-left px-3 py-2 bg-slate-50 hover:bg-[#059669] hover:text-white text-black/70 rounded-lg text-xs sm:text-xs font-normal transition-all duration-200 border border-slate-200 active:scale-[0.99] flex items-center justify-between group"
+            >
+              <span>Kapan pesanan ini bisa dikirim?</span>
+              <span className="text-black/40 group-hover:text-white transition-colors">⤴</span>
+            </button>
+          </div>
+
+          <form onSubmit={handleFormSubmit} className="flex items-center gap-2">
             <input
               type="text"
               value={inputText}
