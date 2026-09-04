@@ -177,9 +177,9 @@ export default function StoreSettingsPage() {
           <div>
             <div className="flex justify-between items-center mb-2">
               <label className="block text-sm font-semibold text-black/80">Banner Toko</label>
-              <span className="text-xs text-black/50">Rekomendasi rasio 4:1 (Contoh: 1200 x 300 px)</span>
+              <span className="text-xs text-black/50">Rekomendasi rasio 16:9 (Contoh: 1280 x 720 px)</span>
             </div>
-            <div className="w-full h-40 sm:h-56 bg-gray-200 rounded-xl overflow-hidden border-2 border-dashed border-gray-300 flex items-center justify-center">
+            <div className="w-full aspect-video bg-gray-200 rounded-xl overflow-hidden border-2 border-dashed border-gray-300 flex items-center justify-center">
               {bannerFile ? (
                 <img src={URL.createObjectURL(bannerFile)} alt="Banner Preview" className="w-full h-full object-cover" />
               ) : bannerUrl ? (
@@ -207,9 +207,9 @@ export default function StoreSettingsPage() {
                 {logoFile ? (
                   <img src={URL.createObjectURL(logoFile)} alt="Logo Preview" className="w-full h-full object-cover" />
                 ) : logoUrl ? (
-                  <img src={logoUrl} alt="Foto Toko" className="w-full h-full object-cover" />
+                  <img src={logoUrl} alt="Logo Toko" className="w-full h-full object-cover" />
                 ) : (
-                  <span className="text-black/60 text-xs sm:text-sm font-medium text-center px-2">Foto Toko</span>
+                  <span className="text-black/60 text-xs sm:text-sm font-medium text-center px-2">Logo Toko</span>
                 )}
               </div>
               <div className="flex items-center gap-2 mt-3">
