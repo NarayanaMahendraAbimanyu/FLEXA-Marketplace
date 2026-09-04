@@ -14,6 +14,10 @@ interface OrderItem {
   address?: string;
   paymentMethod?: string;
   numericPrice?: number;
+  category?: string;
+  rentalStartDate?: string;
+  rentalEndDate?: string;
+  deliveryMethod?: string;
 }
 
 export default function PurchasePage() {
@@ -53,7 +57,11 @@ export default function PurchasePage() {
                 storeName: item.store_name,
                 status: item.status || 'Belum dikirim',
                 address: item.address,
-                paymentMethod: item.payment_method
+                paymentMethod: item.payment_method,
+                category: item.category || '',
+                rentalStartDate: item.rental_start_date || '',
+                rentalEndDate: item.rental_end_date || '',
+                deliveryMethod: item.delivery_method || '',
               };
             });
             setPurchasedProducts(formattedOrders);
@@ -141,7 +149,7 @@ export default function PurchasePage() {
                   className="border border-slate-300 rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 relative"
                 >
                   <div className="flex items-center gap-4 w-full sm:w-auto">
-                    <div className="w-20 h-20 sm:w-24 sm:h-24 bg-slate-200 rounded-xl flex items-center justify-center font-bold text-black/40 text-xs shrink-0">
+                    <div className="w-20 h-20 sm:w-24 sm:h-24 bg-slate-200 rounded-xl flex items-center justify-center text-center font-bold text-black/40 text-xs shrink-0">
                       {item.imageText || 'PRODUK'}
                     </div>
                     <div>
@@ -204,6 +212,28 @@ export default function PurchasePage() {
                 <span className="text-black/50 font-medium">Nama Toko:</span>
                 <span className="font-bold text-black/80">{selectedOrder.storeName || 'Official Store'}</span>
               </div>
+              {selectedOrder.category && (
+                <div className="flex justify-between">
+                  <span className="text-black/50 font-medium">Kategori:</span>
+                  <span className="font-bold text-black/80 capitalize">{selectedOrder.category}</span>
+                </div>
+              )}
+              {selectedOrder.category?.toLowerCase() === 'sewa' && selectedOrder.rentalStartDate && selectedOrder.rentalEndDate && (
+                <div className="flex justify-between">
+                  <span className="text-black/50 font-medium">Periode Sewa:</span>
+                  <span className="font-bold text-black/80 text-right">
+                    {new Date(selectedOrder.rentalStartDate).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })} - {new Date(selectedOrder.rentalEndDate).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                  </span>
+                </div>
+              )}
+              {selectedOrder.category?.toLowerCase() === 'sewa' && selectedOrder.deliveryMethod && (
+                <div className="flex justify-between">
+                  <span className="text-black/50 font-medium">Metode Ambil/Kirim:</span>
+                  <span className="font-bold text-black/80">
+                    {selectedOrder.deliveryMethod === 'pickup' ? 'Ambil di Toko' : 'Dikirim ke Alamat'}
+                  </span>
+                </div>
+              )}
               <div className="flex justify-between">
                 <span className="text-black/50 font-medium">Jumlah (Qty):</span>
                 <span className="font-bold text-black/80">{selectedOrder.qty || 1}</span>
@@ -221,7 +251,9 @@ export default function PurchasePage() {
                 <span className="font-bold text-[#059669]">{selectedOrder.status || 'Belum dikirim'}</span>
               </div>
               <div className="pt-2 border-t border-slate-100 space-y-1">
-                <span className="text-black/50 font-medium block">Alamat Pengiriman:</span>
+                <span className="text-black/50 font-medium block">
+                  {selectedOrder.deliveryMethod === 'pickup' ? 'Alamat Pengambilan:' : 'Alamat Pengiriman:'}
+                </span>
                 <p className="text-black/70 font-medium leading-relaxed bg-slate-50 p-3 rounded-xl border border-slate-100">
                   {selectedOrder.address || 'Alamat tidak tersedia'}
                 </p>

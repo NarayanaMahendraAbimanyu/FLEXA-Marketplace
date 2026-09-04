@@ -135,7 +135,7 @@ export default function CheckoutPage() {
     }
   };
 
-  const handleCreateOrder = async () => {
+    const handleCreateOrder = async () => {
     const randomId = Math.floor(100000 + Math.random() * 900000).toString();
     const orderData = {
       id: randomId,
@@ -144,8 +144,12 @@ export default function CheckoutPage() {
       imageText: product.imageText,
       qty: qtyParam,
       storeName: product.storeName,
-      address: address,
+      address: isSewa && deliveryMethod === 'pickup' ? storeAddress : address,
       paymentMethod: paymentMethod,
+      category: product.category,
+      rentalStartDate: isSewa ? rentalStartDate : '',
+      rentalEndDate: isSewa ? rentalEndDate : '',
+      deliveryMethod: isSewa ? deliveryMethod : '',
     };
 
     localStorage.setItem('last_purchase', JSON.stringify(orderData));
@@ -162,9 +166,13 @@ export default function CheckoutPage() {
             image_text: product.imageText,
             quantity: qtyParam,
             store_name: product.storeName,
-            address: address,
+            address: isSewa && deliveryMethod === 'pickup' ? storeAddress : address,
             payment_method: paymentMethod,
-            status: 'Belum dikirim'
+            status: 'Belum dikirim',
+            category: product.category,
+            rental_start_date: isSewa ? rentalStartDate : null,
+            rental_end_date: isSewa ? rentalEndDate : null,
+            delivery_method: isSewa ? deliveryMethod : null,
           }
         ]);
       }
