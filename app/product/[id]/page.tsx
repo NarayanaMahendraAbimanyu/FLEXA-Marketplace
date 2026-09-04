@@ -48,60 +48,97 @@ export default function ProductDetailPage() {
   const [deliveryRange, setDeliveryRange] = useState('');
 
   useEffect(() => {
-    async function fetchDbProductWithStore() {
+    async function fetchStoreAndProductData() {
       if (!productId) return;
 
-      const { data, error } = await supabase
+      const { data: productData, error: productError } = await supabase
         .from('products')
         .select('*')
         .eq('id', productId)
-        .single();
+        .maybeSingle();
 
-      if (!error && data) {
-        setDbProduct(data);
-        const ownerId = data.user_id || data.store_id;
-        setStoreOwnerId(ownerId || '');
+      let ownerId = '';
+      let currentProduct = null;
 
-        if (ownerId) {
-          const { data: storeData } = await supabase
-            .from('store_settings')
-            .select('store_name, logo_url')
-            .eq('user_id', ownerId)
-            .single();
-
-          if (storeData) {
-            setLiveStoreName(storeData.store_name);
-            setLiveStoreLogo(storeData.logo_url);
-          } else {
-            setLiveStoreName(data.store_name || data.storeName || 'Toko Seller');
-          }
-        } else {
-          setLiveStoreName(data.store_name || data.storeName || 'Toko Seller');
-        }
+      if (!productError && productData) {
+        currentProduct = productData;
+        setDbProduct(productData);
+        ownerId = productData.user_id || productData.store_id || '';
       } else if (foundProduct) {
+        currentProduct = foundProduct;
         setDbProduct(foundProduct);
-        setLiveStoreName(foundProduct.storeName || 'Toko Seller');
+      }
+
+      if (ownerId) {
+        setStoreOwnerId(ownerId);
+        const { data: storeData } = await supabase
+          .from('store_settings')
+          .select('store_name, logo_url')
+          .eq('user_id', ownerId)
+          .maybeSingle();
+
+        if (storeData) {
+          setLiveStoreName(storeData.store_name);
+          setLiveStoreLogo(storeData.logo_url);
+          return;
+        }
+      }
+
+      const { data: allStores, error: storesError } = await supabase
+        .from('store_settings')
+        .select('user_id, store_name, logo_url');
+
+      if (!storesError && allStores && allStores.length > 0) {
+        if (allStores.length === 1) {
+          setStoreOwnerId(allStores[0].user_id);
+          setLiveStoreName(allStores[0].store_name);
+          setLiveStoreLogo(allStores[0].logo_url);
+          return;
+        }
+
+        const targetTitle = (currentProduct?.title || currentProduct?.name || '').toLowerCase();
+        let matchedStore = allStores.find((store) => 
+          targetTitle.includes(store.store_name.toLowerCase())
+        );
+
+        if (!matchedStore && currentProduct?.storeName) {
+          matchedStore = allStores.find((store) => 
+            store.store_name.toLowerCase() === currentProduct.storeName.toLowerCase()
+          );
+        }
+
+        if (matchedStore) {
+          setStoreOwnerId(matchedStore.user_id);
+          setLiveStoreName(matchedStore.store_name);
+          setLiveStoreLogo(matchedStore.logo_url);
+          return;
+        }
+
+        setStoreOwnerId(allStores[0].user_id);
+        setLiveStoreName(allStores[0].store_name);
+        setLiveStoreLogo(allStores[0].logo_url);
+      } else {
+        setLiveStoreName(currentProduct?.storeName || 'Toko Seller');
       }
     }
 
-    fetchDbProductWithStore();
+    fetchStoreAndProductData();
   }, [productId, foundProduct]);
 
   const activeProduct = foundProduct || dbProduct;
 
   useEffect(() => {
-    const storeId = activeProduct?.user_id || activeProduct?.store_id;
-    if (!storeId) return;
+    if (!storeOwnerId) return;
 
     const storeChannel = supabase
-      .channel(`public:store_settings:user_id=eq.${storeId}`)
+      .channel(`public:store_settings:user_id=eq.${storeOwnerId}`)
       .on(
         'postgres_changes',
         {
           event: '*',
           schema: 'public',
           table: 'store_settings',
-          filter: `user_id=eq.${storeId}`,
+          filter: `user_id=eq.${storeOwnerId}`,
         },
         (payload: any) => {
           if (payload.new?.store_name) {
@@ -117,7 +154,7 @@ export default function ProductDetailPage() {
     return () => {
       supabase.removeChannel(storeChannel);
     };
-  }, [activeProduct]);
+  }, [storeOwnerId]);
 
   useEffect(() => {
     async function fetchActiveUser() {
@@ -147,7 +184,7 @@ export default function ProductDetailPage() {
     id: activeProduct ? activeProduct.id : 1,
     categoryTag: activeProduct ? (activeProduct.categoryTag || activeProduct.category || 'Elektronik') : 'Elektronik',
     title: activeProduct ? (activeProduct.title || activeProduct.name || 'Produk Tidak Ditemukan') : 'Produk Tidak Ditemukan',
-    storeName: liveStoreName || (activeProduct ? (activeProduct.storeName || activeProduct.store_name || 'Toko Seller') : 'Toko Tidak Ditemukan'),
+    storeName: liveStoreName || 'Toko Seller',
     storeAvatar: getStoreAvatarUrl(
       liveStoreLogo || 
       activeProduct?.store_avatar || 
@@ -165,7 +202,7 @@ export default function ProductDetailPage() {
     description: activeProduct && (activeProduct.description) 
       ? activeProduct.description 
       : activeProduct 
-      ? `Deskripsi lengkap untuk ${activeProduct.title || activeProduct.name} yang dijual oleh ${liveStoreName || activeProduct.storeName || activeProduct.store_name || 'Seller'}.` 
+      ? `Deskripsi lengkap untuk ${activeProduct.title || activeProduct.name} yang dijual oleh ${liveStoreName || 'Seller'}.` 
       : 'Deskripsi tidak tersedia.',
     images: activeProduct && Array.isArray(activeProduct.images) && activeProduct.images.length > 0
       ? activeProduct.images
@@ -274,7 +311,7 @@ export default function ProductDetailPage() {
       .maybeSingle();
 
     if (existing) {
-      router.push(`/chat/${existing.id}`);;
+      router.push(`/chat/${existing.id}`);
       return;
     }
 
@@ -292,7 +329,7 @@ export default function ProductDetailPage() {
       .select()
       .single();
 
-    if (newConv) router.push(`/chat/${newConv.id}`);;
+    if (newConv) router.push(`/chat/${newConv.id}`);
   };
 
   const handleAddReview = async (e: React.FormEvent) => {
@@ -491,7 +528,7 @@ export default function ProductDetailPage() {
                 onClick={handleStartChat}
                 className="px-4 sm:px-5 py-2.5 bg-[#059669] text-white hover:bg-emerald-700 hover:scale-[1.03] active:scale-[0.98] duration-200 transition-all font-bold text-xs sm:text-sm rounded-xl shadow-sm flex-shrink-0"
               >
-                Tawar / Chat
+                Chat Penjual
               </button>
             </div>
 
@@ -624,7 +661,7 @@ export default function ProductDetailPage() {
               </div>
             </div>
 
-                        {!isJasa && (
+            {!isJasa && (
               <div className="sticky bottom-0 left-0 right-0 z-40 bg-white/95 sm:bg-white/90 backdrop-blur-md p-3 sm:p-4 border-t sm:border border-black/30 sm:rounded-2xl shadow-xl flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-lg flex-shrink-0">
                   <button

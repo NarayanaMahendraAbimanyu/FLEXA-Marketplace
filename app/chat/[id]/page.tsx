@@ -35,8 +35,8 @@ export default function ChatPage() {
   const [productPrice, setProductPrice] = useState<string>('');
   const [dynamicStoreName, setDynamicStoreName] = useState<string>('');
   const [storeLogoUrl, setStoreLogoUrl] = useState<string>('');
+  const [isQuickAnswerOpen, setIsQuickAnswerOpen] = useState<boolean>(true);
 
-  // Ambil user yang sedang login
   useEffect(() => {
     const fetchUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -45,7 +45,6 @@ export default function ChatPage() {
     fetchUser();
   }, []);
 
-  // Ambil data conversation
   useEffect(() => {
     if (!conversationId) return;
 
@@ -66,7 +65,6 @@ export default function ChatPage() {
     fetchConversation();
   }, [conversationId]);
 
-  // Ambil harga produk (tidak tersimpan di conversations, jadi fetch terpisah)
   useEffect(() => {
     if (!conversation?.product_id) return;
 
@@ -89,20 +87,21 @@ export default function ChatPage() {
     fetchProductPrice();
   }, [conversation]);
 
-  // Ambil nama & logo toko seller, plus subscribe perubahan realtime
   useEffect(() => {
     if (!conversation?.seller_id) return;
 
     const fetchStoreName = async () => {
-      const { data: storeData } = await supabase
+      const { data: storeData, error } = await supabase
         .from('store_settings')
         .select('store_name, logo_url')
         .eq('user_id', conversation.seller_id)
-        .single();
+        .maybeSingle();
 
       if (storeData) {
-        setDynamicStoreName(storeData.store_name || 'Toko Seller');
+        setDynamicStoreName(storeData.store_name || '');
         setStoreLogoUrl(storeData.logo_url || '');
+      } else if (error) {
+        console.error('Gagal mengambil store settings:', error.message);
       }
     };
 
@@ -113,15 +112,17 @@ export default function ChatPage() {
       .on(
         'postgres_changes',
         {
-          event: 'UPDATE',
+          event: '*',
           schema: 'public',
           table: 'store_settings',
           filter: `user_id=eq.${conversation.seller_id}`,
         },
-        (payload) => {
+        (payload: any) => {
           const updated = payload.new;
-          if (updated.store_name) setDynamicStoreName(updated.store_name);
-          setStoreLogoUrl(updated.logo_url || '');
+          if (updated) {
+            if (updated.store_name) setDynamicStoreName(updated.store_name);
+            setStoreLogoUrl(updated.logo_url || '');
+          }
         }
       )
       .subscribe();
@@ -131,11 +132,9 @@ export default function ChatPage() {
     };
   }, [conversation]);
 
-  // Tentukan siapa "lawan bicara" — kalau user login = buyer, tampilkan toko seller.
-  // Kalau user login = seller, tampilkan nama buyer.
   const isBuyerView = currentUser && conversation && currentUser.id === conversation.buyer_id;
   const headerName = conversation
-    ? (isBuyerView ? dynamicStoreName || 'Toko Seller' : conversation.buyer_name || 'Pembeli')
+    ? (isBuyerView ? dynamicStoreName || 'Narayana Store' : conversation.buyer_name || 'Pembeli')
     : '';
   const headerAvatar = conversation
     ? (isBuyerView ? storeLogoUrl : conversation.buyer_avatar)
@@ -144,7 +143,6 @@ export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');
 
-  // Ambil pesan & subscribe realtime, difilter per conversation_id
   useEffect(() => {
     if (!conversationId) return;
 
@@ -321,32 +319,45 @@ export default function ChatPage() {
         </div>
 
         <div className="sticky bottom-3 left-0 right-0 bg-white border border-slate-200 rounded-2xl p-2 sm:p-3 shadow-lg flex flex-col gap-2">
-          <div className="flex flex-col gap-1.5 pb-2 border-b border-slate-100">
+          <div className="flex items-center justify-between px-1 pb-1">
+            <span className="text-[11px] sm:text-xs font-semibold text-black/60">Quick Answer</span>
             <button
               type="button"
-              onClick={() => handleQuickQuestion("Halo, apakah barangnya masih ada?")}
-              className="w-full text-left px-3 py-2 bg-slate-50 hover:bg-[#059669] hover:text-white text-black/70 rounded-lg text-xs sm:text-xs font-normal transition-all duration-200 border border-slate-200 active:scale-[0.99] flex items-center justify-between group"
+              onClick={() => setIsQuickAnswerOpen(!isQuickAnswerOpen)}
+              className="text-xs font-medium text-[#059669] hover:underline flex items-center gap-1"
             >
-              <span>Halo, apakah barangnya masih ada?</span>
-              <span className="text-black/40 group-hover:text-white transition-colors">⤴</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => handleQuickQuestion("Bisa kurang harganya kak?")}
-              className="w-full text-left px-3 py-2 bg-slate-50 hover:bg-[#059669] hover:text-white text-black/70 rounded-lg text-xs sm:text-xs font-normal transition-all duration-200 border border-slate-200 active:scale-[0.99] flex items-center justify-between group"
-            >
-              <span>Bisa kurang harganya kak?</span>
-              <span className="text-black/40 group-hover:text-white transition-colors">⤴</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => handleQuickQuestion("Kapan pesanan ini bisa dikirim?")}
-              className="w-full text-left px-3 py-2 bg-slate-50 hover:bg-[#059669] hover:text-white text-black/70 rounded-lg text-xs sm:text-xs font-normal transition-all duration-200 border border-slate-200 active:scale-[0.99] flex items-center justify-between group"
-            >
-              <span>Kapan pesanan ini bisa dikirim?</span>
-              <span className="text-black/40 group-hover:text-white transition-colors">⤴</span>
+              {isQuickAnswerOpen ? 'Tutup ▴' : 'Buka ▾'}
             </button>
           </div>
+
+          {isQuickAnswerOpen && (
+            <div className="flex flex-col gap-1.5 pb-2 border-b border-slate-100">
+              <button
+                type="button"
+                onClick={() => handleQuickQuestion("Halo, apakah barangnya masih ada?")}
+                className="w-full text-left px-3 py-2 bg-slate-50 hover:bg-[#059669] hover:text-white text-black/70 rounded-lg text-xs sm:text-xs font-normal transition-all duration-200 border border-slate-200 active:scale-[0.99] flex items-center justify-between group"
+              >
+                <span>Halo, apakah barangnya masih ada?</span>
+                <span className="text-black/40 group-hover:text-white transition-colors">⤴</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleQuickQuestion("Bisa kurang harganya kak?")}
+                className="w-full text-left px-3 py-2 bg-slate-50 hover:bg-[#059669] hover:text-white text-black/70 rounded-lg text-xs sm:text-xs font-normal transition-all duration-200 border border-slate-200 active:scale-[0.99] flex items-center justify-between group"
+              >
+                <span>Bisa kurang harganya kak?</span>
+                <span className="text-black/40 group-hover:text-white transition-colors">⤴</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleQuickQuestion("Kapan pesanan ini bisa dikirim?")}
+                className="w-full text-left px-3 py-2 bg-slate-50 hover:bg-[#059669] hover:text-white text-black/70 rounded-lg text-xs sm:text-xs font-normal transition-all duration-200 border border-slate-200 active:scale-[0.99] flex items-center justify-between group"
+              >
+                <span>Kapan pesanan ini bisa dikirim?</span>
+                <span className="text-black/40 group-hover:text-white transition-colors">⤴</span>
+              </button>
+            </div>
+          )}
 
           <form onSubmit={handleFormSubmit} className="flex items-center gap-2">
             <input
