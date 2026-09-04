@@ -7,6 +7,8 @@ interface StoreSettingsData {
   id?: string
   user_id: string
   store_name: string
+  store_description?: string | null
+  store_address?: string | null
   banner_url: string | null
   logo_url: string | null
   store_avatar?: string | null
@@ -21,6 +23,8 @@ interface NotificationState {
 export default function StoreSettingsPage() {
   const [loading, setLoading] = useState<boolean>(false)
   const [storeName, setStoreName] = useState<string>('')
+  const [storeDescription, setStoreDescription] = useState<string>('')
+  const [storeAddress, setStoreAddress] = useState<string>('')
   const [bannerUrl, setBannerUrl] = useState<string>('')
   const [logoUrl, setLogoUrl] = useState<string>('')
   const [bannerFile, setBannerFile] = useState<File | null>(null)
@@ -66,6 +70,8 @@ export default function StoreSettingsPage() {
       if (data) {
         const storeData = data as StoreSettingsData
         setStoreName(storeData.store_name || '')
+        setStoreDescription(storeData.store_description || '')
+        setStoreAddress(storeData.store_address || '')
         setBannerUrl(storeData.banner_url || '')
         setLogoUrl(storeData.logo_url || storeData.store_avatar || '')
       }
@@ -120,6 +126,8 @@ export default function StoreSettingsPage() {
       const updates: StoreSettingsData = {
         user_id: userId,
         store_name: storeName,
+        store_description: storeDescription,
+        store_address: storeAddress,
         banner_url: finalBannerUrl,
         logo_url: finalLogoUrl,
         updated_at: new Date().toISOString(),
@@ -226,11 +234,37 @@ export default function StoreSettingsPage() {
                 type="text"
                 value={storeName}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setStoreName(e.target.value)}
-                placeholder="Masukkan nama toko Anda"
+                placeholder="Masukkan nama toko Anda (Belum diisi)"
                 required
                 className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all text-gray-800 text-sm sm:text-base"
               />
             </div>
+          </div>
+
+          <div>
+            <div className="flex justify-between items-center mb-2">
+              <label className="block text-sm font-semibold text-black/80">Deskripsi Toko</label>
+            </div>
+            <textarea
+              value={storeDescription}
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setStoreDescription(e.target.value)}
+              placeholder="Ceritakan sedikit tentang toko atau produk yang Anda jual"
+              rows={3}
+              className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all text-gray-800 text-sm sm:text-base"
+            />
+          </div>
+
+          <div>
+            <div className="flex justify-between items-center mb-2">
+              <label className="block text-sm font-semibold text-black/80">Alamat Toko</label>
+            </div>
+            <textarea
+              value={storeAddress}
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setStoreAddress(e.target.value)}
+              placeholder="Masukkan alamat lengkap lokasi toko Anda"
+              rows={2}
+              className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all text-gray-800 text-sm sm:text-base"
+            />
           </div>
 
           <div className="pt-4 border-t border-gray-100 flex justify-end">
