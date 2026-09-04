@@ -222,7 +222,7 @@ export default function SellerIncomePage() {
                 <div className="flex items-center gap-2">
                   <span className="font-bold text-black/90 text-sm">{trx.description}</span>
                   <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                    trx.type === 'income' ? 'bg-[#059669]/10 text-[#059669]' : 'bg-amber-500/10 text-amber-600'
+                    trx.type === 'income' ? 'bg-[#059669]/10 text-[#059669]' : 'bg-[#059969]/10 text-[#059969]'
                   }`}>
                     {trx.status}
                   </span>
