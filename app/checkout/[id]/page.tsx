@@ -14,16 +14,16 @@ export default function CheckoutPage() {
   const rawId = params?.id;
   const productId = Number(rawId);
 
-  // Cari dulu di data statis PRODUCTS
   const foundProduct: Product | undefined = PRODUCTS.find((p) => p.id === productId || String(p.id) === String(rawId));
 
   const [dbProduct, setDbProduct] = useState<any>(null);
+  const [storeAddress, setStoreAddress] = useState<string>('');
+  const [deliveryMethod, setDeliveryMethod] = useState<'pickup' | 'delivery'>('delivery');
 
   useEffect(() => {
     async function fetchDbProduct() {
       if (!rawId) return;
       if (!foundProduct) {
-        // Coba ambil dari tabel products (mendukung id angka maupun string/uuid)
         let query = supabase.from('products').select('*');
         
         if (!isNaN(productId)) {
@@ -34,10 +34,22 @@ export default function CheckoutPage() {
 
         const { data, error } = await query.single();
 
-        if (!error && data) {
-          setDbProduct(data);
+          if (!error && data) {
+           setDbProduct(data);
+
+          const ownerId = data.user_id || data.store_id;
+          if (ownerId) {
+            const { data: storeData } = await supabase
+              .from('store_settings')
+              .select('store_address')
+              .eq('user_id', ownerId)
+              .single();
+
+            if (storeData?.store_address) {
+              setStoreAddress(storeData.store_address);
+            }
+          }
         } else {
-          // Jika gagal atau tabel berbeda, coba ambil dari localStorage jika dikirim dari halaman sebelumnya
           const savedCart = localStorage.getItem('checkout_product');
           if (savedCart) {
             try {
@@ -67,9 +79,15 @@ export default function CheckoutPage() {
     price: activeProduct ? (typeof activeProduct.price === 'number' ? `Rp ${activeProduct.price.toLocaleString('id-ID')}` : (activeProduct.price || `Rp ${rawNumericPrice.toLocaleString('id-ID')}`)) : 'Rp 0',
     imageText: activeProduct ? (activeProduct.imageText || activeProduct.image_text || activeProduct.title || activeProduct.name || 'PRODUK') : 'PRODUK',
     rawPrice: rawNumericPrice,
+    category: activeProduct ? String(activeProduct.category || activeProduct.categoryTag || '').toLowerCase() : '',
   };
 
+  const isSewa = product.category === 'sewa';
+
   const qtyParam = Number(searchParams.get('qty')) || Number(activeProduct?.qty) || 1;
+  const rentalStartDate = searchParams.get('startDate') || '';
+  const rentalEndDate = searchParams.get('endDate') || '';
+  const rentalDays = Number(searchParams.get('days')) || 1;
 
   const [address, setAddress] = useState('Jl. Merdeka No. 45, RT 01 / RW 05, Kel. Menteng, Kec. Menteng, Kota Jakarta Pusat, DKI Jakarta, 10350');
   const [isEditingAddress, setIsEditingAddress] = useState(false);
@@ -85,8 +103,8 @@ export default function CheckoutPage() {
   const [isAlertVisible, setIsAlertVisible] = useState(false);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
 
-  const shippingCost = 10000;
-  const subtotal = product.rawPrice * qtyParam;
+  const shippingCost = isSewa && deliveryMethod === 'pickup' ? 0 : 10000;
+  const subtotal = isSewa ? product.rawPrice * qtyParam * rentalDays : product.rawPrice * qtyParam;
   const discountAmount = Math.round((subtotal * discountPercent) / 100);
   const totalBayar = subtotal + shippingCost - discountAmount;
 
@@ -210,31 +228,102 @@ export default function CheckoutPage() {
         </div>
 
         <div className="bg-white border border-[#059669]/30 rounded-3xl p-5 sm:p-6 shadow-sm space-y-4">
-          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-            <div className="flex items-center gap-2 text-black/80 font-bold text-sm sm:text-base">
-              <span>📍</span>
-              <span>Alamat Pengiriman</span>
-            </div>
-            <button
-              type="button"
-              onClick={() => setIsEditingAddress(!isEditingAddress)}
-              className="text-xs font-semibold text-[#059669] hover:underline"
-            >
-              {isEditingAddress ? 'Simpan' : 'Ubah Alamat'}
-            </button>
-          </div>
+          {isSewa ? (
+            <>
+              <div className="flex items-center gap-2 text-black/80 font-bold text-sm sm:text-base border-b border-slate-100 pb-3">
+                <span>📍</span>
+                <span>Metode Pengambilan Barang</span>
+              </div>
 
-          {isEditingAddress ? (
-            <textarea
-              rows={3}
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-              className="w-full p-3 text-xs sm:text-sm border border-slate-200 rounded-xl focus:outline-none focus:border-[#059669] text-black/80"
-            />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setDeliveryMethod('pickup')}
+                  className={`p-4 rounded-2xl border-2 text-left transition-all flex flex-col gap-2 ${
+                    deliveryMethod === 'pickup' ? 'border-[#059669] bg-emerald-50/40' : 'border-slate-200 hover:border-slate-300'
+                  }`}
+                >
+                  <span className="text-xl">🏪</span>
+                  <span className="text-xs sm:text-sm font-bold text-black/80">Ambil di Toko</span>
+                  <span className="text-[10px] text-black/50">Ambil langsung ke lokasi penyewa</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setDeliveryMethod('delivery')}
+                  className={`p-4 rounded-2xl border-2 text-left transition-all flex flex-col gap-2 ${
+                    deliveryMethod === 'delivery' ? 'border-[#059669] bg-emerald-50/40' : 'border-slate-200 hover:border-slate-300'
+                  }`}
+                >
+                  <span className="text-xl">🚚</span>
+                  <span className="text-xs sm:text-sm font-bold text-black/80">Dikirim ke Alamat Saya</span>
+                  <span className="text-[10px] text-black/50">Barang diantar kurir</span>
+                </button>
+              </div>
+
+              {deliveryMethod === 'pickup' ? (
+                <div className="pt-2">
+                  <span className="text-[10px] sm:text-xs text-black/40 font-semibold uppercase block mb-1">Alamat Pengambilan</span>
+                  <p className="text-xs sm:text-sm text-black/70 leading-relaxed font-medium">
+                    {storeAddress || 'Alamat toko belum diatur oleh penjual. Silakan tanyakan langsung lewat fitur chat.'}
+                  </p>
+                </div>
+              ) : (
+                <div className="pt-2 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] sm:text-xs text-black/40 font-semibold uppercase">Alamat Pengiriman</span>
+                    <button
+                      type="button"
+                      onClick={() => setIsEditingAddress(!isEditingAddress)}
+                      className="text-xs font-semibold text-[#059669] hover:underline"
+                    >
+                      {isEditingAddress ? 'Simpan' : 'Ubah Alamat'}
+                    </button>
+                  </div>
+                  {isEditingAddress ? (
+                    <textarea
+                      rows={3}
+                      value={address}
+                      onChange={(e) => setAddress(e.target.value)}
+                      className="w-full p-3 text-xs sm:text-sm border border-slate-200 rounded-xl focus:outline-none focus:border-[#059669] text-black/80"
+                    />
+                  ) : (
+                    <p className="text-xs sm:text-sm text-black/70 leading-relaxed font-medium">
+                      {address}
+                    </p>
+                  )}
+                </div>
+              )}
+            </>
           ) : (
-            <p className="text-xs sm:text-sm text-black/70 leading-relaxed font-medium">
-              {address}
-            </p>
+            <>
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div className="flex items-center gap-2 text-black/80 font-bold text-sm sm:text-base">
+                  <span>📍</span>
+                  <span>Alamat Pengiriman</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsEditingAddress(!isEditingAddress)}
+                  className="text-xs font-semibold text-[#059669] hover:underline"
+                >
+                  {isEditingAddress ? 'Simpan' : 'Ubah Alamat'}
+                </button>
+              </div>
+
+              {isEditingAddress ? (
+                <textarea
+                  rows={3}
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  className="w-full p-3 text-xs sm:text-sm border border-slate-200 rounded-xl focus:outline-none focus:border-[#059669] text-black/80"
+                />
+              ) : (
+                <p className="text-xs sm:text-sm text-black/70 leading-relaxed font-medium">
+                  {address}
+                </p>
+              )}
+            </>
           )}
         </div>
 
@@ -251,8 +340,13 @@ export default function CheckoutPage() {
             <div className="flex-1 min-w-0 space-y-1">
               <span className="text-[10px] text-black/40 font-bold uppercase block">{product.storeName}</span>
               <h3 className="text-xs sm:text-sm font-bold text-black/80 truncate">{product.title}</h3>
+              {isSewa && rentalStartDate && rentalEndDate && (
+                <p className="text-[10px] sm:text-xs text-black/50 font-medium">
+                  {new Date(rentalStartDate).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })} - {new Date(rentalEndDate).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })} ({rentalDays} Hari)
+                </p>
+              )}
               <div className="flex items-center justify-between text-xs sm:text-sm font-semibold">
-                <span className="text-black/60">{qtyParam}x {product.price}</span>
+                <span className="text-black/60">{qtyParam}x {product.price}{isSewa ? ` / hari` : ''}</span>
                 <span className="text-[#059669] font-bold">{formatRupiah(subtotal)}</span>
               </div>
             </div>

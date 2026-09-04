@@ -5,6 +5,8 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { PRODUCTS, Product } from '@/app/data/products';
+import RentalDatePicker from '../../components/sections/RentalDatePicker';
+import ServiceBookingCard from '../../components/sections/ServiceBookingCard';
 import { supabase } from '@/lib/supabaseClient';
 
 interface Review {
@@ -174,6 +176,13 @@ export default function ProductDetailPage() {
         ],
     image: activeProduct ? (activeProduct.image || activeProduct.image_url || null) : null,
   };
+
+  const categoryLower = product.categoryTag.toLowerCase();
+  const isSewa = categoryLower === 'sewa';
+  const isJasa = categoryLower === 'jasa';
+
+  const [rentalStartDate, setRentalStartDate] = useState('');
+  const [rentalEndDate, setRentalEndDate] = useState('');
 
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
@@ -401,16 +410,18 @@ export default function ProductDetailPage() {
               <span className="text-xs sm:text-sm text-black/60 font-medium">{product.soldCount}</span>
             </div>
 
-            <div className="inline-flex items-center gap-3 px-4 py-2.5 bg-white border border-slate-200 rounded-xl shadow-sm text-xs sm:text-sm font-medium text-black/80">
-              <span className="text-black/50">Pengiriman</span>
-              <span className="text-slate-300">|</span>
-              <div className="flex items-center gap-1.5 text-[#059669]">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
-                  <path d="M3.375 3C2.339 3 1.5 3.84 1.5 4.875v11.25c0 1.036.84 1.875 1.875 1.875h1.5a3.75 3.75 0 007.5 0h3.75a3.75 3.75 0 007.5 0h.75a.75.75 0 00.75-.75v-3.75c0-.212-.084-.416-.234-.568l-4.5-4.5a.75.75 0 00-.53-.22H16.5V4.875C16.5 3.84 15.66 3 14.625 3H3.375zM7.5 18.75a2.25 2.25 0 100-4.5 2.25 2.25 0 000 4.5zM19.5 18.75a2.25 2.25 0 100-4.5 2.25 2.25 0 000 4.5zM15 11.25V6h3.879l3.182 3.182V11.25H15z" />
-                </svg>
-                <span className="font-bold text-[#059669]">{deliveryRange || 'Memuat...'}</span>
+            {!isSewa && !isJasa && (
+              <div className="inline-flex items-center gap-3 px-4 py-2.5 bg-white border border-slate-200 rounded-xl shadow-sm text-xs sm:text-sm font-medium text-black/80">
+                <span className="text-black/50">Pengiriman</span>
+                <span className="text-slate-300">|</span>
+                <div className="flex items-center gap-1.5 text-[#059669]">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+                    <path d="M3.375 3C2.339 3 1.5 3.84 1.5 4.875v11.25c0 1.036.84 1.875 1.875 1.875h1.5a3.75 3.75 0 007.5 0h3.75a3.75 3.75 0 007.5 0h.75a.75.75 0 00.75-.75v-3.75c0-.212-.084-.416-.234-.568l-4.5-4.5a.75.75 0 00-.53-.22H16.5V4.875C16.5 3.84 15.66 3 14.625 3H3.375zM7.5 18.75a2.25 2.25 0 100-4.5 2.25 2.25 0 000 4.5zM19.5 18.75a2.25 2.25 0 100-4.5 2.25 2.25 0 000 4.5zM15 11.25V6h3.879l3.182 3.182V11.25H15z" />
+                  </svg>
+                  <span className="font-bold text-[#059669]">{deliveryRange || 'Memuat...'}</span>
+                </div>
               </div>
-            </div>
+            )}
 
             <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-200">
               <Link
@@ -445,6 +456,17 @@ export default function ProductDetailPage() {
               </button>
             </div>
 
+            {isSewa && (
+              <RentalDatePicker
+                price={product.price}
+                startDate={rentalStartDate}
+                endDate={rentalEndDate}
+                onStartDateChange={setRentalStartDate}
+                onEndDateChange={setRentalEndDate}
+              />
+            )}
+            {isJasa && <ServiceBookingCard productId={product.id} triggerAlert={triggerAlert} />}
+
             <div>
               <h3 className="text-xs sm:text-sm font-bold text-black/80 mb-1">Deskripsi</h3>
               <p className="text-xs sm:text-sm text-black/60 leading-relaxed">
@@ -452,10 +474,12 @@ export default function ProductDetailPage() {
               </p>
             </div>
 
-            <div className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#059669] text-white rounded-xl font-bold text-xs sm:text-sm shadow-sm">
-              <span>Stock tersedia :</span>
-              <span>{product.stock}</span>
-            </div>
+            {!isSewa && !isJasa && (
+              <div className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#059669] text-white rounded-xl font-bold text-xs sm:text-sm shadow-sm">
+                <span>Stock tersedia :</span>
+                <span>{product.stock}</span>
+              </div>
+            )}
 
             <div className="space-y-4 pt-2">
               <h3 className="text-xs sm:text-sm font-bold text-black/80">Ulasan Pengguna</h3>
@@ -561,76 +585,89 @@ export default function ProductDetailPage() {
               </div>
             </div>
 
-            <div className="sticky bottom-0 left-0 right-0 z-40 bg-white/95 sm:bg-white/90 backdrop-blur-md p-3 sm:p-4 border-t sm:border border-black/30 sm:rounded-2xl shadow-xl flex items-center justify-between gap-3">
-              <div className="flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-lg flex-shrink-0">
-                <button
-                  type="button"
-                  onClick={handleDecrement}
-                  className="w-7 h-7 rounded-xl bg-white shadow-sm flex items-center justify-center font-bold text-black/70 hover:text-[#059669] hover:scale-[1.03] active:scale-[0.98] duration-200 transition-all text-sm"
-                >
-                  -
-                </button>
-                <span className="text-xs sm:text-sm font-bold text-black/80 w-6 text-center">{quantity}</span>
-                <button
-                  type="button"
-                  onClick={handleIncrement}
-                  className="w-7 h-7 rounded-xl bg-white shadow-sm flex items-center justify-center font-bold text-black/70 hover:text-[#059669] hover:scale-[1.03] active:scale-[0.98] duration-200 transition-all text-sm"
-                >
-                  +
-                </button>
-              </div>
+                        {!isJasa && (
+              <div className="sticky bottom-0 left-0 right-0 z-40 bg-white/95 sm:bg-white/90 backdrop-blur-md p-3 sm:p-4 border-t sm:border border-black/30 sm:rounded-2xl shadow-xl flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-lg flex-shrink-0">
+                  <button
+                    type="button"
+                    onClick={handleDecrement}
+                    className="w-7 h-7 rounded-xl bg-white shadow-sm flex items-center justify-center font-bold text-black/70 hover:text-[#059669] hover:scale-[1.03] active:scale-[0.98] duration-200 transition-all text-sm"
+                  >
+                    -
+                  </button>
+                  <span className="text-xs sm:text-sm font-bold text-black/80 w-6 text-center">{quantity}</span>
+                  <button
+                    type="button"
+                    onClick={handleIncrement}
+                    className="w-7 h-7 rounded-xl bg-white shadow-sm flex items-center justify-center font-bold text-black/70 hover:text-[#059669] hover:scale-[1.03] active:scale-[0.98] duration-200 transition-all text-sm"
+                  >
+                    +
+                  </button>
+                </div>
 
-              <div className="grid grid-cols-2 gap-2 w-full">
-                <button
-                  type="button"
-                  onClick={async () => {
-                    const { data: { user } } = await supabase.auth.getUser();
-                    if (!user) {
-                      triggerAlert('Silakan login terlebih dahulu untuk memasukkan produk ke keranjang!');
-                      return;
-                    }
-                  
-                    const rawNumericPrice = Number(product.price.toString().replace(/[^0-9]/g, '')) || 0;
-                  
-                    const { error } = await supabase.from('cart').insert([
-                      {
-                        user_id: user.id,
-                        product_id: product.id,
-                        product_name: product.title,
-                        store_name: product.storeName,
-                        product_price: product.price,
-                        raw_price: rawNumericPrice,
-                        image_text: product.images[selectedImage] || 'PRODUK',
-                        quantity: quantity,
+                <div className="grid grid-cols-2 gap-2 w-full">
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      const { data: { user } } = await supabase.auth.getUser();
+                      if (!user) {
+                        triggerAlert('Silakan login terlebih dahulu untuk memasukkan produk ke keranjang!');
+                        return;
                       }
-                    ]);
-                  
-                    if (error) {
-                      console.error(error);
-                      triggerAlert('Gagal memasukkan produk ke keranjang.');
-                      return;
-                    }
-                  
-                    triggerAlert('Produk berhasil masuk ke dalam keranjang!');
-                  }}
-                  className="py-2.5 px-2 bg-white border border-[#059669] text-[#059669] hover:scale-[1.03] active:scale-[0.98] duration-200 transition-all font-medium text-xs rounded-lg text-center shadow-sm truncate flex items-center justify-center gap-1.5"
-                >
-                  <svg className="w-5 h-5 stroke-[2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H19m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                  </svg>
-                  <span>Keranjang</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    router.push(`/checkout/${product.id}?qty=${quantity}`);
-                  }}
-                  className="py-2.5 px-2 bg-[#059669] text-white hover:bg-emerald-700 hover:scale-[1.03] active:scale-[0.98] duration-200 transition-all font-medium text-xs rounded-lg shadow-lg shadow-emerald-600/20 text-center truncate"
-                >
-                  Beli Sekarang
-                </button>
+
+                      const rawNumericPrice = Number(product.price.toString().replace(/[^0-9]/g, '')) || 0;
+
+                      const { error } = await supabase.from('cart').insert([
+                        {
+                          user_id: user.id,
+                          product_id: product.id,
+                          product_name: product.title,
+                          store_name: product.storeName,
+                          product_price: product.price,
+                          raw_price: rawNumericPrice,
+                          image_text: product.images[selectedImage] || 'PRODUK',
+                          quantity: quantity,
+                        }
+                      ]);
+
+                      if (error) {
+                        console.error(error);
+                        triggerAlert('Gagal memasukkan produk ke keranjang.');
+                        return;
+                      }
+
+                      triggerAlert('Produk berhasil masuk ke dalam keranjang!');
+                    }}
+                    className="py-2.5 px-2 bg-white border border-[#059669] text-[#059669] hover:scale-[1.03] active:scale-[0.98] duration-200 transition-all font-medium text-xs rounded-lg text-center shadow-sm truncate flex items-center justify-center gap-1.5"
+                  >
+                    <svg className="w-5 h-5 stroke-[2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H19m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    <span>Keranjang</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (isSewa) {
+                        if (!rentalStartDate || !rentalEndDate) {
+                          triggerAlert('Silakan pilih tanggal mulai dan selesai sewa terlebih dahulu.');
+                          return;
+                        }
+                        const start = new Date(rentalStartDate);
+                        const end = new Date(rentalEndDate);
+                        const days = Math.max(1, Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1);
+                        router.push(`/checkout/${product.id}?qty=${quantity}&startDate=${rentalStartDate}&endDate=${rentalEndDate}&days=${days}`);
+                        return;
+                      }
+                      router.push(`/checkout/${product.id}?qty=${quantity}`);
+                    }}
+                    className="py-2.5 px-2 bg-[#059669] text-white hover:bg-emerald-700 hover:scale-[1.03] active:scale-[0.98] duration-200 transition-all font-medium text-xs rounded-lg shadow-lg shadow-emerald-600/20 text-center truncate"
+                  >
+                    {isSewa ? 'Sewa Sekarang' : 'Beli Sekarang'}
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </main>
