@@ -253,7 +253,6 @@ export default function SellerChatPage() {
 
           <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden mb-10 h-[70vh] min-h-[480px]">
             <div className="flex h-full">
-              {/* Daftar percakapan */}
               <div
                 className={`${
                   mobileView === 'chat' ? 'hidden' : 'flex'
@@ -310,7 +309,6 @@ export default function SellerChatPage() {
                 </div>
               </div>
 
-              {/* Detail percakapan */}
               <div className={`${mobileView === 'list' ? 'hidden' : 'flex'} sm:flex flex-1 flex-col`}>
                 {selectedConversation ? (
                   <>

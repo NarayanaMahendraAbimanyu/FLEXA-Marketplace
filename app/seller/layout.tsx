@@ -7,13 +7,11 @@ export default function SellerLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen w-full bg-white flex flex-col font-sans text-slate-800">
-      <div className="flex flex-1 w-full">
-        <SellerSideBar />
-        <main className="flex-1 bg-white p-6 sm:p-8 lg:p-10 overflow-y-auto">
-          {children}
-        </main>
-      </div>
+    <div className="min-h-screen w-full bg-slate-50 flex flex-col md:flex-row font-sans text-slate-800">
+      <SellerSideBar />
+      <main className="flex-1 bg-slate-50 p-4 sm:p-6 lg:p-10 overflow-y-auto">
+        {children}
+      </main>
     </div>
   );
 }
