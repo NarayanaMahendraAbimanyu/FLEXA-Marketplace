@@ -320,7 +320,7 @@ export default function ChatPage() {
 
         <div className="sticky bottom-3 left-0 right-0 bg-white border border-slate-200 rounded-2xl p-2 sm:p-3 shadow-lg flex flex-col gap-2">
           <div className="flex items-center justify-between px-1 pb-1">
-            <span className="text-[11px] sm:text-xs font-semibold text-black/60">Quick Answer</span>
+            <span className="text-[11px] sm:text-xs font-semibold text-black/60">Quick Question</span>
             <button
               type="button"
               onClick={() => setIsQuickAnswerOpen(!isQuickAnswerOpen)}
