@@ -3,96 +3,120 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { PRODUCTS, Product } from '../../data/products';
 import { supabase } from '../../../lib/supabaseClient';
 
 interface Message {
   id: number;
-  sender: 'user' | 'seller';
-  text: string;
-  time: string;
+  conversation_id: string;
+  sender_id: string;
+  content: string;
+  created_at: string;
+  is_read: boolean;
+}
+
+interface Conversation {
+  id: string;
+  buyer_id: string;
+  seller_id: string;
+  product_id: number;
+  buyer_name: string;
+  buyer_avatar: string;
+  product_name: string;
+  product_image: string;
 }
 
 export default function ChatPage() {
   const params = useParams();
   const router = useRouter();
-  const productId = Number(params?.id);
+  const conversationId = params?.id as string;
 
-  const foundProduct: Product | undefined = PRODUCTS.find((p) => p.id === productId);
-  const [dbProduct, setDbProduct] = useState<any>(null);
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const [conversation, setConversation] = useState<Conversation | null>(null);
+  const [productPrice, setProductPrice] = useState<string>('');
   const [dynamicStoreName, setDynamicStoreName] = useState<string>('');
   const [storeLogoUrl, setStoreLogoUrl] = useState<string>('');
-  const [storeOwnerId, setStoreOwnerId] = useState<string>('');
 
+  // Ambil user yang sedang login
   useEffect(() => {
     const fetchUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        setCurrentUser(user);
-      }
+      if (user) setCurrentUser(user);
     };
     fetchUser();
   }, []);
 
+  // Ambil data conversation
   useEffect(() => {
-    const fetchDbProduct = async () => {
-      if (!productId) return;
-      if (!foundProduct) {
-        const { data, error } = await supabase
-          .from('products')
-          .select('*')
-          .eq('id', productId)
-          .single();
+    if (!conversationId) return;
 
-        if (!error && data) {
-          setDbProduct(data);
-        }
+    const fetchConversation = async () => {
+      const { data, error } = await supabase
+        .from('conversations')
+        .select('*')
+        .eq('id', conversationId)
+        .single();
+
+      if (!error && data) {
+        setConversation(data);
+      } else {
+        console.error('Gagal mengambil conversation:', error?.message);
       }
     };
-    fetchDbProduct();
-  }, [productId, foundProduct]);
 
-  const activeProduct = foundProduct || dbProduct;
+    fetchConversation();
+  }, [conversationId]);
 
+  // Ambil harga produk (tidak tersimpan di conversations, jadi fetch terpisah)
   useEffect(() => {
-    const ownerId = activeProduct ? (activeProduct.user_id || activeProduct.store_id) : undefined;
-    setStoreOwnerId(ownerId || '');
+    if (!conversation?.product_id) return;
+
+    const fetchProductPrice = async () => {
+      const { data } = await supabase
+        .from('products')
+        .select('price')
+        .eq('id', conversation.product_id)
+        .single();
+
+      if (data) {
+        setProductPrice(
+          typeof data.price === 'number'
+            ? `Rp. ${data.price.toLocaleString('id-ID')}`
+            : data.price
+        );
+      }
+    };
+
+    fetchProductPrice();
+  }, [conversation]);
+
+  // Ambil nama & logo toko seller, plus subscribe perubahan realtime
+  useEffect(() => {
+    if (!conversation?.seller_id) return;
 
     const fetchStoreName = async () => {
-      if (!activeProduct) return;
+      const { data: storeData } = await supabase
+        .from('store_settings')
+        .select('store_name, logo_url')
+        .eq('user_id', conversation.seller_id)
+        .single();
 
-      if (ownerId) {
-        const { data: storeData } = await supabase
-          .from('store_settings')
-          .select('store_name, logo_url')
-          .eq('user_id', ownerId)
-          .single();
-
-        if (storeData) {
-          setDynamicStoreName(storeData.store_name || activeProduct.storeName || activeProduct.store_name || 'Name Shop');
-          setStoreLogoUrl(storeData.logo_url || '');
-          return;
-        }
+      if (storeData) {
+        setDynamicStoreName(storeData.store_name || 'Toko Seller');
+        setStoreLogoUrl(storeData.logo_url || '');
       }
-
-      setDynamicStoreName(activeProduct.storeName || activeProduct.store_name || 'Name Shop');
-      setStoreLogoUrl('');
     };
 
     fetchStoreName();
 
-    if (!ownerId) return;
-
     const storeChannel = supabase
-      .channel(`store_settings_${ownerId}`)
+      .channel(`store_settings_${conversation.seller_id}`)
       .on(
         'postgres_changes',
         {
           event: 'UPDATE',
           schema: 'public',
           table: 'store_settings',
-          filter: `user_id=eq.${ownerId}`,
+          filter: `user_id=eq.${conversation.seller_id}`,
         },
         (payload) => {
           const updated = payload.new;
@@ -105,75 +129,54 @@ export default function ChatPage() {
     return () => {
       supabase.removeChannel(storeChannel);
     };
-  }, [activeProduct]);
+  }, [conversation]);
 
-  const rawImageUrl = activeProduct 
-    ? (activeProduct.image_url || activeProduct.imageUrl || activeProduct.image || activeProduct.photo || activeProduct.photo_url || activeProduct.img || activeProduct.thumbnail || activeProduct.image_path)
-    : undefined;
-
-  const product = {
-    id: activeProduct ? activeProduct.id : 1,
-    title: activeProduct ? (activeProduct.title || activeProduct.name || 'Name of Product') : 'Name of Product',
-    storeName: dynamicStoreName || 'Name Shop',
-    price: activeProduct
-      ? (typeof activeProduct.price === 'number' ? `Rp. ${activeProduct.price.toLocaleString('id-ID')}` : activeProduct.price)
-      : 'Rp. 50.000,00',
-    imageText: activeProduct ? (activeProduct.imageText || activeProduct.title || activeProduct.name || 'PRODUK') : 'PRODUK',
-    imageUrl: rawImageUrl,
-  };
+  // Tentukan siapa "lawan bicara" — kalau user login = buyer, tampilkan toko seller.
+  // Kalau user login = seller, tampilkan nama buyer.
+  const isBuyerView = currentUser && conversation && currentUser.id === conversation.buyer_id;
+  const headerName = conversation
+    ? (isBuyerView ? dynamicStoreName || 'Toko Seller' : conversation.buyer_name || 'Pembeli')
+    : '';
+  const headerAvatar = conversation
+    ? (isBuyerView ? storeLogoUrl : conversation.buyer_avatar)
+    : '';
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');
 
+  // Ambil pesan & subscribe realtime, difilter per conversation_id
   useEffect(() => {
-    if (!productId || !currentUser) return;
+    if (!conversationId) return;
 
     const fetchMessages = async () => {
       const { data, error } = await supabase
         .from('messages')
         .select('*')
-        .eq('product_id', productId)
-        .eq('user_id', currentUser.id)
+        .eq('conversation_id', conversationId)
         .order('created_at', { ascending: true });
 
       if (error) {
         console.error('Error fetching messages:', error.message);
       }
-
       if (!error && data) {
-        const formattedMessages: Message[] = data.map((item) => ({
-          id: item.id,
-          sender: item.sender,
-          text: item.text,
-          time: new Date(item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        }));
-        setMessages(formattedMessages);
+        setMessages(data);
       }
     };
 
     fetchMessages();
 
     const channel = supabase
-      .channel(`room_product_${productId}_user_${currentUser.id}`)
+      .channel(`room_conversation_${conversationId}`)
       .on(
         'postgres_changes',
         {
           event: 'INSERT',
           schema: 'public',
           table: 'messages',
-          filter: `product_id=eq.${productId}`,
+          filter: `conversation_id=eq.${conversationId}`,
         },
         (payload) => {
-          const newItem = payload.new;
-          if (newItem.user_id !== currentUser.id) return;
-
-          const newMsg: Message = {
-            id: newItem.id,
-            sender: newItem.sender,
-            text: newItem.text,
-            time: new Date(newItem.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          };
-
+          const newMsg = payload.new as Message;
           setMessages((prev) => {
             if (prev.some((msg) => msg.id === newMsg.id)) return prev;
             return [...prev, newMsg];
@@ -185,24 +188,24 @@ export default function ChatPage() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [productId, currentUser]);
+  }, [conversationId]);
 
   const handleSendMessage = async (textToSend: string) => {
     if (!textToSend.trim()) return;
-
     if (!currentUser) {
       alert('Silakan login terlebih dahulu untuk mengirim pesan.');
       return;
     }
+    if (!conversationId) return;
 
-    const { data, error } = await supabase.from('messages').insert([
+    const { error } = await supabase.from('messages').insert([
       {
-        product_id: productId,
-        user_id: currentUser.id,
-        sender: 'user',
-        text: textToSend,
+        conversation_id: conversationId,
+        sender_id: currentUser.id,
+        content: textToSend,
+        is_read: false,
       },
-    ]).select();
+    ]);
 
     if (error) {
       alert('Gagal mengirim pesan: ' + error.message);
@@ -224,27 +227,22 @@ export default function ChatPage() {
     <div className="w-full min-h-screen bg-slate-50 flex flex-col">
       <header className="w-full bg-white border-b border-[#059669]/30 px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between sticky top-0 z-30 shadow-sm">
         <div className="flex items-center gap-3 sm:gap-4 max-w-7xl mx-auto w-full">
-          <button 
+          <button
             onClick={() => router.back()}
             className="inline-flex items-center gap-2 px-4 py-2 bg-[#059669] text-white rounded-xl font-semibold text-xs sm:text-sm hover:bg-emerald-700 hover:scale-[1.03] active:scale-[0.98] duration-200 transition-all shadow-sm"
           >
             <span>← Kembali</span>
           </button>
-          <Link href={storeOwnerId ? `/store/${storeOwnerId}` : '#'}>
-            <div className="w-9 h-9 sm:w-10 sm:h-10 lg:w-11 lg:h-11 rounded-full bg-slate-200 flex items-center justify-center font-bold text-black/60 text-xs sm:text-sm flex-shrink-0 overflow-hidden">
-              {storeLogoUrl ? (
-                <img src={storeLogoUrl} alt={product.storeName} className="w-full h-full object-cover" />
-              ) : (
-                product.storeName.charAt(0)
-              )}
-            </div>
-          </Link>
-          <Link
-            href={storeOwnerId ? `/store/${storeOwnerId}` : '#'}
-            className="text-sm sm:text-base lg:text-lg font-bold text-black/80 truncate hover:text-[#059669] duration-200 transition-colors"
-          >
-            {product.storeName}
-          </Link>
+          <div className="w-9 h-9 sm:w-10 sm:h-10 lg:w-11 lg:h-11 rounded-full bg-slate-200 flex items-center justify-center font-bold text-black/60 text-xs sm:text-sm flex-shrink-0 overflow-hidden">
+            {headerAvatar ? (
+              <img src={headerAvatar} alt={headerName} className="w-full h-full object-cover" />
+            ) : (
+              headerName.charAt(0) || '?'
+            )}
+          </div>
+          <span className="text-sm sm:text-base lg:text-lg font-bold text-black/80 truncate">
+            {headerName || 'Memuat...'}
+          </span>
         </div>
       </header>
 
@@ -256,29 +254,31 @@ export default function ChatPage() {
             </span>
             <div className="flex items-center gap-3 pt-1">
               <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-slate-100 flex items-center justify-center font-bold text-black/40 text-xs flex-shrink-0 border border-slate-200 overflow-hidden">
-                {product.imageUrl ? (
-                  <img src={product.imageUrl} alt={product.title} className="w-full h-full object-cover" />
+                {conversation?.product_image ? (
+                  <img src={conversation.product_image} alt={conversation.product_name} className="w-full h-full object-cover" />
                 ) : (
-                  <span>{product.imageText}</span>
+                  <span>PRODUK</span>
                 )}
               </div>
               <div>
                 <h2 className="text-xs sm:text-sm font-bold text-black/80 line-clamp-1">
-                  {product.title}
+                  {conversation?.product_name || 'Memuat...'}
                 </h2>
                 <span className="text-xs sm:text-lg font-bold text-[#059669]">
-                  {product.price}
+                  {productPrice}
                 </span>
               </div>
             </div>
           </div>
 
-          <Link
-            href={`/product/${product.id}`}
-            className="w-full sm:w-auto px-4 py-2 bg-[#059669] text-white rounded-lg font-medium text-xs sm:text-sm hover:bg-emerald-700 hover:scale-[1.03] active:scale-[0.98] duration-200 transition-all text-center shadow-sm flex-shrink-0"
-          >
-            Beli Sekarang
-          </Link>
+          {conversation?.product_id && (
+            <Link
+              href={`/product/${conversation.product_id}`}
+              className="w-full sm:w-auto px-4 py-2 bg-[#059669] text-white rounded-lg font-medium text-xs sm:text-sm hover:bg-emerald-700 hover:scale-[1.03] active:scale-[0.98] duration-200 transition-all text-center shadow-sm flex-shrink-0"
+            >
+              Beli Sekarang
+            </Link>
+          )}
         </div>
       </div>
 
@@ -287,32 +287,35 @@ export default function ChatPage() {
           <div className="space-y-4 py-2">
             {messages.length === 0 ? (
               <div className="text-center py-10 text-black/40 text-xs sm:text-sm italic">
-                Belum ada pesan. Mulai obrolan dengan penjual sekarang!
+                Belum ada pesan. Mulai obrolan sekarang!
               </div>
             ) : (
-              messages.map((msg) => (
-                <div
-                  key={msg.id}
-                  className={`flex w-full ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-                >
+              messages.map((msg) => {
+                const isMine = currentUser && msg.sender_id === currentUser.id;
+                return (
                   <div
-                    className={`max-w-[85%] sm:max-w-[70%] p-3.5 rounded-2xl text-xs sm:text-sm shadow-sm ${
-                      msg.sender === 'user'
-                        ? 'bg-white border border-slate-200 text-black/80 rounded-br-none'
-                        : 'bg-[#059669] text-white rounded-bl-none font-medium'
-                    }`}
+                    key={msg.id}
+                    className={`flex w-full ${isMine ? 'justify-end' : 'justify-start'}`}
                   >
-                    <p>{msg.text}</p>
-                    <span
-                      className={`block text-[10px] mt-1 text-right ${
-                        msg.sender === 'user' ? 'text-black/40' : 'text-emerald-100'
+                    <div
+                      className={`max-w-[85%] sm:max-w-[70%] p-3.5 rounded-2xl text-xs sm:text-sm shadow-sm ${
+                        isMine
+                          ? 'bg-white border border-slate-200 text-black/80 rounded-br-none'
+                          : 'bg-[#059669] text-white rounded-bl-none font-medium'
                       }`}
                     >
-                      {msg.time}
-                    </span>
+                      <p>{msg.content}</p>
+                      <span
+                        className={`block text-[10px] mt-1 text-right ${
+                          isMine ? 'text-black/40' : 'text-emerald-100'
+                        }`}
+                      >
+                        {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    </div>
                   </div>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
         </div>
@@ -360,7 +363,7 @@ export default function ChatPage() {
               ➔
             </button>
           </form>
-        </div>  
+        </div>
       </main>
     </div>
   );

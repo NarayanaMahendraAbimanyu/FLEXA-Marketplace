@@ -256,6 +256,45 @@ export default function ProductDetailPage() {
     }, 3000);
   };
 
+  const handleStartChat = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { 
+      triggerAlert('Silakan login terlebih dahulu untuk chat dengan penjual!');
+      return; 
+    }
+
+    if (!storeOwnerId) return;
+
+    const { data: existing } = await supabase
+      .from('conversations')
+      .select('id')
+      .eq('buyer_id', user.id)
+      .eq('seller_id', storeOwnerId)
+      .eq('product_id', product.id)
+      .maybeSingle();
+
+    if (existing) {
+      router.push(`/chat/${existing.id}`);;
+      return;
+    }
+
+    const { data: newConv } = await supabase
+      .from('conversations')
+      .insert([{
+        buyer_id: user.id,
+        seller_id: storeOwnerId,
+        product_id: product.id,
+        buyer_name: userData.name || 'Pembeli',
+        buyer_avatar: userData.avatar || '',
+        product_name: product.title,
+        product_image: product.image,
+      }])
+      .select()
+      .single();
+
+    if (newConv) router.push(`/chat/${newConv.id}`);;
+  };
+
   const handleAddReview = async (e: React.FormEvent) => {
     e.preventDefault();
     setReviewAlertMessage('');
@@ -449,7 +488,7 @@ export default function ProductDetailPage() {
               </Link>
               <button
                 type="button"
-                onClick={() => router.push(`/chat/${product.id}`)}
+                onClick={handleStartChat}
                 className="px-4 sm:px-5 py-2.5 bg-[#059669] text-white hover:bg-emerald-700 hover:scale-[1.03] active:scale-[0.98] duration-200 transition-all font-bold text-xs sm:text-sm rounded-xl shadow-sm flex-shrink-0"
               >
                 Tawar / Chat

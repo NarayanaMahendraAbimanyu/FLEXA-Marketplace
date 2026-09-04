@@ -67,6 +67,16 @@ export default function SellerSideBar() {
               </span>
             </Link>
             <Link
+              href="/seller/chat"
+              className={`flex items-center justify-between px-4 py-2.5 rounded-xl text-sm transition-colors ${
+                isActive('/seller/chat')
+                  ? 'bg-[#059669]/20 text-[#059669] font-bold'
+                  : 'text-slate-600 hover:bg-slate-50'
+              }`}
+            >
+              Chat
+            </Link>
+            <Link
               href="/seller/income"
               className={`flex items-center px-4 py-2.5 rounded-xl text-sm transition-colors ${
                 isActive('/seller/income')
