@@ -21,6 +21,18 @@ export default function SellerSideBar() {
     router.push('/app/login');
   };
 
+  const menuItemClass = (path: string) =>
+    `group flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm transition-all duration-200 ${
+      isActive(path)
+        ? 'bg-[#059669] text-white font-bold shadow-md shadow-emerald-200'
+        : 'text-slate-600 hover:bg-slate-100 hover:translate-x-0.5'
+    }`;
+
+  const iconClass = (path: string) =>
+    `w-[18px] h-[18px] flex-shrink-0 ${
+      isActive(path) ? 'text-white' : 'text-slate-400 group-hover:text-[#059669]'
+    }`;
+
   return (
     <>
       <div className="md:hidden flex items-center justify-between bg-white border-b border-slate-200 px-6 py-4 sticky top-0 z-30">
@@ -34,7 +46,7 @@ export default function SellerSideBar() {
         />
         <button
           onClick={toggleSidebar}
-          className="p-2 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors focus:outline-none"
+          className="p-2 rounded-xl bg-[#059669] active:scale-90 transition-all text-white focus:outline-none"
           aria-label="Toggle Menu"
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -48,122 +60,100 @@ export default function SellerSideBar() {
       </div>
 
       {isOpen && (
-        <div 
-          onClick={toggleSidebar} 
-          className="fixed inset-0 bg-black/40 z-40 md:hidden"
+        <div
+          onClick={toggleSidebar}
+          className="fixed inset-0 bg-black/40 backdrop-blur-[2px] z-40 md:hidden"
         />
       )}
 
-      <aside className={`fixed md:static top-0 right-0 h-full md:h-auto z-50 w-64 border-l md:border-l-0 md:border-r border-slate-200 bg-white flex flex-col justify-between p-6 transform transition-transform duration-300 ease-in-out ${
-        isOpen ? 'translate-x-0' : 'translate-x-full md:translate-x-0'
-      }`}>
-        <div>
-          <div className="mb-8 hidden md:block">
-            <div>
-              <Image
-                src="/flexa-logo-green.png"
-                alt="Flexa Logo"
-                width={120}
-                height={36}
-                className="h-12 w-auto object-contain cursor-pointer hover:scale-105 active:scale-95 duration-200 transition-all"
-                priority
-              />
-            </div>
+      <aside
+        className={`fixed md:static top-0 right-0 h-full md:h-auto z-50 w-72 md:w-64 lg:w-72 border-l md:border-l-0 md:border-r border-slate-200 bg-white flex flex-col p-5 sm:p-6 shadow-2xl md:shadow-none transform transition-transform duration-300 ease-in-out ${
+          isOpen ? 'translate-x-0' : 'translate-x-full md:translate-x-0'
+        }`}
+      >
+        <div className="flex-1 overflow-y-auto overflow-x-hidden">
+          <div className="mb-8 hidden md:flex items-center justify-between min-w-0">
+            <Image
+              src="/flexa-logo-green.png"
+              alt="Flexa Logo"
+              width={120}
+              height={36}
+              className="h-10 lg:h-12 w-auto object-contain cursor-pointer hover:scale-105 active:scale-95 duration-200 transition-all"
+              priority
+            />
           </div>
 
-          <div className="mb-6">
-            <p className="text-xs font-bold text-slate-400 tracking-wider uppercase mb-3">TOKO</p>
-            <nav className="space-y-1">
-              <Link
-                href="/seller/dashboard"
-                onClick={() => setIsOpen(false)}
-                className={`flex items-center px-4 py-2.5 rounded-xl text-sm transition-colors ${
-                  isActive('/seller/dashboard')
-                    ? 'bg-[#059669]/20 text-[#059669] font-bold'
-                    : 'text-slate-600 hover:bg-slate-100'
-                }`}
-              >
-                Dashboard
+          <div className="mb-7">
+            <p className="text-[11px] font-bold text-slate-400 tracking-widest uppercase mb-3 px-1">TOKO</p>
+            <nav className="space-y-1.5">
+              <Link href="/seller/dashboard" onClick={() => setIsOpen(false)} className={menuItemClass('/seller/dashboard')}>
+                <svg className={iconClass('/seller/dashboard')} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+                <span>Dashboard</span>
               </Link>
-              <Link
-                href="/seller/product"
-                onClick={() => setIsOpen(false)}
-                className={`flex items-center px-4 py-2.5 rounded-xl text-sm transition-colors ${
-                  isActive('/seller/product')
-                    ? 'bg-[#059669]/20 text-[#059669] font-bold'
-                    : 'text-slate-600 hover:bg-slate-50'
-                }`}
-              >
-                Katalog
+
+              <Link href="/seller/product" onClick={() => setIsOpen(false)} className={menuItemClass('/seller/product')}>
+                <svg className={iconClass('/seller/product')} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                </svg>
+                <span>Katalog</span>
               </Link>
-              <Link
-                href="/seller/orders"
-                onClick={() => setIsOpen(false)}
-                className={`flex items-center justify-between px-4 py-2.5 rounded-xl text-sm transition-colors ${
-                  isActive('/seller/orders')
-                    ? 'bg-[#059669]/20 text-[#059669] font-bold'
-                    : 'text-slate-600 hover:bg-slate-50'
-                }`}
-              >
-                <span>Pesanan</span>
-                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                  isActive('/seller/orders')
-                    ? 'bg-[#059669] text-white'
-                    : 'bg-slate-200 text-black/80'
-                }`}>
+
+              <Link href="/seller/orders" onClick={() => setIsOpen(false)} className={`${menuItemClass('/seller/orders')} justify-between`}>
+                <span className="flex items-center gap-3">
+                  <svg className={iconClass('/seller/orders')} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                  </svg>
+                  <span>Pesanan</span>
+                </span>
+                <span
+                  className={`px-2 py-0.5 rounded-full text-[11px] font-bold ${
+                    isActive('/seller/orders') ? 'bg-white/25 text-white' : 'bg-slate-200 text-black/70'
+                  }`}
+                >
                   2
                 </span>
               </Link>
-              <Link
-                href="/seller/chat"
-                onClick={() => setIsOpen(false)}
-                className={`flex items-center justify-between px-4 py-2.5 rounded-xl text-sm transition-colors ${
-                  isActive('/seller/chat')
-                    ? 'bg-[#059669]/20 text-[#059669] font-bold'
-                    : 'text-slate-600 hover:bg-slate-50'
-                }`}
-              >
-                Chat
+
+              <Link href="/seller/chat" onClick={() => setIsOpen(false)} className={menuItemClass('/seller/chat')}>
+                <svg className={iconClass('/seller/chat')} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.86 9.86 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
+                <span>Chat</span>
               </Link>
-              <Link
-                href="/seller/income"
-                onClick={() => setIsOpen(false)}
-                className={`flex items-center px-4 py-2.5 rounded-xl text-sm transition-colors ${
-                  isActive('/seller/income')
-                    ? 'bg-[#059669]/20 text-[#059669] font-bold'
-                    : 'text-slate-600 hover:bg-slate-50'
-                }`}
-              >
-                Keuangan
+
+              <Link href="/seller/income" onClick={() => setIsOpen(false)} className={menuItemClass('/seller/income')}>
+                <svg className={iconClass('/seller/income')} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V6m0 10v2m9-8a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>Keuangan</span>
               </Link>
             </nav>
           </div>
 
           <div>
-            <p className="text-xs font-bold text-slate-400 tracking-wider uppercase mb-3">AKUN</p>
-            <nav className="space-y-1">
-              <Link
-                href="/seller/storeSettings"
-                onClick={() => setIsOpen(false)}
-                className={`flex items-center px-4 py-2.5 rounded-xl text-sm transition-colors ${
-                  isActive('/seller/storeSettings')
-                    ? 'bg-[#059669]/20 text-[#059669] font-bold'
-                    : 'text-slate-600 hover:bg-slate-50'
-                }`}
-              >
-                Pengaturan Toko
+            <p className="text-[11px] font-bold text-slate-400 tracking-widest uppercase mb-3 px-1">AKUN</p>
+            <nav className="space-y-1.5">
+              <Link href="/seller/storeSettings" onClick={() => setIsOpen(false)} className={menuItemClass('/seller/storeSettings')}>
+                <svg className={iconClass('/seller/storeSettings')} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <span>Pengaturan Toko</span>
               </Link>
+
               <button
                 onClick={() => {
                   setIsOpen(false);
                   setShowLogoutModal(true);
                 }}
-                className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm text-red-600 hover:bg-red-50 transition-colors font-medium"
+                className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm text-red-600 hover:bg-red-50 active:scale-[0.98] transition-all font-semibold"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-[18px] h-[18px] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                 </svg>
-                Keluar
+                <span>Keluar</span>
               </button>
             </nav>
           </div>
@@ -171,22 +161,27 @@ export default function SellerSideBar() {
       </aside>
 
       {showLogoutModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-xl animate-in fade-in zoom-in duration-200">
-            <h3 className="text-lg font-bold text-slate-900 mb-2">Konfirmasi Keluar</h3>
-            <p className="text-sm text-slate-600 mb-6">Apakah Anda yakin ingin keluar dari akun toko ini?</p>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-2xl max-w-sm w-full p-6 sm:p-7 shadow-2xl animate-in fade-in zoom-in duration-200">
+            <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center mb-4">
+              <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+            </div>
+            <h3 className="text-base sm:text-lg font-bold text-slate-900 mb-2">Konfirmasi Keluar</h3>
+            <p className="text-xs sm:text-sm text-slate-600 mb-6">Apakah Anda yakin ingin keluar dari akun toko ini?</p>
             <div className="flex items-center gap-3">
               <button
                 type="button"
                 onClick={() => setShowLogoutModal(false)}
-                className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium text-black/70 border border-black/20 hover:border-black/70 duration-200 hover:scale-105 active:scale-95 transition-all"
+                className="flex-1 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-black/70 border border-black/15 hover:border-black/40 hover:bg-slate-50 duration-200 hover:scale-[1.02] active:scale-95 transition-all"
               >
                 Batal
               </button>
               <button
                 type="button"
                 onClick={handleLogout}
-                className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium text-white bg-red-600 hover:bg-red-700 transition-all hover:scale-105 active:scale-95 duration-200"
+                className="flex-1 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-white bg-red-600 hover:bg-red-700 shadow-md shadow-red-200 transition-all hover:scale-[1.02] active:scale-95 duration-200"
               >
                 Ya, Keluar
               </button>

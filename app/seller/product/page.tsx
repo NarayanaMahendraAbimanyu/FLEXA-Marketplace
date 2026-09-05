@@ -319,8 +319,8 @@ export default function SellerProductPage() {
           <div className="mb-8 flex flex-col gap-4 border-b border-slate-200 pb-6 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3">
               <div>
-                <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">Katalog Produk</h1>
-                <p className="text-sm text-slate-500">{products.length} produk terdaftar di toko kamu</p>
+                <h1 className="text-2xl font-bold tracking-tight text-black/80 sm:text-3xl mb-1">Katalog Produk</h1>
+                <p className="text-sm text-black/40">{products.length} produk terdaftar di toko kamu</p>
               </div>
             </div>
             <button
