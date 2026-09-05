@@ -70,6 +70,12 @@ export default function ServiceBookingCard({ productId, triggerAlert }: ServiceB
             value={bookingDate}
             min={today}
             onChange={(e) => setBookingDate(e.target.value)}
+            onBlur={(e) => {
+              const selected = e.target.value;
+              if (selected && selected < today) {
+                setBookingDate('');
+              }
+            }}
             className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-xs sm:text-sm text-black/80 focus:outline-none focus:border-[#059669]"
           />
         </div>
