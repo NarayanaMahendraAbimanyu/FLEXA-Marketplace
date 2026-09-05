@@ -140,17 +140,17 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen w-full bg-white flex flex-col justify-between font-sans text-slate-800 relative">
-      <header className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-5">
+      <header className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
         <Link href="/" className="inline-flex items-center gap-3">
           <Image
             src="/flexa-logo-green.png"
             alt="Flexa Logo"
             width={120}
             height={36}
-            className="h-7 sm:h-8 w-auto object-contain cursor-pointer"
+            className="h-7 sm:h-12 w-auto object-contain cursor-pointer"
             priority
           />
-          <span className="text-lg sm:text-xl font-medium text-black/80">Masuk</span>
+          <span className="text-lg sm:text-2xl font-medium text-black/80">Masuk</span>
         </Link>
       </header>
 

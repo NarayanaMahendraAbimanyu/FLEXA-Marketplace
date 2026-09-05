@@ -311,10 +311,17 @@ export default function ProductDetailPage() {
       triggerReviewAlert('Silakan tulis komentar ulasan Anda!');
       return;
     }
-
+    
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      triggerReviewAlert('Silakan login terlebih dahulu untuk memberi ulasan!');
+      return;
+    }
+    
     const { error } = await supabase.from('reviews').insert([
       {
         product_id: productId,
+        user_id: user.id,
         username: userData.name || 'Pengguna',
         avatar: userData.avatar,
         rating: userRating,

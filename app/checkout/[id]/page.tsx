@@ -161,6 +161,7 @@ export default function CheckoutPage() {
           {
             order_id: randomId,
             user_id: user.id,
+            seller_id: activeProduct?.user_id || null,
             product_name: product.title,
             product_price: formatRupiah(totalBayar),
             image_text: product.imageText,
