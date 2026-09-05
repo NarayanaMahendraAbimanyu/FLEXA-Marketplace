@@ -1,15 +1,22 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export default function SellerSideBar() {
   const pathname = usePathname();
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [unreadChatCount, setUnreadChatCount] = useState(0);
 
   const isActive = (path: string) => pathname === path;
 
@@ -20,6 +27,59 @@ export default function SellerSideBar() {
   const handleLogout = () => {
     router.push('/app/login');
   };
+
+  const fetchUnreadChatCount = async (userId: string) => {
+    const { data: convs } = await supabase
+      .from('conversations')
+      .select('id')
+      .eq('seller_id', userId);
+
+    if (!convs || convs.length === 0) {
+      setUnreadChatCount(0);
+      return;
+    }
+
+    const ids = convs.map((c) => c.id);
+    const { count } = await supabase
+      .from('messages')
+      .select('id', { count: 'exact', head: true })
+      .in('conversation_id', ids)
+      .eq('is_read', false)
+      .neq('sender_id', userId);
+
+    setUnreadChatCount(count || 0);
+  };
+
+  useEffect(() => {
+    const initUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) setCurrentUserId(user.id);
+    };
+    initUser();
+  }, []);
+
+  useEffect(() => {
+    if (!currentUserId) return;
+    fetchUnreadChatCount(currentUserId);
+
+    const channel = supabase
+      .channel('sidebar-unread-messages')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'messages' },
+        () => fetchUnreadChatCount(currentUserId)
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'conversations', filter: `seller_id=eq.${currentUserId}` },
+        () => fetchUnreadChatCount(currentUserId)
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [currentUserId]);
 
   const menuItemClass = (path: string) =>
     `group flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm transition-all duration-200 ${
@@ -46,7 +106,7 @@ export default function SellerSideBar() {
         />
         <button
           onClick={toggleSidebar}
-          className="p-2 rounded-xl bg-[#059669] active:scale-90 transition-all text-white focus:outline-none"
+          className="relative p-2 rounded-xl bg-[#059669] active:scale-90 transition-all text-white focus:outline-none"
           aria-label="Toggle Menu"
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -56,6 +116,11 @@ export default function SellerSideBar() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             )}
           </svg>
+          {!isOpen && unreadChatCount > 0 && (
+            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-bold rounded-full min-w-[16px] h-[16px] flex items-center justify-center px-1 ring-2 ring-white">
+              {unreadChatCount > 9 ? '9+' : unreadChatCount}
+            </span>
+          )}
         </button>
       </div>
 
@@ -116,11 +181,22 @@ export default function SellerSideBar() {
                 </span>
               </Link>
 
-              <Link href="/seller/chat" onClick={() => setIsOpen(false)} className={menuItemClass('/seller/chat')}>
-                <svg className={iconClass('/seller/chat')} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.86 9.86 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                </svg>
-                <span>Chat</span>
+              <Link href="/seller/chat" onClick={() => setIsOpen(false)} className={`${menuItemClass('/seller/chat')} justify-between`}>
+                <span className="flex items-center gap-3">
+                  <svg className={iconClass('/seller/chat')} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.86 9.86 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                  </svg>
+                  <span>Chat</span>
+                </span>
+                {unreadChatCount > 0 && (
+                  <span
+                    className={`px-2 py-0.5 rounded-full text-[11px] font-bold ${
+                      isActive('/seller/chat') ? 'bg-white/25 text-white' : 'bg-red-500 text-white'
+                    }`}
+                  >
+                    {unreadChatCount > 99 ? '99+' : unreadChatCount}
+                  </span>
+                )}
               </Link>
 
               <Link href="/seller/income" onClick={() => setIsOpen(false)} className={menuItemClass('/seller/income')}>
