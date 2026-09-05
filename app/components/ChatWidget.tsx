@@ -73,7 +73,7 @@ export default function ChatWidget() {
   };
 
   return (
-    <div className="fixed bottom-24 right-4 sm:bottom-5 sm:right-5 z-30 flex flex-col items-end font-sans pointer-events-none">
+    <div className="fixed bottom-24 right-4 sm:bottom-5 sm:right-5 z-50 flex flex-col items-end font-sans pointer-events-none">
       <div
         className={`mb-3 flex w-[360px] max-w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-[20px] bg-white shadow-[0_12px_40px_-8px_rgba(4,52,44,0.35)] ring-1 ring-black/5 transition-all duration-300 ease-out ${
           isOpen
