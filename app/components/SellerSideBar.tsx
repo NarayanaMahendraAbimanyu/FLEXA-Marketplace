@@ -24,8 +24,10 @@ export default function SellerSideBar() {
     setIsOpen(!isOpen);
   };
 
-  const handleLogout = () => {
-    router.push('/app/login');
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.push('/login');
+    router.refresh();
   };
 
   const fetchUnreadChatCount = async (userId: string) => {

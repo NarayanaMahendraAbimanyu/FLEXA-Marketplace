@@ -13,6 +13,7 @@ export default function BuyerSidebar() {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -87,6 +88,20 @@ export default function BuyerSidebar() {
     router.push('/login');
   };
 
+  const openMobileMenu = () => {
+    setIsMobileMenuOpen(true);
+    requestAnimationFrame(() => {
+      setIsAnimating(true);
+    });
+  };
+
+  const closeMobileMenu = () => {
+    setIsAnimating(false);
+    setTimeout(() => {
+      setIsMobileMenuOpen(false);
+    }, 300);
+  };
+
   const menuItems = [
     {
       label: 'Profil Saya',
@@ -132,22 +147,18 @@ export default function BuyerSidebar() {
         </Link>
         <button
           type="button"
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          onClick={openMobileMenu}
           className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors"
         >
           <svg className="w-6 h-6 fill-current" viewBox="0 0 24 24">
-            {isMobileMenuOpen ? (
-              <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
-            ) : (
-              <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
-            )}
+            <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
           </svg>
         </button>
       </div>
 
       {isMobileMenuOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden flex justify-end bg-black/50">
-          <div className="w-full max-w-xs bg-white h-full p-6 flex flex-col justify-between shadow-2xl overflow-y-auto">
+        <div className={`fixed inset-0 z-50 lg:hidden flex justify-end bg-black/50 transition-opacity duration-300 ease-out ${isAnimating ? 'opacity-100' : 'opacity-0'}`}>
+          <div className={`w-full max-w-xs bg-white h-full p-6 flex flex-col justify-between shadow-2xl overflow-y-auto transform transition-transform duration-300 ease-out ${isAnimating ? 'translate-x-0' : 'translate-x-full'}`}>
             <div>
               <div className="pb-6 mb-6 border-b border-slate-100 flex items-center justify-between">
                 <Link href="/" className="inline-block">
@@ -162,7 +173,7 @@ export default function BuyerSidebar() {
                 </Link>
                 <button
                   type="button"
-                  onClick={() => setIsMobileMenuOpen(false)}
+                  onClick={closeMobileMenu}
                   className="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100"
                 >
                   <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
@@ -200,7 +211,7 @@ export default function BuyerSidebar() {
                     <Link
                       key={item.href}
                       href={item.href}
-                      onClick={() => setIsMobileMenuOpen(false)}
+                      onClick={closeMobileMenu}
                       className={`flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm transition-all duration-200 ${
                         isActive
                           ? 'bg-[#059669] text-white shadow-sm'
