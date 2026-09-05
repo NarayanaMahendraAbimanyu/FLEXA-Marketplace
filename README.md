@@ -87,8 +87,6 @@ Perkembangan dunia e-commerce menuntut platform yang tidak hanya sekadar menjual
 
 ### Screenshot Aplikasi
 
-> ⚠️ **TODO sebelum submit**: ganti seluruh placeholder `[URL_SCREENSHOT_x]` di bawah dengan link gambar asli (bisa upload ke folder `docs/` di repo lalu pakai raw GitHub link, atau host di Imgur/ImgBB).
-
 <div align="center">
   <img src="[URL_SCREENSHOT_1]" alt="Homepage" width="800"/>
   <p><em>Homepage - Tampilan utama aplikasi</em></p>
@@ -99,12 +97,6 @@ Perkembangan dunia e-commerce menuntut platform yang tidak hanya sekadar menjual
   <img src="[URL_SCREENSHOT_3]" alt="Feature" width="800"/>
   <p><em>[Nama Fitur] - [Deskripsi screenshot]</em></p>
 </div>
-
-### Video Demo
-
-> ⚠️ **TODO sebelum submit**: tambahkan link video demo (YouTube/Google Drive) di bawah ini.
-
-📹 **[Link Video Demo](https://[URL_VIDEO])** _(opsional, tapi sangat disarankan untuk submission kompetisi)_
 
 ---
 
