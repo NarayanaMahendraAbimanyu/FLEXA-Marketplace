@@ -16,10 +16,23 @@ export default function BuyerLayout({
   useEffect(() => {
     async function checkAuth() {
       const { data: { user } } = await supabase.auth.getUser();
+
       if (!user) {
         router.replace('/login');
         return;
       }
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      if (!profile || profile.role !== 'pembeli') {
+        router.replace('/');
+        return;
+      }
+
       setIsChecking(false);
     }
     checkAuth();

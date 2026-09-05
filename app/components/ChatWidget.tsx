@@ -73,11 +73,11 @@ export default function ChatWidget() {
   };
 
   return (
-    <div className="fixed bottom-5 right-5 z-50 flex flex-col items-end font-sans">
+    <div className="fixed bottom-24 right-4 sm:bottom-5 sm:right-5 z-30 flex flex-col items-end font-sans pointer-events-none">
       <div
-        className={`mb-3 flex w-[360px] flex-col overflow-hidden rounded-[20px] bg-white shadow-[0_12px_40px_-8px_rgba(4,52,44,0.35)] ring-1 ring-black/5 transition-all duration-300 ease-out ${
+        className={`mb-3 flex w-[360px] max-w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-[20px] bg-white shadow-[0_12px_40px_-8px_rgba(4,52,44,0.35)] ring-1 ring-black/5 transition-all duration-300 ease-out ${
           isOpen
-            ? "h-[500px] translate-y-0 opacity-100"
+            ? "h-[500px] translate-y-0 opacity-100 pointer-events-auto"
             : "pointer-events-none h-0 translate-y-3 opacity-0"
         }`}
       >
@@ -172,7 +172,7 @@ export default function ChatWidget() {
       <button
         onClick={() => setIsOpen((prev) => !prev)}
         aria-label={isOpen ? "Tutup chat" : "Buka chat FLEXA Assistant"}
-        className="group relative flex h-14 w-14 items-center justify-center rounded-full bg-emerald-600 text-white shadow-[0_8px_24px_-6px_rgba(4,52,44,0.5)] transition-all duration-300 hover:scale-105 hover:bg-emerald-700 active:scale-95"
+        className="group relative flex h-14 w-14 items-center justify-center rounded-full bg-emerald-600 text-white shadow-[0_8px_24px_-6px_rgba(4,52,44,0.5)] transition-all duration-300 hover:scale-105 hover:bg-emerald-700 active:scale-95 pointer-events-auto"
       >
         <Sparkles
           size={22}
