@@ -8,6 +8,27 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
+const CATEGORIES = ['Elektronik', 'Fashion', 'Sewa', 'Jasa'] as const;
+
+// Kategori yang tidak memakai stok barang fisik (dihitung per pesanan/slot, bukan unit)
+const NON_STOCK_CATEGORIES = ['Sewa', 'Jasa'];
+
+const CATEGORY_STYLES: Record<string, string> = {
+  Elektronik: 'bg-blue-50 text-blue-700 border-blue-100',
+  Fashion: 'bg-pink-50 text-pink-700 border-pink-100',
+  Sewa: 'bg-amber-50 text-amber-700 border-amber-100',
+  Jasa: 'bg-purple-50 text-purple-700 border-purple-100',
+};
+
+function CategoryBadge({ category }: { category: string }) {
+  const style = CATEGORY_STYLES[category] || 'bg-slate-50 text-slate-600 border-slate-100';
+  return (
+    <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-medium ${style}`}>
+      {category}
+    </span>
+  );
+}
+
 export default function SellerProductPage() {
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -30,10 +51,18 @@ export default function SellerProductPage() {
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [isNotifAnimatingOut, setIsNotifAnimatingOut] = useState(false);
 
+  const requiresStock = !NON_STOCK_CATEGORIES.includes(category);
+  const requiresStockEdit = selectedProduct ? !NON_STOCK_CATEGORIES.includes(selectedProduct.category) : true;
+
   useEffect(() => {
     fetchProducts();
     fetchStoreInfo();
   }, []);
+
+  // Kalau kategori diganti ke Sewa/Jasa, kosongkan input stok supaya tidak ikut terkirim
+  useEffect(() => {
+    if (!requiresStock && stock !== '') setStock('');
+  }, [category]);
 
   const fetchStoreInfo = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -43,7 +72,7 @@ export default function SellerProductPage() {
         .select('store_name, store_avatar, logo_url')
         .eq('user_id', user.id)
         .maybeSingle();
-      
+
       if (data) {
         if (data.store_name) {
           setStoreName(data.store_name);
@@ -90,8 +119,20 @@ export default function SellerProductPage() {
     }
   };
 
-  const isFormValid = name.trim() !== '' && category !== '' && description.trim() !== '' && stock !== '' && price !== '';
-  const isEditFormValid = selectedProduct && selectedProduct.name?.trim() !== '' && selectedProduct.category !== '' && selectedProduct.description?.trim() !== '' && selectedProduct.stock !== '' && selectedProduct.stock !== undefined && selectedProduct.price !== '';
+  const isFormValid =
+    name.trim() !== '' &&
+    category !== '' &&
+    description.trim() !== '' &&
+    price !== '' &&
+    (!requiresStock || stock !== '');
+
+  const isEditFormValid =
+    selectedProduct &&
+    selectedProduct.name?.trim() !== '' &&
+    selectedProduct.category !== '' &&
+    selectedProduct.description?.trim() !== '' &&
+    selectedProduct.price !== '' &&
+    (!requiresStockEdit || (selectedProduct.stock !== '' && selectedProduct.stock !== undefined));
 
   const handleCreateProduct = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -148,11 +189,11 @@ export default function SellerProductPage() {
       name: name,
       category: category,
       price: formattedPrice,
-      stock: Number(stock),
+      stock: requiresStock ? Number(stock) : null,
       description: description,
       image: imageUrl,
       store_name: finalStoreName,
-      user_id: currentUserId
+      user_id: currentUserId,
     };
 
     const { data, error } = await supabase.from('products').insert([newProductData]).select();
@@ -162,6 +203,7 @@ export default function SellerProductPage() {
       setDescription('');
       setStock('');
       setPrice('');
+      setCategory('Elektronik');
       setImageFile(null);
       setIsModalOpen(false);
       triggerNotification('Produk baru berhasil ditambahkan!', 'success');
@@ -202,8 +244,7 @@ export default function SellerProductPage() {
           imageUrl = publicUrlData.publicUrl;
         }
       }
-    } 
-    else if (!selectedProduct.image) {
+    } else if (!selectedProduct.image) {
       imageUrl = '';
     }
 
@@ -213,9 +254,9 @@ export default function SellerProductPage() {
       name: selectedProduct.name,
       category: selectedProduct.category,
       description: selectedProduct.description,
-      stock: Number(selectedProduct.stock),
+      stock: requiresStockEdit ? Number(selectedProduct.stock) : null,
       price: formattedPrice,
-      image: imageUrl
+      image: imageUrl,
     };
 
     const { error } = await supabase
@@ -255,13 +296,19 @@ export default function SellerProductPage() {
       {notification && (
         <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50">
           <div
-            className={`px-6 py-3 rounded-xl shadow-lg text-white font-medium text-sm flex items-center gap-3 transition-all duration-300 transform ${
-              notification.type === 'success' ? 'bg-[#059669]' : 'bg-red-600'
-            } ${isNotifAnimatingOut ? '-translate-y-20 opacity-0' : ''}`}
+            className={`flex items-center gap-3 rounded-xl px-6 py-3 text-sm font-medium text-white shadow-lg transition-all duration-300 ${
+              notification.type === 'success' ? 'bg-emerald-600' : 'bg-red-600'
+            } ${isNotifAnimatingOut ? '-translate-y-20 opacity-0' : 'translate-y-0 opacity-100'}`}
           >
-            <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-            </svg>
+            {notification.type === 'success' ? (
+              <svg className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+            ) : (
+              <svg className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            )}
             <span>{notification.message}</span>
           </div>
         </div>
@@ -269,152 +316,201 @@ export default function SellerProductPage() {
 
       <main className="flex-1 min-h-screen">
         <div className="w-full max-w-7xl mx-auto">
-          <div className="flex items-center justify-between mb-8 border-b border-black/30 pb-6">
+          <div className="mb-8 flex flex-col gap-4 border-b border-slate-200 pb-6 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3">
-              {storeAvatar && (
-                <img
-                  src={storeAvatar}
-                  alt={storeName || 'Logo Toko'}
-                  className="w-10 h-10 rounded-full object-cover border border-slate-200 shadow-sm"
-                />
-              )}
-              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-black/85">Katalog Produk</h1>
+              <div>
+                <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">Katalog Produk</h1>
+                <p className="text-sm text-slate-500">{products.length} produk terdaftar di toko kamu</p>
+              </div>
             </div>
             <button
               onClick={() => setIsModalOpen(true)}
-              className="bg-[#059669] hover:scale-105 active:scale-95 duration-200 transition-all text-white px-5 py-2.5 rounded-xl font-medium text-sm shadow-sm flex items-center gap-2"
+              className="flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm shadow-emerald-600/20 transition-all duration-200 hover:scale-[1.02] hover:bg-emerald-700 active:scale-95"
             >
-              <span>Tambah Produk</span>
-              <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+              <svg className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
               </svg>
+              <span>Tambah Produk</span>
             </button>
           </div>
 
-          <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden mb-10">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="border-b border-slate-200 text-black/80 font-semibold text-sm">
-                    <th className="py-4 px-6">Nama Produk</th>
-                    <th className="py-4 px-0 text-center">Harga</th>
-                    <th className="py-4 px-0 text-center">Stok</th>
-                    <th className="py-4 px-0 text-center">Opsi</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 text-sm">
-                  {products.map((product) => (
-                    <tr key={product.id} className="hover:bg-slate-50 transition-colors">
-                      <td className="py-4 px-6 flex items-center gap-4">
-                        {product.image ? (
-                          <img
-                            src={product.image}
-                            alt={product.name}
-                            className="w-12 h-12 rounded-lg object-cover bg-[#e5e7eb] border border-slate-200"
-                          />
-                        ) : (
-                          <div className="w-12 h-12 rounded-lg bg-[#e5e7eb] border border-slate-200 flex items-center justify-center">
-                            <span className="text-[8px] sm:text-[9px] font-medium text-slate-400 text-center leading-tight px-0.5">
-                              Tanpa Foto
-                            </span>
-                          </div>
-                        )}
-                        <div>
-                          <p className="font-semibold text-black/80">{product.name}</p>
-                          <p className="text-xs text-black/50 mt-0.5">{product.category}</p>
-                        </div>
-                      </td>
-                      <td className="py-4 px-0 text-[#059669] font-semibold text-center">{product.price}</td>
-                      <td className="py-4 px-3 text-black/80 font-semibold text-center">{product.stock}</td>
-                      <td className="py-4 px-6 text-center">
-                        <button
-                          onClick={() => handleOpenEditModal(product)}
-                          className="bg-[#059669] hover:scale-105 active:scale-95 duration-200 text-white px-6 py-2 rounded-lg text-md font-medium transition-all"
-                        >
-                          Edit
-                        </button>
-                      </td>
+          <div className="mb-10 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+            {products.length === 0 ? (
+              <div className="flex flex-col items-center justify-center gap-3 px-6 py-16 text-center">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-50 text-slate-400">
+                  <svg className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+                  </svg>
+                </div>
+                <p className="text-sm font-medium text-slate-600">Belum ada produk</p>
+                <p className="text-xs text-slate-400">Klik &quot;Tambah Produk&quot; untuk mulai berjualan.</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-slate-200 bg-slate-50/60 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                      <th className="py-3.5 px-6">Produk</th>
+                      <th className="py-3.5 px-4 text-center">Harga</th>
+                      <th className="py-3.5 px-4 text-center">Stok</th>
+                      <th className="py-3.5 px-6 text-center">Opsi</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 text-sm">
+                    {products.map((product) => {
+                      const isStockless = NON_STOCK_CATEGORIES.includes(product.category);
+                      return (
+                        <tr key={product.id} className="transition-colors hover:bg-slate-50/80">
+                          <td className="py-4 px-6">
+                            <div className="flex items-center gap-3.5">
+                              {product.image ? (
+                                <img
+                                  src={product.image}
+                                  alt={product.name}
+                                  className="h-12 w-12 shrink-0 rounded-xl border border-slate-200 bg-slate-100 object-cover"
+                                />
+                              ) : (
+                                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-slate-100">
+                                  <span className="px-0.5 text-center text-[9px] font-medium leading-tight text-slate-400">
+                                    Tanpa Foto
+                                  </span>
+                                </div>
+                              )}
+                              <div className="min-w-0">
+                                <p className="truncate font-semibold text-slate-800">{product.name}</p>
+                                <div className="mt-1">
+                                  <CategoryBadge category={product.category} />
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="py-4 px-4 text-center font-semibold text-emerald-600">{product.price}</td>
+                          <td className="py-4 px-4 text-center">
+                            {isStockless ? (
+                              <span className="text-xs text-slate-400">Tanpa stok</span>
+                            ) : (
+                              <span className="font-semibold text-slate-700">{product.stock}</span>
+                            )}
+                          </td>
+                          <td className="py-4 px-6 text-center">
+                            <button
+                              onClick={() => handleOpenEditModal(product)}
+                              className="rounded-lg bg-emerald-600 px-5 py-2 text-sm font-medium text-white transition-all duration-200 hover:scale-[1.03] hover:bg-emerald-700 active:scale-95"
+                            >
+                              Edit
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         </div>
       </main>
 
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl relative max-h-[90vh] overflow-y-auto">
-            <h2 className="text-xl font-bold text-slate-900 mb-4">Buat Produk Baru</h2>
-            <form onSubmit={handleCreateProduct} className="space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-[2px]">
+          <div className="relative flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-2xl bg-white shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-100 px-6 py-5">
+              <h2 className="text-lg font-bold text-slate-900">Buat Produk Baru</h2>
+              <button
+                type="button"
+                onClick={() => setIsModalOpen(false)}
+                className="rounded-full p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
+                aria-label="Tutup"
+              >
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateProduct} className="flex-1 space-y-4 overflow-y-auto px-6 py-5">
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Nama Produk</label>
+                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">Nama Produk</label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Masukkan nama produk..."
-                  className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900"
+                  className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm text-slate-900 outline-none transition-colors focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/20"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Kategori Produk</label>
-                <select
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                  className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white text-slate-900"
-                >
-                  <option value="Elektronik">Elektronik</option>
-                  <option value="Fashion">Fashion</option>
-                  <option value="Sewa">Sewa</option>
-                  <option value="Jasa">Jasa</option>
-                </select>
+                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">Kategori Produk</label>
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                  {CATEGORIES.map((c) => (
+                    <button
+                      type="button"
+                      key={c}
+                      onClick={() => setCategory(c)}
+                      className={`rounded-xl border px-3 py-2 text-sm font-medium transition-all ${
+                        category === c
+                          ? 'border-emerald-500 bg-emerald-50 text-emerald-700 ring-1 ring-emerald-500/30'
+                          : 'border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50'
+                      }`}
+                    >
+                      {c}
+                    </button>
+                  ))}
+                </div>
+                {!requiresStock && (
+                  <p className="mt-1.5 text-xs text-slate-400">
+                    Kategori ini dihitung per pesanan, jadi kolom stok disembunyikan.
+                  </p>
+                )}
               </div>
 
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Deskripsi Produk</label>
+                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">Deskripsi Produk</label>
                 <textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Tuliskan deskripsi lengkap produk..."
                   rows={3}
-                  className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900"
+                  className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm text-slate-900 outline-none transition-colors focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/20"
                   required
                 ></textarea>
               </div>
 
-              <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Harga Produk</label>
-                <div className="flex items-center w-full border border-slate-200 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-emerald-500 bg-white">
-                  <span className="px-4 py-2.5 bg-slate-50 text-slate-600 text-sm font-semibold border-r border-slate-200">Rp.</span>
-                  <input
-                    type="text"
-                    value={price}
-                    onChange={(e) => handlePriceChange(e, false)}
-                    placeholder="0"
-                    className="w-full px-4 py-2.5 text-sm focus:outline-none text-slate-900 bg-transparent"
-                    required
-                  />
+              <div className={`grid gap-4 ${requiresStock ? 'grid-cols-2' : 'grid-cols-1'}`}>
+                <div>
+                  <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">Harga Produk</label>
+                  <div className="flex items-center overflow-hidden rounded-xl border border-slate-200 bg-white transition-colors focus-within:border-emerald-400 focus-within:ring-2 focus-within:ring-emerald-500/20">
+                    <span className="border-r border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-semibold text-slate-500">Rp.</span>
+                    <input
+                      type="text"
+                      value={price}
+                      onChange={(e) => handlePriceChange(e, false)}
+                      placeholder="0"
+                      className="w-full bg-transparent px-3.5 py-2.5 text-sm text-slate-900 outline-none"
+                      required
+                    />
+                  </div>
                 </div>
+
+                {requiresStock && (
+                  <div>
+                    <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">Stok Produk</label>
+                    <input
+                      type="number"
+                      value={stock}
+                      onChange={(e) => setStock(e.target.value === '' ? '' : Math.max(0, parseInt(e.target.value) || 0).toString())}
+                      placeholder="0"
+                      className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm text-slate-900 outline-none transition-colors focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/20"
+                      required
+                    />
+                  </div>
+                )}
               </div>
 
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Stok Produk</label>
-                <input
-                  type="number"
-                  value={stock}
-                  onChange={(e) => setStock(e.target.value === '' ? '' : Math.max(0, parseInt(e.target.value) || 0).toString())}
-                  placeholder="0"
-                  className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Foto Produk</label>
+                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">Foto Produk</label>
                 <input
                   id="create-product-image-input"
                   type="file"
@@ -424,7 +520,7 @@ export default function SellerProductPage() {
                       setImageFile(e.target.files[0]);
                     }
                   }}
-                  className="w-full px-4 py-2 border border-slate-200 rounded-xl text-sm text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100"
+                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-500 file:mr-4 file:rounded-lg file:border-0 file:bg-emerald-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-emerald-700 hover:file:bg-emerald-100"
                 />
                 {imageFile && (
                   <button
@@ -434,119 +530,155 @@ export default function SellerProductPage() {
                       const fileInput = document.getElementById('create-product-image-input') as HTMLInputElement;
                       if (fileInput) fileInput.value = '';
                     }}
-                    className="mt-2 text-xs font-medium text-red-600 py-2 px-4 bg-transparent border border-red-300 rounded-xl hover:border-red-600 hover:scale-105 active:scale-95 duration-200 transition-all"
+                    className="mt-2 rounded-lg border border-red-200 px-3.5 py-1.5 text-xs font-medium text-red-600 transition-all duration-200 hover:border-red-400 hover:bg-red-50"
                   >
                     Hilangkan Foto
                   </button>
                 )}
               </div>
-
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 rounded-xl text-sm font-medium text-black/80 border border-black/30 hover:border-black/80 hover:scale-105 active:scale-95 duration-200 transition-all"
-                >
-                  Batalkan
-                </button>
-                <button
-                  type="submit"
-                  disabled={!isFormValid}
-                  className={`px-5 py-2 rounded-xl text-sm font-medium text-white transition-all ${
-                    isFormValid ? 'bg-[#059669] hover:bg-[#047857] hover:scale-105 active:scale-95 duration-200 transition-all' : 'bg-slate-300 cursor-not-allowed'
-                  }`}
-                >
-                  Buat Produk Baru
-                </button>
-              </div>
             </form>
+
+            <div className="flex items-center justify-end gap-3 border-t border-slate-100 px-6 py-4">
+              <button
+                type="button"
+                onClick={() => setIsModalOpen(false)}
+                className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 transition-all duration-200 hover:border-slate-300 hover:bg-slate-50"
+              >
+                Batalkan
+              </button>
+              <button
+                type="button"
+                onClick={handleCreateProduct}
+                disabled={!isFormValid}
+                className={`rounded-xl px-5 py-2 text-sm font-medium text-white transition-all duration-200 ${
+                  isFormValid
+                    ? 'bg-emerald-600 hover:scale-[1.02] hover:bg-emerald-700 active:scale-95'
+                    : 'cursor-not-allowed bg-slate-300'
+                }`}
+              >
+                Buat Produk Baru
+              </button>
+            </div>
           </div>
         </div>
       )}
 
       {isEditModalOpen && selectedProduct && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl relative max-h-[90vh] overflow-y-auto">
-            <h2 className="text-xl font-bold text-slate-900 mb-4">Edit Produk</h2>
-            <form onSubmit={handleUpdateProduct} className="space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-[2px]">
+          <div className="relative flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-2xl bg-white shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-100 px-6 py-5">
+              <h2 className="text-lg font-bold text-slate-900">Edit Produk</h2>
+              <button
+                type="button"
+                onClick={() => setIsEditModalOpen(false)}
+                className="rounded-full p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
+                aria-label="Tutup"
+              >
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <form onSubmit={handleUpdateProduct} className="flex-1 space-y-4 overflow-y-auto px-6 py-5">
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Nama Produk</label>
+                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">Nama Produk</label>
                 <input
                   type="text"
                   value={selectedProduct.name}
                   onChange={(e) => setSelectedProduct({ ...selectedProduct, name: e.target.value })}
                   placeholder="Masukkan nama produk..."
-                  className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900"
+                  className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm text-slate-900 outline-none transition-colors focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/20"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Kategori Produk</label>
-                <select
-                  value={selectedProduct.category}
-                  onChange={(e) => setSelectedProduct({ ...selectedProduct, category: e.target.value })}
-                  className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white text-slate-900"
-                >
-                  <option value="Elektronik">Elektronik</option>
-                  <option value="Fashion">Fashion</option>
-                  <option value="Sewa">Sewa</option>
-                  <option value="Jasa">Jasa</option>
-                </select>
+                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">Kategori Produk</label>
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                  {CATEGORIES.map((c) => (
+                    <button
+                      type="button"
+                      key={c}
+                      onClick={() => setSelectedProduct({ ...selectedProduct, category: c })}
+                      className={`rounded-xl border px-3 py-2 text-sm font-medium transition-all ${
+                        selectedProduct.category === c
+                          ? 'border-emerald-500 bg-emerald-50 text-emerald-700 ring-1 ring-emerald-500/30'
+                          : 'border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50'
+                      }`}
+                    >
+                      {c}
+                    </button>
+                  ))}
+                </div>
+                {!requiresStockEdit && (
+                  <p className="mt-1.5 text-xs text-slate-400">
+                    Kategori ini dihitung per pesanan, jadi kolom stok disembunyikan.
+                  </p>
+                )}
               </div>
 
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Deskripsi Produk</label>
+                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">Deskripsi Produk</label>
                 <textarea
                   value={selectedProduct.description || ''}
                   onChange={(e) => setSelectedProduct({ ...selectedProduct, description: e.target.value })}
                   placeholder="Tuliskan deskripsi lengkap produk..."
                   rows={3}
-                  className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900"
+                  className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm text-slate-900 outline-none transition-colors focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/20"
                   required
                 ></textarea>
               </div>
 
-              <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Harga Produk</label>
-                <div className="flex items-center w-full border border-slate-200 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-emerald-500 bg-white">
-                  <span className="px-4 py-2.5 bg-slate-50 text-slate-600 text-sm font-semibold border-r border-slate-200">Rp.</span>
-                  <input
-                    type="text"
-                    value={selectedProduct.price}
-                    onChange={(e) => handlePriceChange(e, true)}
-                    placeholder="0"
-                    className="w-full px-4 py-2.5 text-sm focus:outline-none text-slate-900 bg-transparent"
-                    required
-                  />
+              <div className={`grid gap-4 ${requiresStockEdit ? 'grid-cols-2' : 'grid-cols-1'}`}>
+                <div>
+                  <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">Harga Produk</label>
+                  <div className="flex items-center overflow-hidden rounded-xl border border-slate-200 bg-white transition-colors focus-within:border-emerald-400 focus-within:ring-2 focus-within:ring-emerald-500/20">
+                    <span className="border-r border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-semibold text-slate-500">Rp.</span>
+                    <input
+                      type="text"
+                      value={selectedProduct.price}
+                      onChange={(e) => handlePriceChange(e, true)}
+                      placeholder="0"
+                      className="w-full bg-transparent px-3.5 py-2.5 text-sm text-slate-900 outline-none"
+                      required
+                    />
+                  </div>
                 </div>
+
+                {requiresStockEdit && (
+                  <div>
+                    <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">Stok Produk</label>
+                    <input
+                      type="number"
+                      value={selectedProduct.stock ?? ''}
+                      onChange={(e) =>
+                        setSelectedProduct({
+                          ...selectedProduct,
+                          stock: e.target.value === '' ? '' : Math.max(0, parseInt(e.target.value) || 0),
+                        })
+                      }
+                      placeholder="0"
+                      className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm text-slate-900 outline-none transition-colors focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/20"
+                      required
+                    />
+                  </div>
+                )}
               </div>
 
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Stok Produk</label>
-                <input
-                  type="number"
-                  value={selectedProduct.stock}
-                  onChange={(e) => setSelectedProduct({ ...selectedProduct, stock: e.target.value === '' ? '' : Math.max(0, parseInt(e.target.value) || 0) })}
-                  placeholder="0"
-                  className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900"
-                  required
-                />
-              </div>
+                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">Foto Produk</label>
 
-              <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Foto Produk</label>
-                
                 {(editImageFile || selectedProduct.image) && (
                   <div className="mb-3 flex items-center gap-3">
                     <img
                       src={editImageFile ? URL.createObjectURL(editImageFile) : selectedProduct.image}
                       alt="Preview Produk"
-                      className="w-16 h-16 object-cover rounded-xl border border-slate-200"
+                      className="h-16 w-16 rounded-xl border border-slate-200 object-cover"
                     />
-                    <div className="text-xs text-slate-500">
-                      <p className="font-medium text-slate-700">{editImageFile ? 'Foto Baru Diganti' : 'Foto Saat Ini'}</p>
-                    </div>
+                    <p className="text-xs font-medium text-slate-500">
+                      {editImageFile ? 'Foto baru dipilih' : 'Foto saat ini'}
+                    </p>
                   </div>
                 )}
 
@@ -559,7 +691,7 @@ export default function SellerProductPage() {
                       setEditImageFile(e.target.files[0]);
                     }
                   }}
-                  className="w-full px-4 py-2 border border-slate-200 rounded-xl text-sm text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100"
+                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-500 file:mr-4 file:rounded-lg file:border-0 file:bg-emerald-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-emerald-700 hover:file:bg-emerald-100"
                 />
 
                 {(editImageFile || (selectedProduct.image && !selectedProduct.image.includes('placehold.co'))) && (
@@ -571,62 +703,70 @@ export default function SellerProductPage() {
                       const fileInput = document.getElementById('edit-product-image-input') as HTMLInputElement;
                       if (fileInput) fileInput.value = '';
                     }}
-                    className="mt-2 text-xs font-medium text-red-600 py-2 px-4 bg-transparent border border-red-300 rounded-xl hover:border-red-600 hover:scale-105 active:scale-95 duration-200 transition-all"
+                    className="mt-2 rounded-lg border border-red-200 px-3.5 py-1.5 text-xs font-medium text-red-600 transition-all duration-200 hover:border-red-400 hover:bg-red-50"
                   >
                     Hilangkan Foto
                   </button>
                 )}
               </div>
+            </form>
 
-              <div className="flex items-center justify-between pt-4 border-t border-slate-100">
+            <div className="flex items-center justify-between border-t border-slate-100 px-6 py-4">
+              <button
+                type="button"
+                onClick={() => setIsDeleteModalOpen(true)}
+                className="rounded-xl border border-red-200 px-4 py-2 text-sm font-medium text-red-600 transition-all duration-200 hover:border-red-400 hover:bg-red-50"
+              >
+                Hapus Produk
+              </button>
+              <div className="flex items-center gap-3">
                 <button
                   type="button"
-                  onClick={() => setIsDeleteModalOpen(true)}
-                  className="px-4 py-2 rounded-xl text-sm font-medium text-red-600 border border-red-300 hover:border-red-600 hover:scale-105 active:scale-95 duration-200 transition-all"
+                  onClick={() => setIsEditModalOpen(false)}
+                  className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 transition-all duration-200 hover:border-slate-300 hover:bg-slate-50"
                 >
-                  Hapus Produk
+                  Batalkan
                 </button>
-                <div className="flex items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setIsEditModalOpen(false)}
-                    className="px-4 py-2 rounded-xl text-sm font-medium text-black/70 border border-black/30 hover:border-black/80 hover:scale-105 active:scale-95 duration-200 transition-all"
-                  >
-                    Batalkan
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={!isEditFormValid}
-                    className={`px-5 py-2 rounded-xl text-sm font-medium text-white transition-all ${
-                      isEditFormValid ? 'bg-[#059669] hover:bg-[#047857] hover:scale-105 active:scale-95 duration-200 transition-all' : 'bg-slate-300 cursor-not-allowed'
-                    }`}
-                  >
-                    Simpan Perubahan
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  onClick={handleUpdateProduct}
+                  disabled={!isEditFormValid}
+                  className={`rounded-xl px-5 py-2 text-sm font-medium text-white transition-all duration-200 ${
+                    isEditFormValid
+                      ? 'bg-emerald-600 hover:scale-[1.02] hover:bg-emerald-700 active:scale-95'
+                      : 'cursor-not-allowed bg-slate-300'
+                  }`}
+                >
+                  Simpan Perubahan
+                </button>
               </div>
-            </form>
+            </div>
           </div>
         </div>
       )}
 
       {isDeleteModalOpen && (
-        <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-xl text-center">
-            <h3 className="text-lg font-bold text-black/80 mb-2">Hapus Produk?</h3>
-            <p className="text-sm text-black/60 mb-6">Apakah Anda yakin ingin menghapus produk ini? Tindakan ini tidak dapat dibatalkan.</p>
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-[2px]">
+          <div className="w-full max-w-sm rounded-2xl bg-white p-6 text-center shadow-2xl">
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-red-500">
+              <svg className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </div>
+            <h3 className="mb-1.5 text-base font-bold text-slate-900">Hapus produk ini?</h3>
+            <p className="mb-6 text-sm text-slate-500">Tindakan ini tidak dapat dibatalkan setelah dikonfirmasi.</p>
             <div className="flex items-center justify-center gap-3">
               <button
                 type="button"
                 onClick={() => setIsDeleteModalOpen(false)}
-                className="flex-1 px-4 py-2 rounded-xl text-sm font-medium text-black/80 border border-black/30 hover:border-black/80 hover:scale-105 active:scale-95 duration-200 transition-all"
+                className="flex-1 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-600 transition-all duration-200 hover:border-slate-300 hover:bg-slate-50"
               >
-                Tidak
+                Batal
               </button>
               <button
                 type="button"
                 onClick={handleDeleteProduct}
-                className="flex-1 px-4 py-2 rounded-xl text-sm font-medium text-white bg-red-600 hover:scale-105 active:scale-95 duration-200 transition-all"
+                className="flex-1 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-medium text-white transition-all duration-200 hover:scale-[1.02] hover:bg-red-700 active:scale-95"
               >
                 Ya, Hapus
               </button>

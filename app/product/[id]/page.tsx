@@ -57,68 +57,31 @@ export default function ProductDetailPage() {
         .eq('id', productId)
         .maybeSingle();
 
-      let ownerId = '';
       let currentProduct = null;
 
       if (!productError && productData) {
         currentProduct = productData;
         setDbProduct(productData);
-        ownerId = productData.user_id || productData.store_id || '';
+
+        const ownerId = productData.user_id || '';
+        if (ownerId) setStoreOwnerId(ownerId);
+        setLiveStoreName(productData.store_name || 'Toko Seller');
+
+        if (ownerId) {
+          const { data: storeData } = await supabase
+            .from('store_settings')
+            .select('logo_url')
+            .eq('user_id', ownerId)
+            .maybeSingle();
+
+          if (storeData?.logo_url) {
+            setLiveStoreLogo(storeData.logo_url);
+          }
+        }
       } else if (foundProduct) {
         currentProduct = foundProduct;
         setDbProduct(foundProduct);
-      }
-
-      if (ownerId) {
-        setStoreOwnerId(ownerId);
-        const { data: storeData } = await supabase
-          .from('store_settings')
-          .select('store_name, logo_url')
-          .eq('user_id', ownerId)
-          .maybeSingle();
-
-        if (storeData) {
-          setLiveStoreName(storeData.store_name);
-          setLiveStoreLogo(storeData.logo_url);
-          return;
-        }
-      }
-
-      const { data: allStores, error: storesError } = await supabase
-        .from('store_settings')
-        .select('user_id, store_name, logo_url');
-
-      if (!storesError && allStores && allStores.length > 0) {
-        if (allStores.length === 1) {
-          setStoreOwnerId(allStores[0].user_id);
-          setLiveStoreName(allStores[0].store_name);
-          setLiveStoreLogo(allStores[0].logo_url);
-          return;
-        }
-
-        const targetTitle = (currentProduct?.title || currentProduct?.name || '').toLowerCase();
-        let matchedStore = allStores.find((store) => 
-          targetTitle.includes(store.store_name.toLowerCase())
-        );
-
-        if (!matchedStore && currentProduct?.storeName) {
-          matchedStore = allStores.find((store) => 
-            store.store_name.toLowerCase() === currentProduct.storeName.toLowerCase()
-          );
-        }
-
-        if (matchedStore) {
-          setStoreOwnerId(matchedStore.user_id);
-          setLiveStoreName(matchedStore.store_name);
-          setLiveStoreLogo(matchedStore.logo_url);
-          return;
-        }
-
-        setStoreOwnerId(allStores[0].user_id);
-        setLiveStoreName(allStores[0].store_name);
-        setLiveStoreLogo(allStores[0].logo_url);
-      } else {
-        setLiveStoreName(currentProduct?.storeName || 'Toko Seller');
+        setLiveStoreName(foundProduct.storeName || 'Toko Seller');
       }
     }
 
