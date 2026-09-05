@@ -93,9 +93,8 @@ function AnimatedCard({ product, index, onClick }: AnimatedCardProps) {
     return () => observer.disconnect();
   }, []);
 
-  const columnIndex = index % 4;
+  const columnIndex = index % 3;
   const delayMs = columnIndex * 150;
-
   const fallbackText = product.title ? product.title.trim().split(' ')[0].toUpperCase() : 'PRODUK';
 
   return (
@@ -105,7 +104,7 @@ function AnimatedCard({ product, index, onClick }: AnimatedCardProps) {
       style={{
         transitionDelay: isVisible ? `${delayMs}ms` : '0ms',
       }}
-      className={`bg-white rounded-2xl border border-slate-200/85 hover:border-[#059669] shadow-sm hover:shadow-md transition-all duration-700 ease-out overflow-hidden group flex flex-col transform cursor-pointer ${
+      className={`bg-white rounded-xl sm:rounded-2xl border border-slate-200/85 hover:border-[#059669] shadow-sm hover:shadow-md transition-all duration-700 ease-out overflow-hidden group flex flex-col transform cursor-pointer ${
         isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
       }`}
     >
@@ -114,39 +113,39 @@ function AnimatedCard({ product, index, onClick }: AnimatedCardProps) {
           <img 
             src={product.imageUrl} 
             alt={product.title} 
-            className="w-full h-full object-cover rounded-t-2xl" 
+            className="w-full h-full object-cover rounded-t-xl sm:rounded-t-2xl" 
           />
         ) : (
-          <span className="text-2xl sm:text-7xl font-semibold text-black/30 text-center uppercase">
+          <span className="text-xl sm:text-7xl font-semibold text-black/30 text-center uppercase">
             {fallbackText}
           </span>
         )}
-        <span className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm border border-emerald-500/30 text-[#059669] font-medium text-[10px] sm:text-xs px-2.5 py-0.5 rounded-full">
+        <span className="absolute top-1.5 left-1.5 sm:top-3 sm:left-3 bg-white/90 backdrop-blur-sm border border-emerald-500/30 text-[#059669] font-medium text-[8px] sm:text-xs px-1.5 sm:px-2.5 py-0.5 rounded-full">
           {product.categoryTag}
         </span>
       </div>
 
-      <div className="p-4 flex flex-col justify-between flex-1 bg-white">
+      <div className="p-2 sm:p-4 flex flex-col justify-between flex-1 bg-white">
         <div>
-          <div className="flex items-center justify-between gap-2 text-[10px] sm:text-xs text-black/40 font-semibold tracking-wider uppercase mb-1">
+          <div className="flex items-center justify-between gap-1 text-[8px] sm:text-xs text-black/40 font-semibold tracking-wider uppercase mb-0.5 sm:mb-1">
             <span className="truncate">{product.storeName}</span>
-            <div className="flex items-center gap-1 text-amber-500 shrink-0">
+            <div className="flex items-center gap-0.5 sm:gap-1 text-amber-500 shrink-0">
               <span>★</span>
               <span className="text-amber-500 font-bold">{product.rating}</span>
             </div>
           </div>
 
-          <h3 className="text-xs sm:text-sm font-bold text-slate-800 line-clamp-1 group-hover:text-[#059669] transition-colors">
+          <h3 className="text-[10px] sm:text-sm font-bold text-slate-800 line-clamp-1 group-hover:text-[#059669] transition-colors">
             {product.title}
           </h3>
         </div>
 
-        <div className="mt-3 flex items-center justify-between pt-2 border-t border-slate-100">
-          <span className="text-sm sm:text-lg font-bold text-[#059669]">
+        <div className="mt-2 sm:mt-3 flex flex-col sm:flex-row sm:items-center justify-between pt-1.5 sm:pt-2 border-t border-slate-100 gap-0.5 sm:gap-0">
+          <span className="text-xs sm:text-lg font-bold text-[#059669]">
             {product.price}
           </span>
 
-          <span className="text-xs sm:text-sm text-black/50 font-medium">
+          <span className="text-[9px] sm:text-sm text-black/50 font-medium">
             {product.soldCount}
           </span>
         </div>
@@ -245,28 +244,51 @@ export default function RecommendationSection({ searchQuery, isLoggedIn, initial
   };
 
   return (
-    <section className="relative w-full bg-slate-50 pt-8 pb-20 px-4 sm:px-6 lg:px-8">
+    <section className="relative w-full bg-slate-50 pt-8 pb-20 px-3 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto -mt-16 mb-12 sticky top-14 sm:top-18 z-40 pt-2">
-        <div className="bg-white/95 backdrop-blur-md rounded-2xl p-2.5 sm:p-4 shadow-xl border border-slate-100">
-          <div className="flex items-center justify-start sm:justify-center gap-2 sm:gap-3 overflow-x-auto no-scrollbar py-1">
-            {CATEGORIES.map((cat) => {
-              const isActive = activeCategory === cat.id;
-              return (
-                <button
-                  key={cat.id}
-                  type="button"
-                  onClick={() => setActiveCategory(cat.id)}
-                  className={`font-medium text-xs sm:text-sm px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl shrink-0 flex items-center gap-2 hover:scale-103 active:scale-98 transition-all duration-200 ${
-                    isActive
-                      ? 'bg-[#059669] text-white font-semibold shadow-sm'
-                      : 'bg-white border border-slate-300 text-slate-800 hover:border-[#059669] hover:text-[#059669]'
-                  }`}
-                >
-                  {cat.icon}
-                  {cat.label}
-                </button>
-              );
-            })}
+        <div className="bg-white/95 backdrop-blur-md rounded-2xl p-3 sm:p-4 shadow-xl border border-slate-100">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 py-1">
+            <div className="grid grid-cols-3 gap-2 w-full sm:w-auto">
+              {CATEGORIES.slice(0, 3).map((cat) => {
+                const isActive = activeCategory === cat.id;
+                return (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    onClick={() => setActiveCategory(cat.id)}
+                    className={`font-medium text-[11px] sm:text-sm px-2.5 sm:px-5 py-2 sm:py-2.5 rounded-xl flex items-center justify-center gap-1.5 sm:gap-2 hover:scale-103 active:scale-98 transition-all duration-200 ${
+                      isActive
+                        ? 'bg-[#059669] text-white font-semibold shadow-sm'
+                        : 'bg-white border border-slate-300 text-slate-800 hover:border-[#059669] hover:text-[#059669]'
+                    }`}
+                  >
+                    {cat.icon}
+                    <span className="truncate">{cat.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+            
+            <div className="grid grid-cols-2 gap-2 w-2/3 sm:w-auto">
+              {CATEGORIES.slice(3, 5).map((cat) => {
+                const isActive = activeCategory === cat.id;
+                return (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    onClick={() => setActiveCategory(cat.id)}
+                    className={`font-medium text-[11px] sm:text-sm px-2.5 sm:px-5 py-2 sm:py-2.5 rounded-xl flex items-center justify-center gap-1.5 sm:gap-2 hover:scale-103 active:scale-98 transition-all duration-200 ${
+                      isActive
+                        ? 'bg-[#059669] text-white font-semibold shadow-sm'
+                        : 'bg-white border border-slate-300 text-slate-800 hover:border-[#059669] hover:text-[#059669]'
+                    }`}
+                  >
+                    {cat.icon}
+                    <span className="truncate">{cat.label}</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>
@@ -286,7 +308,7 @@ export default function RecommendationSection({ searchQuery, isLoggedIn, initial
             <p className="text-base font-medium">Produk tidak ditemukan.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+          <div className="grid grid-cols-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-6">
             {filteredProducts.map((product, idx) => (
               <AnimatedCard
                 key={`${product.id}-${idx}`}
