@@ -42,9 +42,16 @@ export default function RentalDatePicker({
             type="date"
             value={startDate}
             min={today}
-            onChange={(e) => {
-              onStartDateChange(e.target.value);
-              if (endDate && e.target.value > endDate) onEndDateChange('');
+            onChange={(e) => onStartDateChange(e.target.value)}
+            onBlur={(e) => {
+              const selected = e.target.value;
+              if (selected && selected < today) {
+                onStartDateChange('');
+                return;
+              }
+              if (selected && endDate && selected > endDate) {
+                onEndDateChange('');
+              }
             }}
             className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-xs sm:text-sm text-black/80 focus:outline-none focus:border-[#059669]"
           />
@@ -57,6 +64,13 @@ export default function RentalDatePicker({
             min={startDate || today}
             disabled={!startDate}
             onChange={(e) => onEndDateChange(e.target.value)}
+            onBlur={(e) => {
+              const selected = e.target.value;
+              const minAllowed = startDate || today;
+              if (selected && selected < minAllowed) {
+                onEndDateChange('');
+              }
+            }}
             className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-xs sm:text-sm text-black/80 focus:outline-none focus:border-[#059669] disabled:bg-slate-50 disabled:text-black/30"
           />
         </div>
