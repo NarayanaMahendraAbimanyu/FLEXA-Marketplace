@@ -112,6 +112,8 @@ export default function BuyerSidebar() {
     ),
   };
 
+  const isProfilePage = pathname === '/buyer/profile';
+
   const menuItems = [
     {
       label: 'Profil Saya',
@@ -194,26 +196,40 @@ export default function BuyerSidebar() {
 
               <div className="flex flex-col items-center pb-6 border-b border-slate-100">
                 <div className="relative mb-4">
-                  <label className="w-24 h-24 rounded-full bg-slate-200 overflow-hidden ring-4 ring-emerald-50 border-2 border-[#059669]/30 flex items-center justify-center text-slate-400 relative cursor-pointer group shadow-sm">
-                    {avatarUrl ? (
-                      <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover group-hover:opacity-90 transition-opacity" />
-                    ) : (
-                      <svg className="w-12 h-12 fill-current group-hover:text-slate-500 transition-colors" viewBox="0 0 24 24">
-                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                      </svg>
-                    )}
-                    <input type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" />
-                  </label>
-                  <label className="absolute bottom-0 right-0 w-8 h-8 bg-[#059669] hover:bg-emerald-700 text-white rounded-full flex items-center justify-center cursor-pointer shadow-md transition-all">
-                    <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                      <path d="M4 5h3l2-2h6l2 2h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2zm8 14a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0-2a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
-                    </svg>
-                    <input type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" />
-                  </label>
+                  {isProfilePage ? (
+                    <>
+                      <label className="w-24 h-24 rounded-full bg-slate-200 overflow-hidden ring-4 ring-emerald-50 border-2 border-[#059669]/30 flex items-center justify-center text-slate-400 relative cursor-pointer group shadow-sm">
+                        {avatarUrl ? (
+                          <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover group-hover:opacity-90 transition-opacity" />
+                        ) : (
+                          <svg className="w-12 h-12 fill-current group-hover:text-slate-500 transition-colors" viewBox="0 0 24 24">
+                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                          </svg>
+                        )}
+                        <input type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" />
+                      </label>
+                      <label className="absolute bottom-0 right-0 w-8 h-8 bg-[#059669] hover:bg-emerald-700 text-white rounded-full flex items-center justify-center cursor-pointer shadow-md transition-all">
+                        <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                          <path d="M4 5h3l2-2h6l2 2h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2zm8 14a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0-2a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
+                        </svg>
+                        <input type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" />
+                      </label>
+                    </>
+                  ) : (
+                    <div className="w-24 h-24 rounded-full bg-slate-200 overflow-hidden ring-4 ring-emerald-50 border-2 border-[#059669]/30 flex items-center justify-center text-slate-400 shadow-sm">
+                      {avatarUrl ? (
+                        <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                      ) : (
+                        <svg className="w-12 h-12 fill-current" viewBox="0 0 24 24">
+                          <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                        </svg>
+                      )}
+                    </div>
+                  )}
                 </div>
                 <h2 className="text-base font-medium text-black/70 text-center tracking-tight">{userName}</h2>
               </div>
-
+              
               <Link
                 href={homeItem.href}
                 onClick={closeMobileMenu}
@@ -278,22 +294,36 @@ export default function BuyerSidebar() {
 
           <div className="flex flex-col items-center pb-6 border-b border-slate-100">
             <div className="relative mb-4">
-              <label className="w-24 h-24 rounded-full bg-slate-200 overflow-hidden ring-4 ring-emerald-50 border-2 border-[#059669]/30 flex items-center justify-center text-slate-400 relative cursor-pointer group shadow-sm">
-                {avatarUrl ? (
-                  <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover group-hover:opacity-90 transition-opacity" />
-                ) : (
-                  <svg className="w-12 h-12 fill-current group-hover:text-slate-500 transition-colors" viewBox="0 0 24 24">
-                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                  </svg>
-                )}
-                <input type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" />
-              </label>
-              <label className="absolute bottom-0 right-0 w-8 h-8 bg-[#059669] hover:bg-emerald-700 text-white rounded-full flex items-center justify-center cursor-pointer shadow-md transition-all">
-                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                  <path d="M4 5h3l2-2h6l2 2h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2zm8 14a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0-2a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
-                </svg>
-                <input type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" />
-              </label>
+              {isProfilePage ? (
+                <>
+                  <label className="w-24 h-24 rounded-full bg-slate-200 overflow-hidden ring-4 ring-emerald-50 border-2 border-[#059669]/30 flex items-center justify-center text-slate-400 relative cursor-pointer group shadow-sm">
+                    {avatarUrl ? (
+                      <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover group-hover:opacity-90 transition-opacity" />
+                    ) : (
+                      <svg className="w-12 h-12 fill-current group-hover:text-slate-500 transition-colors" viewBox="0 0 24 24">
+                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                      </svg>
+                    )}
+                    <input type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" />
+                  </label>
+                  <label className="absolute bottom-0 right-0 w-8 h-8 bg-[#059669] hover:bg-emerald-700 text-white rounded-full flex items-center justify-center cursor-pointer shadow-md transition-all">
+                    <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                      <path d="M4 5h3l2-2h6l2 2h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2zm8 14a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0-2a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
+                    </svg>
+                    <input type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" />
+                  </label>
+                </>
+              ) : (
+                <div className="w-24 h-24 rounded-full bg-slate-200 overflow-hidden ring-4 ring-emerald-50 border-2 border-[#059669]/30 flex items-center justify-center text-slate-400 shadow-sm">
+                  {avatarUrl ? (
+                    <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                  ) : (
+                    <svg className="w-12 h-12 fill-current" viewBox="0 0 24 24">
+                      <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                    </svg>
+                  )}
+                </div>
+              )}
             </div>
             <h2 className="text-base font-medium text-black/70 text-center tracking-tight">{userName}</h2>
           </div>
