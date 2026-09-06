@@ -167,10 +167,11 @@ export default function NavbarSeller({ searchQuery, onSearchChange, onSearchSubm
         </div>
 
         <div className="hidden sm:flex items-center gap-2 md:gap-3 shrink-0">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 border border-emerald-200 text-[#059669] text-[10px] sm:text-xs font-bold rounded-full">
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.25 14.15v4.25c0 .621-.504 1.125-1.125 1.125h-15A1.125 1.125 0 013 18.4v-4.25m18-1.5V6.75c0-.621-.504-1.125-1.125-1.125h-15C4.254 5.625 3.75 6.129 3.75 6.75v5.9m18 0h-18" />
-            </svg>
+          <span className="inline-flex items-center gap-2 px-3 py-1.5 bg-emerald-50 border border-emerald-200 text-[#059669] text-[10px] sm:text-xs font-bold rounded-full">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#059669]"></span>
+            </span>
             Mode Penjual
           </span>
 
