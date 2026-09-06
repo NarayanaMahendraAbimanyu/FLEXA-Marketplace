@@ -83,6 +83,21 @@ export default function BuyerSidebar() {
     }
   };
 
+  const handleRemoveAvatar = async () => {
+    setAvatarUrl(null);
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      await supabase
+        .from('profiles')
+        .upsert({ id: user.id, avatar_url: null, updated_at: new Date() });
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
     router.push('/login');
@@ -228,6 +243,24 @@ export default function BuyerSidebar() {
                   )}
                 </div>
                 <h2 className="text-base font-medium text-black/70 text-center tracking-tight">{userName}</h2>
+
+                {isProfilePage && (
+                  <div className="flex items-center gap-2 mt-3">
+                    <label className="cursor-pointer px-3 py-1.5 rounded-lg text-xs font-semibold text-[#059669] bg-emerald-50 hover:bg-emerald-100 border border-transparent hover:border-emerald-500 transition-colors">
+                      Ganti Foto
+                      <input type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" />
+                    </label>
+                    {avatarUrl && (
+                      <button
+                        type="button"
+                        onClick={handleRemoveAvatar}
+                        className="px-3 py-1.5 rounded-lg text-xs font-semibold text-red-500 hover:bg-red-50 border border-transparent hover:border-red-300 transition-colors"
+                      >
+                        Hapus Foto
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
               
               <Link
@@ -326,6 +359,24 @@ export default function BuyerSidebar() {
               )}
             </div>
             <h2 className="text-base font-medium text-black/70 text-center tracking-tight">{userName}</h2>
+
+            {isProfilePage && (
+              <div className="flex items-center gap-2 mt-3">
+                <label className="cursor-pointer px-3 py-1.5 rounded-lg text-xs font-semibold text-[#059669] bg-emerald-50 hover:bg-emerald-100 border border-transparent hover:border-emerald-500 transition-colors">
+                  Ganti Foto
+                  <input type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" />
+                </label>
+                {avatarUrl && (
+                  <button
+                    type="button"
+                    onClick={handleRemoveAvatar}
+                    className="px-3 py-1.5 rounded-lg text-xs font-semibold text-red-500 hover:bg-red-50 border border-transparent hover:border-red-300 transition-colors"
+                  >
+                    Hapus Foto
+                  </button>
+                )}
+              </div>
+            )}
           </div>
 
           <Link
