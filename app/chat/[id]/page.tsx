@@ -247,7 +247,6 @@ export default function ChatPage() {
             ) : (
               headerName.charAt(0) || '?'
             )}
-            <span className="absolute bottom-0 right-0 w-2.5 h-2.5 sm:w-3 sm:h-3 bg-emerald-500 rounded-full ring-2 ring-white"></span>
           </div>
           <div className="flex flex-col min-w-0">
             <span className="text-sm sm:text-base lg:text-lg font-bold text-black/85 truncate leading-tight">

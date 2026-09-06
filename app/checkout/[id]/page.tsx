@@ -576,7 +576,7 @@ export default function CheckoutPage() {
               className={`w-full sm:w-auto px-8 py-4 font-bold text-sm sm:text-base rounded-2xl text-center transition-all duration-200 ${
                 isPaymentReady
                   ? 'bg-[#059669] text-white hover:bg-emerald-700 hover:scale-[1.02] active:scale-[0.98] shadow-xl shadow-emerald-600/20 cursor-pointer'
-                  : 'bg-gray-200 text-black/40 font-semibold cursor-not-allowed'
+                  : 'bg-gray-100 text-black/40 font-medium cursor-not-allowed'
               }`}
             >
               {isPaymentReady ? 'BUAT PESANAN SEKARANG' : 'Pilih Metode Pembayaran Dahulu'}
