@@ -139,16 +139,27 @@ export default function SellerSideBar() {
         }`}
       >
         <div className="flex-1 overflow-y-auto overflow-x-hidden">
-          <div className="mb-8 hidden md:flex items-center justify-between min-w-0">
+          <div className="mb-6 md:mb-8 flex items-center justify-between min-w-0 pb-5 md:pb-0 border-b md:border-b-0 border-slate-100">
             <Image
               src="/flexa-logo-green.png"
               alt="Flexa Logo"
               width={120}
               height={36}
-              className="h-10 lg:h-12 w-auto object-contain cursor-pointer hover:scale-105 active:scale-95 duration-200 transition-all"
+              className="h-9 sm:h-10 lg:h-12 w-auto object-contain cursor-pointer hover:scale-105 active:scale-95 duration-200 transition-all"
               priority
             />
           </div>
+
+          <Link
+            href="/"
+            onClick={() => setIsOpen(false)}
+            className="flex items-center gap-3 px-4 py-2.5 mb-6 rounded-xl font-semibold text-sm text-[#059669] bg-emerald-50 border border-emerald-100 hover:bg-emerald-100 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
+          >
+            <svg className="w-[18px] h-[18px] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>
+            <span>Kembali ke Beranda</span>
+          </Link>
 
           <div className="mb-7">
             <p className="text-[11px] font-bold text-slate-400 tracking-widest uppercase mb-3 px-1">TOKO</p>
