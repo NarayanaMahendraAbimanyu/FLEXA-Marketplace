@@ -362,53 +362,55 @@ erDiagram
 | **Rekomendasi Produk** | `Recommendation.tsx` → API route → Google GenAI (`@google/genai`) |
 
 ### Folder Structure
-FLEXA-Marketplace/
- ├── app/
- │ ├── api/
- │ ├── buyer/
- │ │ ├── cart/
- │ │ ├── profile/
- │ │ ├── purchase/
- │ │ ├── chat/
- │ │ ├── checkout/
- │ │ ├── components/sections/
- │ │ │ ├── Hero.tsx
- │ │ │ ├── LoginModal.tsx
- │ │ │ ├── Recommendation.tsx
- │ │ │ ├── RentalDatePicker.tsx
- │ │ │ └── ServiceBookingCard.tsx
- │ │ ├── BuyerSideBar.tsx
- │ │ ├── ChatWidget.tsx
- │ │ ├── ChatWrapper.tsx
- │ │ ├── NavbarBuyer.tsx
- │ │ ├── NavbarGuest.tsx
- │ │ └── layout.tsx
- │ ├── seller/
- │ │ ├── chat/
- │ │ ├── dashboard/
- │ │ ├── income/
- │ │ ├── orders/
- │ │ ├── product/
- │ │ ├── storeSettings/
- │ │ └── layout.tsx
- │ ├── data/
- │ ├── login/
- │ ├── signin/
- │ ├── lupa-password/
- │ ├── reset-password/
- │ ├── product/
- │ ├── store/
- │ ├── globals.css
- │ ├── layout.tsx
- │ ├── not-found.tsx
- │ └── page.tsx
- ├── lib/
- │ ├── faq.ts
- │ └── supabaseClient.ts
- └── public/
- ├── flexa-logo-green.png
- └── flexa-logo-white.png
 
+```
+FLEXA-Marketplace/
+├── app/
+│   ├── api/
+│   ├── buyer/
+│   │   ├── cart/
+│   │   ├── profile/
+│   │   ├── purchase/
+│   │   ├── chat/
+│   │   ├── checkout/
+│   │   ├── components/sections/
+│   │   │   ├── Hero.tsx
+│   │   │   ├── LoginModal.tsx
+│   │   │   ├── Recommendation.tsx
+│   │   │   ├── RentalDatePicker.tsx
+│   │   │   └── ServiceBookingCard.tsx
+│   │   ├── BuyerSideBar.tsx
+│   │   ├── ChatWidget.tsx
+│   │   ├── ChatWrapper.tsx
+│   │   ├── NavbarBuyer.tsx
+│   │   ├── NavbarGuest.tsx
+│   │   └── layout.tsx
+│   ├── seller/
+│   │   ├── chat/
+│   │   ├── dashboard/
+│   │   ├── income/
+│   │   ├── orders/
+│   │   ├── product/
+│   │   ├── storeSettings/
+│   │   └── layout.tsx
+│   ├── data/
+│   ├── login/
+│   ├── signin/
+│   ├── lupa-password/
+│   ├── reset-password/
+│   ├── product/
+│   ├── store/
+│   ├── globals.css
+│   ├── layout.tsx
+│   ├── not-found.tsx
+│   └── page.tsx
+├── lib/
+│   ├── faq.ts
+│   └── supabaseClient.ts
+└── public/
+    ├── flexa-logo-green.png
+    └── flexa-logo-white.png
+```
 
 ---
 
