@@ -43,7 +43,7 @@ export default function AuthCallbackPage() {
           return;
         }
 
-        const destination = existingUser.role === 'penjual' ? '/seller' : '/';
+        const destination = existingUser.role === 'penjual' ? '/seller/dashboard' : '/';
         router.push(destination);
       } else {
         const { error: upsertError } = await supabase.from('profiles').upsert({
@@ -58,7 +58,7 @@ export default function AuthCallbackPage() {
         }
 
         localStorage.removeItem('selected_role');
-        const destination = selectedRole === 'penjual' ? '/seller' : '/';
+        const destination = selectedRole === 'penjual' ? '/seller/dashboard' : '/';
         router.push(destination);
       }
     };
