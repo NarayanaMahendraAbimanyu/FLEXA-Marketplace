@@ -504,7 +504,7 @@ export default function ProductDetailPage() {
 
             {!isSewa && !isJasa && (
               <div className="inline-flex items-center gap-3 px-4 py-2.5 bg-white border border-slate-200 rounded-xl shadow-sm text-xs sm:text-sm font-medium text-black/80">
-                <span className="text-black/50">Pengiriman</span>
+                <span className="text-black/50">Estimasi Pengiriman</span>
                 <span className="text-slate-300">|</span>
                 <div className="flex items-center gap-1.5 text-[#059669]">
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">

@@ -19,6 +19,7 @@ interface OrderItem {
   rentalStartDate?: string;
   rentalEndDate?: string;
   deliveryMethod?: string;
+  createdAt?: string;
 }
 
 export default function PurchasePage() {
@@ -64,6 +65,7 @@ export default function PurchasePage() {
                 rentalStartDate: item.rental_start_date || '',
                 rentalEndDate: item.rental_end_date || '',
                 deliveryMethod: item.delivery_method || '',
+                createdAt: item.created_at || '',
               };
             });
             setPurchasedProducts(formattedOrders);
@@ -117,6 +119,34 @@ export default function PurchasePage() {
     } finally {
       setOrderToCancel(null);
     }
+  };
+
+  const getEstimasiPengiriman = (createdAt?: string) => {
+    if (!createdAt) return null;
+
+    const baseDate = new Date(createdAt);
+    if (isNaN(baseDate.getTime())) return null;
+
+    const startDate = new Date(baseDate);
+    startDate.setDate(startDate.getDate() + 2);
+
+    const endDate = new Date(baseDate);
+    endDate.setDate(endDate.getDate() + 4);
+
+    const formatOptionsShort: Intl.DateTimeFormatOptions = { day: 'numeric' };
+    const formatOptionsFull: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short', year: 'numeric' };
+
+    const sameMonth = startDate.getMonth() === endDate.getMonth() && startDate.getFullYear() === endDate.getFullYear();
+
+    if (sameMonth) {
+      const startDay = startDate.toLocaleDateString('id-ID', formatOptionsShort);
+      const endFull = endDate.toLocaleDateString('id-ID', formatOptionsFull);
+      return `${startDay} - ${endFull}`;
+    }
+
+    const startFull = startDate.toLocaleDateString('id-ID', formatOptionsFull);
+    const endFull = endDate.toLocaleDateString('id-ID', formatOptionsFull);
+    return `${startFull} - ${endFull}`;
   };
 
   return (
@@ -246,6 +276,14 @@ export default function PurchasePage() {
                       <span className="text-black/50 font-medium">Periode Sewa</span>
                       <span className="font-bold text-black/80 text-right">
                         {new Date(selectedOrder.rentalStartDate).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })} - {new Date(selectedOrder.rentalEndDate).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                      </span>
+                    </div>
+                  )}
+                  {getEstimasiPengiriman(selectedOrder.createdAt) && (
+                    <div className="flex items-center justify-between px-4 py-3 text-xs sm:text-sm">
+                      <span className="text-black/50 font-medium">Estimasi Tiba</span>
+                      <span className="font-bold text-black/80 text-right">
+                        {getEstimasiPengiriman(selectedOrder.createdAt)}
                       </span>
                     </div>
                   )}
