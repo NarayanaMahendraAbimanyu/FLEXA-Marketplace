@@ -37,6 +37,8 @@ export default function BuyerSidebar() {
 
         if (profileData?.avatar_url) {
           setAvatarUrl(profileData.avatar_url);
+        } else if (profileData?.avatar_url === '') {
+          setAvatarUrl(null);
         } else if (user.user_metadata?.avatar_url || user.user_metadata?.picture) {
           setAvatarUrl(user.user_metadata.avatar_url || user.user_metadata.picture);
         }
@@ -84,7 +86,7 @@ export default function BuyerSidebar() {
   };
 
   const handleRemoveAvatar = async () => {
-    setAvatarUrl(null);
+    setAvatarUrl('');
 
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -92,7 +94,7 @@ export default function BuyerSidebar() {
 
       await supabase
         .from('profiles')
-        .upsert({ id: user.id, avatar_url: null, updated_at: new Date() });
+        .upsert({ id: user.id, avatar_url: '', updated_at: new Date() });
     } catch (err) {
       console.error(err);
     }
