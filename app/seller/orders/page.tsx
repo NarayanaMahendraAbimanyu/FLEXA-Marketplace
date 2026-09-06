@@ -72,7 +72,7 @@ export default function SellerOrdersPage() {
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-1.5">
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-black/80">Pesanan Baru</h1>
-          <span className="text-[10px] sm:text-xs font-semibold text-black/40 bg-slate-200 px-2.5 py-1 rounded-full">Simulasi</span>
+          <span className="text-[10px] sm:text-xs font-medium text-black/40 bg-slate-100 px-2.5 py-1 rounded-full">Simulasi</span>
         </div>
         <p className="text-xs sm:text-sm text-black/40 font-normal">Kelola dan proses pesanan yang masuk dari pembeli.</p>
         <div className="w-full h-[1px] bg-slate-200 mt-5" />
