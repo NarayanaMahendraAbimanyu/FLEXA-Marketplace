@@ -55,7 +55,11 @@ export default function SellerDashboardPage() {
   return (
     <div className="w-full px-2 sm:px-2 lg:px-2">
       <div className="mb-6 sm:mb-8 border-b border-slate-200 pb-5 sm:pb-6">
-        <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight text-black/85">Dashboard {"(Simulasi)"}</h1>
+        <div className="flex items-center gap-2 mb-1.5">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight text-black/85">Dashboard</h1>
+          <span className="text-[10px] sm:text-xs font-semibold text-black/40 bg-slate-200 px-2.5 py-1 rounded-full">Simulasi</span>
+        </div>
+        <p className="text-xs sm:text-sm text-black/40 font-normal">Pantau ringkasan performa dan aktivitas toko Anda hari ini.</p>
       </div>
 
       <section className="mb-8 sm:mb-10">

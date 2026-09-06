@@ -107,7 +107,11 @@ export default function SellerIncomePage() {
       )}
 
       <div className="mb-8 border-b border-black/30 pb-6">
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-black/80">Keuangan Toko {"(Simulasi)"}</h1>
+        <div className="flex items-center gap-2 mb-1.5">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight text-black/85">Keuangan Toko</h1>
+          <span className="text-[10px] sm:text-xs font-semibold text-black/40 bg-slate-200 px-2.5 py-1 rounded-full">Simulasi</span>
+        </div>
+        <p className="text-xs sm:text-sm text-black/40 font-normal mt-1.5">Lihat rincian pemasukan dan riwayat transaksi toko Anda.</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
