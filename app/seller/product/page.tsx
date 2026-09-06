@@ -10,7 +10,6 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 const CATEGORIES = ['Elektronik', 'Fashion', 'Sewa', 'Jasa'] as const;
 
-// Kategori yang tidak memakai stok barang fisik (dihitung per pesanan/slot, bukan unit)
 const NON_STOCK_CATEGORIES = ['Sewa', 'Jasa'];
 
 const CATEGORY_STYLES: Record<string, string> = {
@@ -47,6 +46,8 @@ export default function SellerProductPage() {
 
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const [products, setProducts] = useState<any[]>([]);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [isLoadingProducts, setIsLoadingProducts] = useState(true);
 
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [isNotifAnimatingOut, setIsNotifAnimatingOut] = useState(false);
@@ -55,31 +56,40 @@ export default function SellerProductPage() {
   const requiresStockEdit = selectedProduct ? !NON_STOCK_CATEGORIES.includes(selectedProduct.category) : true;
 
   useEffect(() => {
-    fetchProducts();
-    fetchStoreInfo();
+    initPage();
   }, []);
 
-  // Kalau kategori diganti ke Sewa/Jasa, kosongkan input stok supaya tidak ikut terkirim
   useEffect(() => {
     if (!requiresStock && stock !== '') setStock('');
   }, [category]);
 
-  const fetchStoreInfo = async () => {
+  const initPage = async () => {
     const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      const { data } = await supabase
-        .from('store_settings')
-        .select('store_name, store_avatar, logo_url')
-        .eq('user_id', user.id)
-        .maybeSingle();
 
-      if (data) {
-        if (data.store_name) {
-          setStoreName(data.store_name);
-        }
-        if (data.store_avatar || data.logo_url) {
-          setStoreAvatar(data.store_avatar || data.logo_url);
-        }
+    if (!user) {
+      setIsLoadingProducts(false);
+      router.push('/signin');
+      return;
+    }
+
+    setCurrentUserId(user.id);
+    await fetchStoreInfo(user.id);
+    await fetchProducts(user.id);
+  };
+
+  const fetchStoreInfo = async (userId: string) => {
+    const { data } = await supabase
+      .from('store_settings')
+      .select('store_name, store_avatar, logo_url')
+      .eq('user_id', userId)
+      .maybeSingle();
+
+    if (data) {
+      if (data.store_name) {
+        setStoreName(data.store_name);
+      }
+      if (data.store_avatar || data.logo_url) {
+        setStoreAvatar(data.store_avatar || data.logo_url);
       }
     }
   };
@@ -96,11 +106,18 @@ export default function SellerProductPage() {
     }, 3000);
   };
 
-  const fetchProducts = async () => {
-    const { data, error } = await supabase.from('products').select('*').order('id', { ascending: false });
+  const fetchProducts = async (userId: string) => {
+    setIsLoadingProducts(true);
+    const { data, error } = await supabase
+      .from('products')
+      .select('*')
+      .eq('user_id', userId)
+      .order('id', { ascending: false });
+
     if (!error && data) {
       setProducts(data);
     }
+    setIsLoadingProducts(false);
   };
 
   const formatNumberWithDots = (value: string) => {
@@ -136,29 +153,23 @@ export default function SellerProductPage() {
 
   const handleCreateProduct = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isFormValid) return;
+    if (!isFormValid || !currentUserId) return;
 
     let finalStoreName = storeName;
-    let currentUserId = null;
 
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      currentUserId = user.id;
-      if (!finalStoreName) {
-        const { data } = await supabase
-          .from('store_settings')
-          .select('store_name')
-          .eq('user_id', user.id)
-          .maybeSingle();
+    if (!finalStoreName) {
+      const { data: { user } } = await supabase.auth.getUser();
+      const { data } = await supabase
+        .from('store_settings')
+        .select('store_name')
+        .eq('user_id', currentUserId)
+        .maybeSingle();
 
-        if (data && data.store_name) {
-          finalStoreName = data.store_name;
-        } else {
-          finalStoreName = user.user_metadata?.store_name || user.user_metadata?.full_name || 'Toko Saya';
-        }
+      if (data && data.store_name) {
+        finalStoreName = data.store_name;
+      } else {
+        finalStoreName = user?.user_metadata?.store_name || user?.user_metadata?.full_name || 'Toko Saya';
       }
-    } else {
-      finalStoreName = 'Toko Saya';
     }
 
     let imageUrl = '';
@@ -213,7 +224,7 @@ export default function SellerProductPage() {
   };
 
   const handleOpenEditModal = (product: any) => {
-    const rawPriceNumber = product.price ? product.price.replace(/[^0-9]/g, '') : '';
+    const rawPriceNumber = product.price ? String(product.price).replace(/[^0-9]/g, '') : '';
     const formattedExistingPrice = rawPriceNumber ? Number(rawPriceNumber).toLocaleString('id-ID') : '';
     setSelectedProduct({ ...product, price: formattedExistingPrice });
     setEditImageFile(null);
@@ -222,7 +233,7 @@ export default function SellerProductPage() {
 
   const handleUpdateProduct = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isEditFormValid) return;
+    if (!isEditFormValid || !currentUserId) return;
 
     let imageUrl = selectedProduct.image;
 
@@ -262,7 +273,8 @@ export default function SellerProductPage() {
     const { error } = await supabase
       .from('products')
       .update(updatedData)
-      .eq('id', selectedProduct.id);
+      .eq('id', selectedProduct.id)
+      .eq('user_id', currentUserId);
 
     if (!error) {
       setProducts(products.map((p) => (p.id === selectedProduct.id ? { ...selectedProduct, ...updatedData } : p)));
@@ -276,9 +288,14 @@ export default function SellerProductPage() {
   };
 
   const handleDeleteProduct = async () => {
-    if (!selectedProduct) return;
+    if (!selectedProduct || !currentUserId) return;
 
-    const { error } = await supabase.from('products').delete().eq('id', selectedProduct.id);
+    const { error } = await supabase
+      .from('products')
+      .delete()
+      .eq('id', selectedProduct.id)
+      .eq('user_id', currentUserId);
+
     if (!error) {
       setProducts(products.filter((p) => p.id !== selectedProduct.id));
       setIsDeleteModalOpen(false);
@@ -335,7 +352,11 @@ export default function SellerProductPage() {
           </div>
 
           <div className="mb-10 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-            {products.length === 0 ? (
+            {isLoadingProducts ? (
+              <div className="flex flex-col items-center justify-center gap-3 px-6 py-16 text-center">
+                <p className="text-sm text-slate-400">Memuat produk...</p>
+              </div>
+            ) : products.length === 0 ? (
               <div className="flex flex-col items-center justify-center gap-3 px-6 py-16 text-center">
                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-50 text-slate-400">
                   <svg className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
