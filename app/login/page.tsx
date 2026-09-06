@@ -123,11 +123,11 @@ export default function LoginPage() {
 
     const { error } = await supabase
       .from('profiles')
-      .upsert({ 
-        id: pendingUser.id, 
-        email: pendingUser.email, 
+      .upsert({
+        id: pendingUser.id,
+        email: pendingUser.email,
         role: selectedRole,
-        updated_at: new Date()
+        updated_at: new Date(),
       });
 
     if (!error) {
@@ -139,243 +139,285 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-white flex flex-col justify-between font-sans text-slate-800 relative">
-      <header className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
-        <Link href="/" className="inline-flex items-center gap-3">
-          <Image
-            src="/flexa-logo-green.png"
-            alt="Flexa Logo"
-            width={120}
-            height={36}
-            className="h-7 sm:h-12 w-auto object-contain cursor-pointer"
-            priority
+    <div className="min-h-screen w-full bg-white font-sans text-slate-900">
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap"
+      />
+
+      <div className="flex min-h-screen">
+        <aside className="relative hidden w-[44%] flex-col justify-between overflow-hidden bg-emerald-900 px-12 py-12 text-white lg:flex">
+          <div
+            className="pointer-events-none absolute inset-0 opacity-[0.07]"
+            style={{
+              backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)',
+              backgroundSize: '22px 22px',
+            }}
           />
-          <span className="text-lg sm:text-2xl font-medium text-black/80">Masuk</span>
-        </Link>
-      </header>
 
-      <main className="flex-1 w-full bg-[#059669] py-8 sm:py-12 lg:py-16 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
-        <div className="w-full max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-          <div className="lg:col-span-6 text-white flex flex-col items-center justify-center text-center p-2 my-auto">
-            <div className="flex flex-col items-center justify-center">
-              <div className="mb-6 flex justify-center">
-                <Image
-                  src="/flexa-logo-white.png"
-                  alt="Flexa Logo Large"
-                  width={220}
-                  height={70}
-                  className="h-14 sm:h-18 lg:h-24 w-auto object-contain brightness-0 invert"
-                  priority
-                />
-              </div>
-              <p className="text-xs sm:text-sm lg:text-base text-emerald-50 leading-relaxed max-w-md font-normal text-center">
-                Akses ratusan peralatan siap sewa dan hubungkan usahamu dengan talenta digital lokal terbaik dalam satu platform.
-              </p>
-            </div>
+          <div className="relative z-10">
+            <Link href="/" className="inline-flex items-center gap-2.5">
+              <Image
+                src="/flexa-logo-white.png"
+                alt="Flexa"
+                width={120}
+                height={36}
+                className="h-8 w-auto object-contain"
+                priority
+              />
+            </Link>
           </div>
 
-          <div className="lg:col-span-6 w-full max-w-md mx-auto lg:max-w-none">
-            <div className="bg-white rounded-3xl p-6 sm:p-8 md:p-10 shadow-2xl">
-              <div className="w-full flex justify-start lg:justify-start mb-8">
-                <Link
-                  href="/"
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-white text-[#059669] hover:text-white hover:bg-[#059669] hover:scale-105 active:scale-98 transition-all duration-200 border border-emerald-500/20 font-medium text-xs sm:text-sm rounded-lg shadow-sm"
-                >
-                  <span>← Kembali</span>
-                </Link>
-              </div>
-              <div className="mb-2 sm:mb-3 text-left">
-                <h2 className="text-2xl sm:text-3xl font-bold text-black/80 tracking-tight">
-                  Masuk
-                </h2>
-                <p className="text-xs sm:text-sm text-black/60 mt-1 font-normal">
-                  Pilih metode masuk untuk melanjutkan.
-                </p>
-              </div>
+          <div className="relative z-10 max-w-sm">
+            <h1 style={{ fontFamily: "'Fraunces', serif" }} className="text-[2.5rem] font-semibold leading-[1.15] tracking-tight">
+              Semua yang kamu butuh, ada di sekitarmu.
+            </h1>
+            <p className="mt-5 text-sm leading-relaxed text-emerald-50/80">
+              Flexa mempertemukan kamu dengan barang sewaan dan jasa dari tetangga serta pelaku usaha lokal — cepat, dekat, dan saling menguntungkan.
+            </p>
 
-              {errorMessage && (
-                <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-600 rounded-xl text-xs sm:text-sm">
-                  {errorMessage}
-                </div>
-              )}
-
-              <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
-                <div>
-                  <label className="block text-xs sm:text-sm font-semibold text-black/80 mb-1.5">
-                    Email
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#059669]">
-                      <svg className="w-5 h-5 stroke-[2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                      </svg>
-                    </div>
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="Masukkan email"
-                      required
-                      className="w-full pl-10 pr-4 py-2.5 sm:py-3 bg-white border border-emerald-500/40 rounded-xl text-xs sm:text-sm focus:outline-none focus:border-[#059669] focus:ring-1 focus:ring-[#059669] transition-all"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <label className="block text-xs sm:text-sm font-semibold text-black/80">
-                      Password
-                    </label>
-                    <Link
-                      href="/lupa-password"
-                      className="text-[11px] sm:text-xs text-[#059669] hover:underline font-medium"
-                    >
-                      Lupa Password?
-                    </Link>
-                  </div>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#059669]">
-                      <svg className="w-5 h-5 stroke-[2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                      </svg>
-                    </div>
-                    <input
-                      type={showPassword ? 'text' : 'password'}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="Masukkan password"
-                      required
-                      className="w-full pl-10 pr-10 py-2.5 sm:py-3 bg-white border border-emerald-500/40 rounded-xl text-xs sm:text-sm focus:outline-none focus:border-[#059669] focus:ring-1 focus:ring-[#059669] transition-all"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-[#059669] transition-colors"
-                    >
-                      {showPassword ? (
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858-5.908a8.962 8.962 0 012.122-.363c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21M3 3l18 18" />
-                        </svg>
-                      ) : (
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                        </svg>
-                      )}
-                    </button>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2 pt-1 relative">
-                  <input
-                    type="checkbox"
-                    id="remember"
-                    checked={rememberMe}
-                    onChange={(e) => setRememberMe(e.target.checked)}
-                    className="w-4 h-4 text-[#059669] rounded border-slate-300 focus:ring-[#059669] accent-[#059669] cursor-pointer"
-                  />
-                  <div className="flex items-center gap-1.5 relative">
-                    <label htmlFor="remember" className="text-xs sm:text-sm text-black/80 font-medium cursor-pointer">
-                      Ingat Saya
-                    </label>
-                  </div>
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full py-3 sm:py-3.5 bg-[#059669] hover:bg-emerald-500 text-white font-semibold text-xs sm:text-sm rounded-xl shadow-md transition-all duration-200 mt-2 disabled:opacity-50"
-                >
-                  {isLoading ? 'Memproses...' : 'Masuk Sekarang'}
-                </button>
-              </form>
-
-              <div className="relative my-6 flex items-center justify-center">
-                <div className="border-t border-slate-200 w-full"></div>
-                <span className="bg-white px-3 text-[11px] sm:text-xs text-black/40 font-medium absolute">
-                  Atau Masuk Dengan
-                </span>
-              </div>
-
-              <div className="flex">
-                <button
-                  type="button"
-                  onClick={handleGoogleAuth}
-                  className="cursor-pointer w-full py-2.5 px-3 bg-white border border-emerald-500/40 rounded-xl hover:border-[#059669] hover:bg-slate-50 text-black/80 text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-all"
-                >
-                  <svg className="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24">
-                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
-                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+            <div className="mt-10 space-y-5">
+              <div className="flex items-start gap-3.5">
+                <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/10">
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
                   </svg>
-                  <span>Login dengan Google</span>
-                </button>
+                </div>
+                <p className="pt-1 text-sm text-emerald-50/90">Sewa alat dan barang harian tanpa perlu beli baru.</p>
               </div>
-
-              <p className="text-center text-xs sm:text-sm text-black/80 mt-6 font-medium">
-                Belum punya akun?{' '}
-                <Link href="/signin" className="text-[#059669] font-bold hover:underline">
-                  Daftar
-                </Link>
-              </p>
+              <div className="flex items-start gap-3.5">
+                <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/10">
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                  </svg>
+                </div>
+                <p className="pt-1 text-sm text-emerald-50/90">Pesan jasa dari penyedia terpercaya di sekitarmu.</p>
+              </div>
+              <div className="flex items-start gap-3.5">
+                <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/10">
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />
+                  </svg>
+                </div>
+                <p className="pt-1 text-sm text-emerald-50/90">Chat dan bayar aman, semua dalam satu aplikasi.</p>
+              </div>
             </div>
           </div>
-        </div>
-      </main>
+
+          <p className="relative z-10 text-xs text-emerald-100/50">Flexa — Sewa Barang & Jasa Digital</p>
+        </aside>
+
+        <main className="flex w-full flex-1 items-center justify-center px-5 py-10 sm:px-8 lg:w-[56%]">
+          <div className="w-full max-w-md">
+            <div className="mb-8 flex items-center justify-between lg:hidden">
+              <Link href="/" className="inline-flex items-center gap-2">
+                <Image src="/flexa-logo-green.png" alt="Flexa" width={100} height={30} className="h-7 w-auto object-contain" priority />
+              </Link>
+            </div>
+
+            <div className="mb-8 flex items-center justify-between">
+              <Link href="/" className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-500 transition-colors hover:text-emerald-700">
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                </svg>
+                Kembali ke beranda
+              </Link>
+              <Link href="/signin" className="text-sm font-semibold text-emerald-700 hover:underline">
+                Daftar
+              </Link>
+            </div>
+
+            <h2 style={{ fontFamily: "'Fraunces', serif" }} className="text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
+              Selamat datang kembali
+            </h2>
+            <p className="mt-2.5 text-sm text-slate-500">Masuk untuk lanjutkan transaksi dan kelola akunmu.</p>
+
+            {errorMessage && (
+              <div className="mt-5 flex items-start gap-2.5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                <svg className="mt-0.5 h-4 w-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                </svg>
+                <span>{errorMessage}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-slate-700">Email</label>
+                <div className="relative">
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="nama@gmail.com"
+                    required
+                    className="w-full rounded-lg border border-slate-200 px-3.5 py-2.5 pr-10 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-colors focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/15"
+                  />
+                  <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3.5 text-slate-400">
+                    <svg className="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                  </span>
+                </div>
+              </div>
+
+              <div>
+                <div className="mb-1.5 flex items-center justify-between">
+                  <label className="text-sm font-medium text-slate-700">Password</label>
+                  <Link href="/lupa-password" className="text-xs font-semibold text-emerald-700 hover:underline">
+                    Lupa password?
+                  </Link>
+                </div>
+                <div className="relative">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Masukkan password"
+                    required
+                    className="w-full rounded-lg border border-slate-200 px-3.5 py-2.5 pr-10 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-colors focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/15"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-0 flex items-center pr-3.5 text-slate-400 transition-colors hover:text-emerald-700"
+                  >
+                    {showPassword ? (
+                      <svg className="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858-5.908a8.962 8.962 0 012.122-.363c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21M3 3l18 18" />
+                      </svg>
+                    ) : (
+                      <svg className="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2.5 pt-1">
+                <input
+                  type="checkbox"
+                  id="remember"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-600 cursor-pointer"
+                />
+                <label htmlFor="remember" className="text-sm text-slate-600 cursor-pointer select-none">
+                  Ingat saya di perangkat ini
+                </label>
+              </div>
+
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full rounded-xl bg-emerald-600 py-3.5 text-sm font-semibold text-white transition-all hover:bg-emerald-700 active:scale-[0.99] disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400"
+              >
+                {isLoading ? 'Memproses...' : 'Masuk'}
+              </button>
+            </form>
+
+            <div className="my-6 flex items-center gap-3">
+              <div className="h-px flex-1 bg-slate-200" />
+              <span className="text-xs font-medium text-slate-400">Atau masuk dengan</span>
+              <div className="h-px flex-1 bg-slate-200" />
+            </div>
+
+            <button
+              type="button"
+              onClick={handleGoogleAuth}
+              className="flex w-full items-center justify-center gap-3 rounded-xl border border-slate-200 bg-white py-3 text-sm font-semibold text-slate-700 transition-all hover:border-slate-300 hover:bg-slate-50 active:scale-[0.99]"
+            >
+              <svg className="h-5 w-5" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z" />
+                <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.13 0-5.78-2.11-6.73-4.96H1.18v3.15C3.16 21.32 7.22 24 12 24z" />
+                <path fill="#FBBC05" d="M5.27 14.24c-.25-.72-.38-1.49-.38-2.24s.13-1.52.38-2.24V6.61H1.18C.43 8.12 0 9.83 0 12s.43 3.88 1.18 5.39l4.09-3.15z" />
+                <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.22 0 3.16 2.68 1.18 6.61l4.09 3.15c.95-2.85 3.6-4.96 6.73-4.96z" />
+              </svg>
+              <span>Lanjutkan dengan Google</span>
+            </button>
+
+            <p className="mt-8 text-center text-sm text-slate-500">
+              Belum punya akun?{' '}
+              <Link href="/signin" className="font-semibold text-emerald-700 hover:underline">
+                Daftar
+              </Link>
+            </p>
+          </div>
+        </main>
+      </div>
 
       {showRoleModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50 p-4">
-          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg p-6 sm:p-8 flex flex-col items-center">
-            <h2 className="text-2xl sm:text-3xl font-bold text-[#059669] text-center mb-1">Pilih Peran Anda</h2>
-            <p className="text-black/60 text-xs sm:text-sm text-center mb-6 font-medium">Bagaimana Anda ingin menggunakan Flexa?</p>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full mb-6">
-              <div 
-                onClick={() => setSelectedRole('pembeli')}
-                className={`rounded-2xl p-5 flex flex-col items-center text-center cursor-pointer transition-all duration-200 active:scale-105 border-2 ${
-                  selectedRole === 'pembeli'
-                    ? 'bg-[#059669] text-white border-[#059669]'
-                    : 'bg-white text-slate-800 border-slate-200 hover:border-slate-300'
-                }`}
-              >
-                <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center mb-3">
-                  <svg className={`w-6 h-6 ${selectedRole === 'pembeli' ? 'text-white' : 'text-[#059669]'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                  </svg>
-                </div>
-                <span className="font-bold text-base mb-1">Pembeli</span>
-                <span className={`text-xs ${selectedRole === 'pembeli' ? 'text-emerald-50' : 'text-slate-500'}`}>Saya ingin mencari barang murah di sekitar.</span>
-              </div>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-[2px]">
+          <div className="w-full max-w-lg rounded-3xl bg-white p-6 shadow-2xl sm:p-8">
+            <h2 style={{ fontFamily: "'Fraunces', serif" }} className="text-center text-2xl font-semibold text-slate-900 sm:text-3xl">
+              Pilih peran kamu
+            </h2>
+            <p className="mt-2 text-center text-sm text-slate-500">Bagaimana kamu ingin menggunakan Flexa?</p>
 
-              <div 
-                onClick={() => setSelectedRole('penjual')}
-                className={`rounded-2xl p-5 flex flex-col items-center text-center cursor-pointer transition-all duration-200 active:scale-105 border-2 ${
-                  selectedRole === 'penjual'
-                    ? 'bg-[#059669] text-white border-[#059669]'
-                    : 'bg-white text-slate-800 border-slate-200 hover:border-slate-300'
+            <div className="mt-7 grid grid-cols-2 gap-3.5">
+              <button
+                type="button"
+                onClick={() => setSelectedRole('pembeli')}
+                className={`relative flex flex-col items-center rounded-2xl border p-5 text-center transition-all ${
+                  selectedRole === 'pembeli'
+                    ? 'border-emerald-600 bg-emerald-50 ring-1 ring-emerald-600/20'
+                    : 'border-slate-200 bg-white hover:border-slate-300'
                 }`}
               >
-                <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center mb-3">
-                  <svg className={`w-6 h-6 ${selectedRole === 'penjual' ? 'text-white' : 'text-[#059669]'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                {selectedRole === 'pembeli' && (
+                  <span className="absolute right-3 top-3 flex h-5 w-5 items-center justify-center rounded-full bg-emerald-600 text-white">
+                    <svg className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                    </svg>
+                  </span>
+                )}
+                <div className={`mb-3 flex h-11 w-11 items-center justify-center rounded-full ${selectedRole === 'pembeli' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}>
+                  <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                   </svg>
                 </div>
-                <span className="font-bold text-base mb-1">Penjual</span>
-                <span className={`text-xs ${selectedRole === 'penjual' ? 'text-emerald-50' : 'text-slate-500'}`}>Ingin berjualan menggunakan Flexa.</span>
-              </div>
+                <h3 style={{ fontFamily: "'Fraunces', serif" }} className="text-base font-semibold text-slate-900">Pembeli</h3>
+                <p className="mt-1 text-xs leading-snug text-slate-500">Mencari barang &amp; jasa di sekitar.</p>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setSelectedRole('penjual')}
+                className={`relative flex flex-col items-center rounded-2xl border p-5 text-center transition-all ${
+                  selectedRole === 'penjual'
+                    ? 'border-emerald-600 bg-emerald-50 ring-1 ring-emerald-600/20'
+                    : 'border-slate-200 bg-white hover:border-slate-300'
+                }`}
+              >
+                {selectedRole === 'penjual' && (
+                  <span className="absolute right-3 top-3 flex h-5 w-5 items-center justify-center rounded-full bg-emerald-600 text-white">
+                    <svg className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                    </svg>
+                  </span>
+                )}
+                <div className={`mb-3 flex h-11 w-11 items-center justify-center rounded-full ${selectedRole === 'penjual' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}>
+                  <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                  </svg>
+                </div>
+                <h3 style={{ fontFamily: "'Fraunces', serif" }} className="text-base font-semibold text-slate-900">Penjual</h3>
+                <p className="mt-1 text-xs leading-snug text-slate-500">Ingin berjualan lewat Flexa.</p>
+              </button>
             </div>
 
-            <button 
+            <button
               onClick={handleSaveRole}
               disabled={!selectedRole}
-              className={`w-full font-medium py-3 px-4 rounded-xl text-sm transition-all shadow-md mb-3 ${
-                selectedRole 
-                  ? 'bg-white text-[#059669] hover:bg-[#059669] hover:text-white border-2 border-[#059669] cursor-pointer' 
-                  : 'bg-slate-100 text-slate-400 border-2 border-slate-200 cursor-not-allowed'
+              className={`mt-7 flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-semibold transition-all ${
+                selectedRole
+                  ? 'bg-emerald-600 text-white hover:bg-emerald-700 active:scale-[0.99]'
+                  : 'cursor-not-allowed bg-slate-100 text-slate-400'
               }`}
             >
-              Lanjutkan daftar sebagai {selectedRole === 'penjual' ? 'Penjual' : selectedRole === 'pembeli' ? 'Pembeli' : '...'} &gt;
+              Lanjutkan sebagai {selectedRole === 'penjual' ? 'Penjual' : selectedRole === 'pembeli' ? 'Pembeli' : '...'}
             </button>
 
             <button
@@ -384,9 +426,9 @@ export default function LoginPage() {
                 setShowRoleModal(false);
                 setSelectedRole(null);
               }}
-              className="text-xs sm:text-sm text-[#059669] hover:underline font-medium mt-1 cursor-pointer"
+              className="mt-3 w-full text-center text-sm font-medium text-slate-500 hover:text-emerald-700"
             >
-              &lt; Batalkan
+              Batalkan
             </button>
           </div>
         </div>
