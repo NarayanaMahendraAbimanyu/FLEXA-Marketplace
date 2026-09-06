@@ -1,16 +1,16 @@
 <div align="center">
   
   # FLEXA
-  ### FLEXA adalah platform web e-commerce interaktif yang menyediakan dua sisi utama bagi penggunanya, yaitu sisi pembeli (buyer) untuk berbelanja dan sisi penjual (seller) untuk mengelola toko. Di dalam website ini terdapat berbagai kategori produk dan layanan yang ditawarkan, meliputi kategori elektronik, fashion, sewa, hingga jasa. 
+  ### FLEXA adalah platform web e-commerce interaktif yang menyediakan dua sisi utama bagi penggunanya, yaitu sisi pembeli (buyer) untuk berbelanja dan sisi penjual (seller) untuk mengelola toko. Di dalam website ini terdapat berbagai kategori produk dan layanan yang ditawarkan, meliputi kategori elektronik, fashion, sewa, hingga jasa.
   
   [![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-Visit_Site-success?style=for-the-badge)](https://flexa-marketplace.vercel.app/)
   [![GitHub](https://img.shields.io/badge/GitHub-Repository-181717?style=for-the-badge&logo=github)](https://github.com/NarayanaMahendraAbimanyu/FLEXA-Marketplace)
   [![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
- 
+
   **Submission for ITECHNO CUP 2026 - Web Development**
-  
+
   **By debugging bismillah**
-  
+
 </div>
 
 ---
@@ -35,7 +35,7 @@
 ## 👥 Tim Pengembang
 
 | Nama | Peran | GitHub |
-|------|-------|--------|
+|---|---|---|
 | **Narayana Mahendra Abimanyu** | Project Lead & Full Stack Developer | [GitHub](https://github.com/NarayanaMahendraAbimanyu) |
 | **Muhammad Nawfal Rasikhuddin** | Frontend Developer | [GitHub](https://github.com/MuhammadNawfalRasikhuddin) |
 | **Reza Putra Irawan** | UI/UX Designer | [GitHub](https://github.com/Rejaacoding) |
@@ -50,7 +50,7 @@ Perkembangan dunia e-commerce menuntut platform yang tidak hanya sekadar menjual
 
 ### Solusi yang Ditawarkan
 
-**FLEXA** hadir sebagai solusi *all-in-one marketplace* interaktif yang merangkum berbagai kebutuhan dalam satu platform. Dengan memisahkan alur pengalaman pengguna menjadi **Sisi Pembeli (Buyer)** yang praktis dan **Sisi Penjual (Seller)** yang *powerful*, FLEXA memudahkan siapa saja untuk berbelanja, menyewa, menawarkan jasa, maupun mengelola toko online mereka sendiri dengan mudah.
+**FLEXA** hadir sebagai solusi *all-in-one marketplace* interaktif yang merangkum berbagai kebutuhan dalam satu platform. Dengan memisahkan alur pengalaman pengguna menjadi **Sisi Pembeli (Buyer)** yang praktis dan **Sisi Penjual (Seller)** yang powerful, FLEXA memudahkan siapa saja untuk berbelanja, menyewa, menawarkan jasa, maupun mengelola toko online mereka sendiri dengan mudah.
 
 ### Tujuan Proyek
 
@@ -65,9 +65,9 @@ Perkembangan dunia e-commerce menuntut platform yang tidak hanya sekadar menjual
 ### Fitur Utama
 
 | Fitur | Deskripsi | Keunggulan |
-|-------|-----------|------------|
+|---|---|---|
 | **Multi-Role Experience (Buyer & Seller)** | Pengguna dapat bertindak sebagai pembeli untuk transaksi produk maupun beralih ke mode seller untuk manajemen toko. | Pengelolaan terpusat dalam satu akun tanpa perlu registrasi ulang. |
-| **Diverse Categories (Produk, Sewa, & Jasa)** | Menyediakan direktori khusus untuk Elektronik, Fashion, Layanan Sewa Barang, hingga Penawaran Jasa. | Menjawab berbagai macam kebutuhan pengguna dalam satu aplikasi (*all-in-one*). |
+| **Diverse Categories (Produk, Sewa, & Jasa)** | Menyediakan direktori khusus untuk Elektronik, Fashion, Layanan Sewa Barang, hingga Penawaran Jasa. | Menjawab berbagai macam kebutuhan pengguna dalam satu aplikasi (All-in-One). |
 | **Interactive Catalog & Search** | Sistem pencarian, filter kategori, dan detail produk yang interaktif serta responsif. | Mempermudah pengguna menemukan barang atau jasa impian dengan cepat. |
 | **Seller Dashboard** | Panel kontrol bagi penjual untuk menambah produk/layanan, memantau pesanan, dan mengatur toko. | Membantu UMKM mendigitalkan bisnis mereka secara mandiri. |
 
@@ -87,15 +87,32 @@ Perkembangan dunia e-commerce menuntut platform yang tidak hanya sekadar menjual
 
 ### Screenshot Aplikasi
 
+### Screenshot Aplikasi
+
 <div align="center">
-  <img src="[URL_SCREENSHOT_1]" alt="Homepage" width="800"/>
-  <p><em>Homepage - Tampilan utama aplikasi</em></p>
+  <img src="docs/screenshots/homepage.png" alt="Homepage" width="800"/>
+  <p><em>Homepage - Tampilan utama aplikasi FLEXA</em></p>
 
-  <img src="[URL_SCREENSHOT_2]" alt="Dashboard" width="800"/>
-  <p><em>Dashboard - Panel kontrol pengguna</em></p>
+  <img src="docs/screenshots/product-detail.png" alt="Detail Produk" width="800"/>
+  <p><em>Detail Produk - Informasi lengkap, ulasan, dan opsi pembelian</em></p>
 
-  <img src="[URL_SCREENSHOT_3]" alt="Feature" width="800"/>
-  <p><em>[Nama Fitur] - [Deskripsi screenshot]</em></p>
+  <img src="docs/screenshots/checkout.png" alt="Checkout" width="800"/>
+  <p><em>Checkout - Pemilihan metode pembayaran QRIS, VA, dan COD</em></p>
+
+  <img src="docs/screenshots/buyer-purchase.png" alt="Buyer Purchase" width="800"/>
+  <p><em>Pesanan Saya - Riwayat dan detail pesanan pembeli</em></p>
+
+  <img src="docs/screenshots/chat.png" alt="Chat Realtime" width="800"/>
+  <p><em>Chat Realtime - Percakapan antara pembeli dan penjual</em></p>
+
+  <img src="docs/screenshots/seller-dashboard.png" alt="Seller Dashboard" width="800"/>
+  <p><em>Seller Dashboard - Analisis performa dan grafik pengunjung toko</em></p>
+
+  <img src="docs/screenshots/seller-orders.png" alt="Seller Orders" width="800"/>
+  <p><em>Seller - Manajemen pesanan masuk dari pembeli</em></p>
+
+  <img src="docs/screenshots/seller-income.png" alt="Seller Income" width="800"/>
+  <p><em>Seller - Ringkasan keuangan dan penarikan saldo</em></p>
 </div>
 
 ---
@@ -104,29 +121,38 @@ Perkembangan dunia e-commerce menuntut platform yang tidak hanya sekadar menjual
 
 ### Tech Stack
 
-**Frontend**
-- Framework: Next.js (React Framework, App Router)
-- Language: TypeScript
-- UI Library: Tailwind CSS / CSS3
-- State Management: React Hooks / Context API
+#### Frontend
 
-**Backend**
-- BaaS: Supabase (Backend as a Service)
-- Database: PostgreSQL (via Supabase)
-- Auth: Supabase Auth (Email & Password / OAuth)
-- Storage: Supabase Storage (Product & Avatar Buckets)
+| Kategori | Teknologi |
+|---|---|
+| Framework | Next.js (React Framework) |
+| Language | TypeScript |
+| UI Library | Tailwind CSS |
+| State Management | React Hooks / Context API |
 
-**DevOps & Tools**
-- Deployment: Vercel
-- CI/CD: Vercel Git Integration
-- Version Control: Git & GitHub
+#### Backend
+
+| Kategori | Teknologi |
+|---|---|
+| BaaS | Supabase (Backend as a Service) |
+| Database | PostgreSQL (via Supabase) |
+| Auth | Supabase Auth (Email & Password / OAuth) |
+| Storage | Supabase Storage (Product & Avatar Buckets) |
+
+#### DevOps & Tools
+
+| Kategori | Teknologi |
+|---|---|
+| Deployment | Vercel |
+| CI/CD | Vercel Git Integration |
+| Version Control | Git & GitHub |
 
 ### Alasan Pemilihan Teknologi
 
 | Teknologi | Alasan Pemilihan |
-|-----------|-------------------|
+|---|---|
 | **Next.js & TypeScript** | Memberikan performa optimal dengan fitur SSR/SSG serta keamanan tipe data yang ketat untuk mencegah bug di sisi frontend. |
-| **Supabase** | Menyediakan database PostgreSQL yang andal, sistem autentikasi instan, serta manajemen file storage yang terintegrasi dengan sangat baik untuk kebutuhan marketplace. |
+| **Supabase** | Menyediakan database PostgreSQL yang handal, sistem autentikasi instan, serta manajemen file storage yang terintegrasi dengan sangat baik untuk kebutuhan marketplace. |
 | **Tailwind CSS** | Mempercepat proses styling dengan utility-class yang responsif dan konsisten untuk tampilan multi-device. |
 
 ### Dependencies Utama
@@ -317,7 +343,7 @@ erDiagram
 
 > ✅ **Keamanan Data**: Row Level Security (RLS) telah diaktifkan pada tabel-tabel utama (`profiles`, `products`, `cart`, `orders`, `reviews`) dengan policy yang memastikan setiap pengguna hanya dapat mengakses dan mengubah data miliknya sendiri.
 >
-> ✅ **Route Protection**: Halaman di bawah `/buyer/*` dan `/seller/*` dilindungi pengecekan sesi login dan `role` pengguna di level layout (`app/buyer/layout.tsx` dan `app/seller/layout.tsx`). Pengguna yang belum login otomatis diarahkan ke halaman login, dan pengguna dengan `role` yang tidak sesuai diarahkan kembali ke halaman utama.
+> ✅ **Route Protection**: Halaman di bawah `/buyer/*` dan `/seller/*` dilindungi pengecekan sesi login dan `role` pengguna di level layout (`app/buyer/layout.tsx` dan `app/seller/layout.tsx`). Pengguna yang belum login otomatis diarahkan ke halaman login, dan pengguna dengan `role` yang tidak sesuai akan melihat halaman peringatan sebelum diarahkan kembali ke halaman utama.
 >
 > 💡 **Catatan teknis**: Kolom harga (`price` di `products`, `product_price` di `orders`/`cart`) disimpan sebagai `text` untuk keperluan tampilan (format "Rp X.XXX.XXX"), sementara `cart.raw_price` disimpan sebagai `numeric` untuk kebutuhan kalkulasi seperti subtotal keranjang.
 
@@ -338,55 +364,53 @@ erDiagram
 | **Rekomendasi Produk** | `Recommendation.tsx` → API route → Google GenAI (`@google/genai`) |
 
 ### Folder Structure
-
-```
 FLEXA-Marketplace/
-├── app/
-│   ├── api/
-│   ├── buyer/
-│   │   ├── cart/
-│   │   ├── profile/
-│   │   ├── purchase/
-│   │   ├── chat/
-│   │   ├── checkout/
-│   │   ├── components/sections/
-│   │   │   ├── Hero.tsx
-│   │   │   ├── LoginModal.tsx
-│   │   │   ├── Recommendation.tsx
-│   │   │   ├── RentalDatePicker.tsx
-│   │   │   └── ServiceBookingCard.tsx
-│   │   ├── BuyerSideBar.tsx
-│   │   ├── ChatWidget.tsx
-│   │   ├── ChatWrapper.tsx
-│   │   ├── NavbarBuyer.tsx
-│   │   ├── NavbarGuest.tsx
-│   │   └── layout.tsx
-│   ├── seller/
-│   │   ├── chat/
-│   │   ├── dashboard/
-│   │   ├── income/
-│   │   ├── orders/
-│   │   ├── product/
-│   │   ├── storeSettings/
-│   │   └── layout.tsx
-│   ├── data/
-│   ├── login/
-│   ├── signin/
-│   ├── lupa-password/
-│   ├── reset-password/
-│   ├── product/
-│   ├── store/
-│   ├── globals.css
-│   ├── layout.tsx
-│   ├── not-found.tsx
-│   └── page.tsx
-├── lib/
-│   ├── faq.ts
-│   └── supabaseClient.ts
-└── public/
-    ├── flexa-logo-green.png
-    └── flexa-logo-white.png
-```
+ ├── app/
+ │ ├── api/
+ │ ├── buyer/
+ │ │ ├── cart/
+ │ │ ├── profile/
+ │ │ ├── purchase/
+ │ │ ├── chat/
+ │ │ ├── checkout/
+ │ │ ├── components/sections/
+ │ │ │ ├── Hero.tsx
+ │ │ │ ├── LoginModal.tsx
+ │ │ │ ├── Recommendation.tsx
+ │ │ │ ├── RentalDatePicker.tsx
+ │ │ │ └── ServiceBookingCard.tsx
+ │ │ ├── BuyerSideBar.tsx
+ │ │ ├── ChatWidget.tsx
+ │ │ ├── ChatWrapper.tsx
+ │ │ ├── NavbarBuyer.tsx
+ │ │ ├── NavbarGuest.tsx
+ │ │ └── layout.tsx
+ │ ├── seller/
+ │ │ ├── chat/
+ │ │ ├── dashboard/
+ │ │ ├── income/
+ │ │ ├── orders/
+ │ │ ├── product/
+ │ │ ├── storeSettings/
+ │ │ └── layout.tsx
+ │ ├── data/
+ │ ├── login/
+ │ ├── signin/
+ │ ├── lupa-password/
+ │ ├── reset-password/
+ │ ├── product/
+ │ ├── store/
+ │ ├── globals.css
+ │ ├── layout.tsx
+ │ ├── not-found.tsx
+ │ └── page.tsx
+ ├── lib/
+ │ ├── faq.ts
+ │ └── supabaseClient.ts
+ └── public/
+ ├── flexa-logo-green.png
+ └── flexa-logo-white.png
+
 
 ---
 
@@ -395,6 +419,7 @@ FLEXA-Marketplace/
 ### Prerequisites
 
 Pastikan sudah terinstall:
+
 - **Node.js** v18.x atau lebih tinggi
 - **npm** (bawaan Node.js)
 - **Git**
@@ -462,9 +487,9 @@ Aplikasi berjalan di `http://localhost:3000`
 ### Menjalankan Aplikasi
 
 ```bash
-npm run dev      # Development server
-npm run build    # Build production
-npm run start    # Jalankan hasil build
+npm run dev      # Mode development
+npm run build    # Build untuk production
+npm run start    # Jalankan hasil build production
 npm run lint     # Cek linting
 ```
 
@@ -492,16 +517,15 @@ npm run lint     # Cek linting
 
 ## 📚 API Documentation
 
-### Base URL
+> 💡 **Catatan**: Endpoint di bawah ini menggambarkan alur data yang didukung aplikasi. Sebagian besar operasi CRUD saat ini dilakukan langsung dari client ke Supabase (`@supabase/supabase-js`) alih-alih melalui route API kustom. Sesuaikan daftar berikut dengan route yang benar-benar ada di folder `app/api/` pada project kamu.
 
-```
+### Base URL
 Development: http://localhost:3000/api
-Production:  https://flexa-marketplace.vercel.app/api
-```
+Production: https://flexa-marketplace.vercel.app/api 
+
+
 
 ### Endpoints
-
-> 📍 Setiap endpoint berikut berada di file `app/api/[nama-folder]/route.ts`. Sesuaikan nama folder dengan struktur route API yang sudah ada di project kamu.
 
 #### Produk
 
@@ -566,7 +590,7 @@ Saat ini FLEXA belum memiliki automated test suite (unit/integration/e2e). Pengu
 - Fallback jawaban FAQ otomatis di chat
 - Tampilan responsif di ukuran layar mobile, tablet, dan desktop
 
-> 💡 **Future Improvement**: menambahkan automated testing (misal dengan Jest + React Testing Library untuk unit test, dan Playwright untuk E2E) agar regresi lebih mudah terdeteksi di iterasi berikutnya. Jika sempat sebelum deadline, menambahkan 1-2 unit test sederhana (misal untuk `findFaqAnswer()` di `lib/faq.ts`) bisa jadi nilai tambah kecil namun berarti untuk penilaian juri.
+> 💡 **Future Improvement**: menambahkan automated testing (misal dengan Jest + React Testing Library untuk unit test, dan Playwright untuk E2E) agar regresi lebih mudah terdeteksi di iterasi berikutnya.
 
 ---
 
@@ -592,3 +616,4 @@ Proyek ini dilisensikan di bawah [MIT License](LICENSE) - lihat file LICENSE unt
   **Made with ❤️ by debugging bismillah for ITECHNO CUP 2026**
 
 </div>
+
