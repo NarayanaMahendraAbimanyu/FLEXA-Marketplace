@@ -92,7 +92,43 @@ export default function CheckoutPage() {
   const [address, setAddress] = useState('Jl. Merdeka No. 45, RT 01 / RW 05, Kel. Menteng, Kec. Menteng, Kota Jakarta Pusat, DKI Jakarta, 10350');
   const [isEditingAddress, setIsEditingAddress] = useState(false);
 
-  const [paymentMethod, setPaymentMethod] = useState('qris');
+  const [paymentMethod, setPaymentMethod] = useState('');
+  const [proofFile, setProofFile] = useState<File | null>(null);
+  const [proofPreview, setProofPreview] = useState<string>('');
+  const [selectedBank, setSelectedBank] = useState('');
+  const [vaNumber, setVaNumber] = useState('');
+  const [vaCopied, setVaCopied] = useState(false);
+  
+  const bankList = [
+    { code: 'bca', name: 'BCA', color: '#0068B3' },
+    { code: 'mandiri', name: 'Mandiri', color: '#003D79' },
+    { code: 'bni', name: 'BNI', color: '#F58220' },
+    { code: 'bri', name: 'BRI', color: '#00529C' },
+  ];
+  
+  const handleSelectBank = (bankCode: string) => {
+    setSelectedBank(bankCode);
+    const randomDigits = Math.floor(1000000000 + Math.random() * 9000000000).toString();
+    setVaNumber(randomDigits);
+    setVaCopied(false);
+  };
+  
+  const handleCopyVa = () => {
+    navigator.clipboard.writeText(vaNumber);
+    setVaCopied(true);
+    triggerAlert('Nomor VA berhasil disalin!');
+    setTimeout(() => setVaCopied(false), 2000);
+  };
+  
+  const handleProofUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setProofFile(file);
+      setProofPreview(URL.createObjectURL(file));
+    }
+  };
+  
+  const isPaymentReady = paymentMethod === 'qris' ? !!proofFile : paymentMethod === 'va' ? !!selectedBank : !!paymentMethod;
 
   const [promoCode, setPromoCode] = useState('');
   const [discountPercent, setDiscountPercent] = useState(0);
@@ -393,7 +429,7 @@ export default function CheckoutPage() {
               <span className="text-[10px] text-black/50">BCA, Mandiri, BNI, BRI</span>
             </button>
 
-            <button
+                        <button
               type="button"
               onClick={() => setPaymentMethod('cod')}
               className={`p-4 rounded-2xl border-2 text-left transition-all flex flex-col gap-2 ${
@@ -405,6 +441,81 @@ export default function CheckoutPage() {
               <span className="text-[10px] text-black/50">Bayar saat kurir tiba</span>
             </button>
           </div>
+
+          {paymentMethod === 'qris' && (
+            <div className="pt-2 border-t border-slate-100 flex flex-col items-center gap-4">
+              <div className="w-full sm:w-64 md:w-72 bg-white p-3 border-2 border-[#059669]/20 rounded-2xl shadow-sm">
+                <img src="/qrCode.png" alt="QRIS Payment" className="w-full h-auto rounded-xl" />
+              </div>
+              <p className="text-[10px] sm:text-xs text-black/50 text-center max-w-xs">
+                Scan QR di atas menggunakan aplikasi e-wallet atau m-banking, lalu unggah bukti pembayaran di bawah ini.
+              </p>
+
+              <div className="w-full space-y-2">
+                <span className="text-[10px] sm:text-xs text-black/40 font-semibold uppercase block">Unggah Bukti Pembayaran</span>
+                <label className="w-full flex flex-col sm:flex-row items-center gap-3 p-4 border-2 border-dashed border-slate-200 rounded-2xl cursor-pointer hover:border-[#059669] transition-all">
+                  {proofPreview ? (
+                    <img src={proofPreview} alt="Bukti Bayar" className="w-16 h-16 object-cover rounded-xl flex-shrink-0" />
+                  ) : (
+                    <span className="text-2xl">📤</span>
+                  )}
+                  <div className="flex-1 text-center sm:text-left">
+                    <span className="text-xs sm:text-sm font-bold text-black/80 block">
+                      {proofFile ? proofFile.name : 'Klik untuk pilih foto bukti transfer'}
+                    </span>
+                    <span className="text-[10px] text-black/40">Format JPG, PNG, maksimal 5MB</span>
+                  </div>
+                  <input type="file" accept="image/*" onChange={handleProofUpload} className="hidden" />
+                </label>
+              </div>
+            </div>
+          )}
+
+          {paymentMethod === 'va' && (
+            <div className="pt-2 border-t border-slate-100 space-y-4">
+              <span className="text-[10px] sm:text-xs text-black/40 font-semibold uppercase block">Pilih Bank Tujuan</span>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {bankList.map((bank) => (
+                  <button
+                    key={bank.code}
+                    type="button"
+                    onClick={() => handleSelectBank(bank.code)}
+                    className={`p-3 rounded-xl border-2 text-center font-bold text-xs sm:text-sm transition-all ${
+                      selectedBank === bank.code ? 'border-[#059669] bg-emerald-50/40 text-[#059669]' : 'border-slate-200 text-black/70 hover:border-slate-300'
+                    }`}
+                  >
+                    {bank.name}
+                  </button>
+                ))}
+              </div>
+
+              {selectedBank && (
+                <div className="bg-slate-50 border border-slate-100 rounded-2xl p-4 sm:p-5 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] sm:text-xs text-black/40 font-semibold uppercase">
+                      Nomor Virtual Account {bankList.find((b) => b.code === selectedBank)?.name}
+                    </span>
+                    <span className="text-[10px] text-red-500 font-semibold">⏱ Bayar dalam 24 jam</span>
+                  </div>
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                    <div className="flex-1 min-w-0 bg-white border border-slate-200 rounded-xl px-4 py-3 font-mono font-bold text-sm sm:text-lg text-black/80 tracking-wider text-center sm:text-left break-all">
+                      {vaNumber}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleCopyVa}
+                      className="w-full sm:w-auto px-5 py-3 bg-[#059669] text-white font-bold text-xs sm:text-sm rounded-xl hover:bg-emerald-700 transition-all shrink-0"
+                    >
+                      {vaCopied ? 'Tersalin ✓' : 'Salin Nomor'}
+                    </button>
+                  </div>
+                  <p className="text-[10px] sm:text-xs text-black/50">
+                    Transfer sesuai nominal total pembayaran melalui ATM, m-banking, atau internet banking {bankList.find((b) => b.code === selectedBank)?.name} menggunakan nomor VA di atas.
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="bg-white border border-[#059669]/30 rounded-3xl p-5 sm:p-6 shadow-sm space-y-4">
@@ -461,9 +572,14 @@ export default function CheckoutPage() {
             <button
               type="button"
               onClick={handleCreateOrder}
-              className="w-full sm:w-auto px-8 py-4 bg-[#059669] text-white hover:bg-emerald-700 hover:scale-[1.02] active:scale-[0.98] duration-200 transition-all font-bold text-sm sm:text-base rounded-2xl shadow-xl shadow-emerald-600/20 text-center"
+              disabled={!isPaymentReady}
+              className={`w-full sm:w-auto px-8 py-4 font-bold text-sm sm:text-base rounded-2xl text-center transition-all duration-200 ${
+                isPaymentReady
+                  ? 'bg-[#059669] text-white hover:bg-emerald-700 hover:scale-[1.02] active:scale-[0.98] shadow-xl shadow-emerald-600/20 cursor-pointer'
+                  : 'bg-gray-200 text-black/40 font-semibold cursor-not-allowed'
+              }`}
             >
-              BUAT PESANAN SEKARANG
+              {isPaymentReady ? 'BUAT PESANAN SEKARANG' : 'Pilih Metode Pembayaran Dahulu'}
             </button>
           </div>
         </div>
