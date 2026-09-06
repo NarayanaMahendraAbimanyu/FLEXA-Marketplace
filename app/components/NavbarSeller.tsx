@@ -167,7 +167,7 @@ export default function NavbarSeller({ searchQuery, onSearchChange, onSearchSubm
         </div>
 
         <div className="hidden sm:flex items-center gap-2 md:gap-3 shrink-0">
-          <span className="inline-flex items-center gap-2 px-3 py-1.5 bg-emerald-50 border border-emerald-200 text-[#059669] text-[10px] sm:text-xs font-bold rounded-full">
+          <span className="inline-flex items-center gap-2 px-3 py-1.5 bg-emerald-50 border border-emerald-200 text-[#059669] text-[10px] sm:text-xs font-medium rounded-full">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-[#059669]"></span>
@@ -179,7 +179,7 @@ export default function NavbarSeller({ searchQuery, onSearchChange, onSearchSubm
 
           <Link
             href="/seller/dashboard"
-            className="flex items-center gap-2 px-4 md:px-5 py-2.5 bg-[#059669] hover:bg-emerald-700 hover:scale-[1.03] active:scale-[0.98] duration-200 transition-all text-white font-bold text-xs sm:text-sm rounded-xl shadow-sm"
+            className="flex items-center gap-2 px-4 md:px-5 py-2.5 bg-[#059669] hover:bg-emerald-700 hover:scale-[1.03] active:scale-[0.98] duration-200 transition-all text-white font-semibold text-xs sm:text-sm rounded-xl shadow-sm"
           >
             <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
