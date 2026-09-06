@@ -45,6 +45,9 @@ export default function ProductDetailPage() {
     avatar: null,
   });
 
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [isSellerModalOpen, setIsSellerModalOpen] = useState(false);
+
   const [deliveryRange, setDeliveryRange] = useState('');
 
   useEffect(() => {
@@ -126,6 +129,14 @@ export default function ProductDetailPage() {
         const fullName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'User';
         const avatarUrl = user.user_metadata?.avatar_url || user.user_metadata?.picture || null;
         setUserData({ name: fullName, avatar: avatarUrl });
+
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .maybeSingle();
+
+        setUserRole(profile?.role || null);
       }
     }
     fetchActiveUser();
@@ -236,6 +247,16 @@ export default function ProductDetailPage() {
       supabase.removeChannel(channel);
     };
   }, [productId]);
+
+  const isSeller = userRole === 'penjual';
+
+  const guardSellerAction = (): boolean => {
+    if (isSeller) {
+      setIsSellerModalOpen(true);
+      return true;
+    }
+    return false;
+  };
 
   const handleIncrement = () => setQuantity((prev) => prev + 1);
   const handleDecrement = () => setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
@@ -358,6 +379,31 @@ export default function ProductDetailPage() {
           }`}>
             <span className="text-red-500 font-bold">✕</span>
             <span>{reviewAlertMessage}</span>
+          </div>
+        )}
+
+        {isSellerModalOpen && (
+          <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+            <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-sm w-full shadow-2xl space-y-5 text-center animate-in fade-in zoom-in duration-200">
+              <div className="w-16 h-16 rounded-full bg-amber-50 flex items-center justify-center mx-auto">
+                <svg className="w-8 h-8 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                </svg>
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-lg font-bold text-black/80">Anda Sedang Berperan Sebagai Penjual</h3>
+                <p className="text-xs sm:text-sm text-black/60 leading-relaxed">
+                  Akun Anda saat ini aktif sebagai <span className="font-semibold">Penjual</span>, sehingga tidak dapat memesan produk. Silakan beralih ke akun Pembeli untuk melanjutkan pembelian.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsSellerModalOpen(false)}
+                className="w-full py-3 bg-[#059669] hover:bg-emerald-700 hover:scale-[1.02] active:scale-95 duration-200 text-white font-bold text-xs sm:text-sm rounded-xl transition-all shadow-lg shadow-emerald-600/20"
+              >
+                Mengerti
+              </button>
+            </div>
           </div>
         )}
 
@@ -655,6 +701,8 @@ export default function ProductDetailPage() {
                   <button
                     type="button"
                     onClick={async () => {
+                      if (guardSellerAction()) return;
+
                       const { data: { user } } = await supabase.auth.getUser();
                       if (!user) {
                         triggerAlert('Silakan login terlebih dahulu untuk memasukkan produk ke keranjang!');
@@ -694,6 +742,8 @@ export default function ProductDetailPage() {
                   <button
                     type="button"
                     onClick={() => {
+                      if (guardSellerAction()) return;
+
                       if (isSewa) {
                         if (!rentalStartDate || !rentalEndDate) {
                           triggerAlert('Silakan pilih tanggal mulai dan selesai sewa terlebih dahulu.');
