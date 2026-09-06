@@ -413,17 +413,17 @@ export default function CheckoutPage() {
             <span>Kode Promo</span>
           </div>
 
-          <form onSubmit={handleApplyPromo} className="flex gap-2">
+          <form onSubmit={handleApplyPromo} className="flex flex-col sm:flex-row gap-2 w-full">
             <input
               type="text"
               value={promoCode}
               onChange={(e) => setPromoCode(e.target.value)}
               placeholder="Masukkan kode promo (coba: OPENFLEXA)"
-              className="flex-1 p-3 text-xs sm:text-sm border border-slate-200 rounded-xl focus:outline-none focus:border-[#059669] uppercase font-semibold text-black/80"
+              className="w-full sm:flex-1 min-w-0 p-3 text-xs sm:text-sm border border-slate-200 rounded-xl focus:outline-none focus:border-[#059669] uppercase font-semibold text-black/80"
             />
             <button
               type="submit"
-              className="px-5 py-3 bg-[#059669] text-white font-bold text-xs sm:text-sm rounded-xl hover:bg-emerald-700 transition-all shadow-sm"
+              className="w-full sm:w-auto px-5 py-3 bg-[#059669] text-white font-bold text-xs sm:text-sm rounded-xl hover:bg-emerald-700 hover:scale-105 active:scale-95 duration-200 transition-all shadow-sm shrink-0"
             >
               Gunakan
             </button>

@@ -199,7 +199,7 @@ export default function NavbarBuyer({ searchQuery, onSearchChange, onSearchSubmi
                   </Link>
 
                   <Link
-                    href="/buyer/checkout"
+                    href="/buyer/purchase"
                     onClick={() => setIsMobileMenuOpen(false)}
                     className="w-full text-left py-2 px-3 text-black/70 text-xs sm:text-sm font-medium rounded-lg transition-all duration-200 hover:bg-[#059669] hover:text-white flex items-center gap-2.5"
                   >
