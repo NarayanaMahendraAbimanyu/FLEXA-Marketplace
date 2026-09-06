@@ -102,6 +102,16 @@ export default function BuyerSidebar() {
     }, 300);
   };
 
+  const homeItem = {
+    label: 'Kembali ke Beranda',
+    href: '/',
+    icon: (
+      <svg className="w-6 h-6 fill-current" viewBox="0 0 24 24">
+        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+      </svg>
+    ),
+  };
+
   const menuItems = [
     {
       label: 'Profil Saya',
@@ -184,7 +194,7 @@ export default function BuyerSidebar() {
 
               <div className="flex flex-col items-center pb-6 border-b border-slate-100">
                 <div className="relative mb-4">
-                  <label className="w-24 h-24 rounded-full bg-slate-200 overflow-hidden border-2 border-emerald-500/20 flex items-center justify-center text-slate-400 relative cursor-pointer group">
+                  <label className="w-24 h-24 rounded-full bg-slate-200 overflow-hidden ring-4 ring-emerald-50 border-2 border-[#059669]/30 flex items-center justify-center text-slate-400 relative cursor-pointer group shadow-sm">
                     {avatarUrl ? (
                       <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover group-hover:opacity-90 transition-opacity" />
                     ) : (
@@ -204,7 +214,16 @@ export default function BuyerSidebar() {
                 <h2 className="text-base font-medium text-black/70 text-center tracking-tight">{userName}</h2>
               </div>
 
-              <nav className="mt-6 flex flex-col gap-2">
+              <Link
+                href={homeItem.href}
+                onClick={closeMobileMenu}
+                className="flex items-center gap-3 px-4 py-3 mt-6 rounded-xl font-semibold text-sm text-[#059669] bg-emerald-50 border border-emerald-100 hover:bg-emerald-100 transition-all duration-200"
+              >
+                {homeItem.icon}
+                <span>{homeItem.label}</span>
+              </Link>
+
+              <nav className="mt-3 flex flex-col gap-1.5">
                 {menuItems.map((item) => {
                   const isActive = pathname === item.href;
                   return (
@@ -214,7 +233,7 @@ export default function BuyerSidebar() {
                       onClick={closeMobileMenu}
                       className={`flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm transition-all duration-200 ${
                         isActive
-                          ? 'bg-[#059669] text-white shadow-sm'
+                          ? 'bg-gradient-to-r from-[#059669] to-emerald-600 text-white shadow-md shadow-emerald-600/20'
                           : 'text-slate-600 hover:bg-slate-50 hover:text-[#059669]'
                       }`}
                     >
@@ -259,7 +278,7 @@ export default function BuyerSidebar() {
 
           <div className="flex flex-col items-center pb-6 border-b border-slate-100">
             <div className="relative mb-4">
-              <label className="w-24 h-24 rounded-full bg-slate-200 overflow-hidden border-2 border-emerald-500/20 flex items-center justify-center text-slate-400 relative cursor-pointer group">
+              <label className="w-24 h-24 rounded-full bg-slate-200 overflow-hidden ring-4 ring-emerald-50 border-2 border-[#059669]/30 flex items-center justify-center text-slate-400 relative cursor-pointer group shadow-sm">
                 {avatarUrl ? (
                   <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover group-hover:opacity-90 transition-opacity" />
                 ) : (
@@ -279,7 +298,15 @@ export default function BuyerSidebar() {
             <h2 className="text-base font-medium text-black/70 text-center tracking-tight">{userName}</h2>
           </div>
 
-          <nav className="mt-6 flex flex-col gap-2">
+          <Link
+            href={homeItem.href}
+            className="flex items-center gap-3 px-3 py-3 mt-6 rounded-xl font-semibold text-sm text-[#059669] bg-emerald-50 border border-emerald-100 hover:bg-emerald-100 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
+          >
+            {homeItem.icon}
+            <span>{homeItem.label}</span>
+          </Link>
+
+          <nav className="mt-3 flex flex-col gap-1.5">
             {menuItems.map((item) => {
               const isActive = pathname === item.href;
               return (
@@ -288,7 +315,7 @@ export default function BuyerSidebar() {
                   href={item.href}
                   className={`flex items-center gap-3 px-3 py-3 rounded-xl font-semibold text-sm transition-all duration-200 ${
                     isActive
-                      ? 'bg-[#059669] text-white shadow-sm'
+                      ? 'bg-gradient-to-r from-[#059669] to-emerald-600 text-white shadow-md shadow-emerald-600/20'
                       : 'text-slate-600 hover:bg-slate-50 hover:text-[#059669]'
                   }`}
                 >
