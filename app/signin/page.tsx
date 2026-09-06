@@ -9,7 +9,7 @@ import { supabase } from '../../lib/supabaseClient';
 export default function SignInPage() {
   const router = useRouter();
   const [step, setStep] = useState<'role' | 'form'>('role');
-  const [role, setRole] = useState<'buyer' | 'seller'>('buyer');
+  const [role, setRole] = useState<'pembeli' | 'penjual'>('pembeli');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -32,40 +32,33 @@ export default function SignInPage() {
   }, [toastMessage]);
 
   useEffect(() => {
-    const checkOAuthUser = async () => {
+    const redirectIfLoggedIn = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        const userEmail = session.user.email;
-        const selectedRole = localStorage.getItem('selected_role') || role;
-        
-        // Cek apakah profil sudah ada di database
-        const { data: existingUser } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('email', userEmail)
-          .maybeSingle();
+      if (!session?.user) return;
 
-        if (existingUser) {
-          // Jika sudah terdaftar, arahkan ke halaman yang sesuai dengan rolenya di database
-          const destination = existingUser.role === 'seller' ? '/seller' : '/';
-          router.push(destination);
-        } else {
-          // Jika belum ada profilnya, buatkan data profil baru berdasarkan role yang dipilih saat klik Google Sign In
-          await supabase.from('profiles').upsert({
-            id: session.user.id,
-            email: userEmail,
-            role: selectedRole,
-            updated_at: new Date(),
-          });
+      const { data: existingUser } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', session.user.id)
+        .maybeSingle();
 
-          const destination = selectedRole === 'seller' ? '/seller' : '/';
-          router.push(destination);
-        }
+      if (existingUser) {
+        const destination = existingUser.role === 'penjual' ? '/seller/dashboard' : '/';
+        router.push(destination);
       }
     };
 
-    checkOAuthUser();
-  }, [router, role]);
+    redirectIfLoggedIn();
+  }, [router]);
+
+  useEffect(() => {
+    const roleConflict = typeof window !== 'undefined' ? sessionStorage.getItem('role_conflict') : null;
+    if (roleConflict) {
+      const roleName = roleConflict === 'penjual' ? 'Penjual' : 'Pembeli';
+      setToastMessage(`Akun Google ini sudah terdaftar sebagai ${roleName}. Silakan masuk dengan peran tersebut.`);
+      sessionStorage.removeItem('role_conflict');
+    }
+  }, []);
 
   const handleWhatsappChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value.replace(/\D/g, '');
@@ -95,7 +88,7 @@ export default function SignInPage() {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!isEmailValid) {
       setErrorMessage('Format email tidak valid.');
       return;
@@ -121,28 +114,35 @@ export default function SignInPage() {
     setSuccessMessage('');
     setToastMessage('');
 
-    const { data: existingProfiles } = await supabase
+    const { data: existingProfile, error: checkError } = await supabase
       .from('profiles')
       .select('role')
       .eq('email', email)
-      .single();
+      .maybeSingle();
 
-    if (existingProfiles) {
+    if (checkError) {
       setIsLoading(false);
-      const roleName = existingProfiles.role === 'seller' ? 'Penjual' : 'Pembeli';
+      setErrorMessage('Gagal memeriksa akun. Coba lagi.');
+      return;
+    }
+
+    if (existingProfile) {
+      setIsLoading(false);
+      const roleName = existingProfile.role === 'penjual' ? 'Penjual' : 'Pembeli';
       setToastMessage(`Akun tersebut sudah terdaftar sebagai ${roleName}, silahkan pilih akun yang lain`);
       return;
     }
 
     const fullName = `${firstName} ${lastName}`.trim();
+    const rawPhone = whatsapp.replace(/\D/g, '');
 
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: {
-          full_name: fullName,
-          whatsapp: whatsapp,
+          username: fullName,
+          phone: rawPhone,
           role: role,
         },
       },
@@ -160,18 +160,21 @@ export default function SignInPage() {
         .upsert({
           id: authData.user.id,
           email: email,
-          full_name: fullName,
-          whatsapp: whatsapp,
+          username: fullName,
+          phone: rawPhone,
           role: role,
-          updated_at: new Date(),
+          updated_at: new Date().toISOString(),
         });
 
       if (profileError) {
         console.error('Gagal menyimpan profil:', profileError.message);
+        setErrorMessage('Akun dibuat, tetapi gagal menyimpan data profil.');
+        setIsLoading(false);
+        return;
       }
     }
 
-    const destination = role === 'seller' ? '/seller' : '/';
+    const destination = role === 'penjual' ? '/seller/dashboard' : '/';
 
     if (authData.session) {
       setSuccessMessage('Pendaftaran berhasil! Mengalihkan...');
@@ -179,13 +182,14 @@ export default function SignInPage() {
         router.push(destination);
       }, 1500);
     } else {
+      // Kalau project mewajibkan konfirmasi email, tidak akan ada session di sini
       const { error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (signInError) {
-        setSuccessMessage('Pendaftaran berhasil! Silakan masuk.');
+        setSuccessMessage('Pendaftaran berhasil! Silakan cek email untuk konfirmasi, lalu masuk.');
         setIsLoading(false);
       } else {
         setSuccessMessage('Berhasil masuk! Mengalihkan...');
@@ -200,10 +204,10 @@ export default function SignInPage() {
     setIsLoading(true);
     setErrorMessage('');
     setToastMessage('');
-    
+
     localStorage.setItem('selected_role', role);
 
-    const { data, error } = await supabase.auth.signInWithOAuth({
+    const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
         redirectTo: `${window.location.origin}/auth/callback`,
@@ -262,9 +266,9 @@ export default function SignInPage() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 w-full max-w-2xl mb-8">
                 <div
-                  onClick={() => setRole('buyer')}
+                  onClick={() => setRole('pembeli')}
                   className={`cursor-pointer p-6 sm:p-8 rounded-2xl border-2 hover:scale-101 active:scale-98 transition-all duration-200 flex flex-col items-center text-center ${
-                    role === 'buyer'
+                    role === 'pembeli'
                       ? 'bg-emerald-600/30 border-white shadow-xl'
                       : 'bg-emerald-700/20 border-white/30 hover:border-white/60'
                   }`}
@@ -281,9 +285,9 @@ export default function SignInPage() {
                 </div>
 
                 <div
-                  onClick={() => setRole('seller')}
+                  onClick={() => setRole('penjual')}
                   className={`cursor-pointer p-6 sm:p-8 rounded-2xl border-2 hover:scale-101 active:scale-98 transition-all duration-200 flex flex-col items-center text-center ${
-                    role === 'seller'
+                    role === 'penjual'
                       ? 'bg-emerald-600/30 border-white shadow-xl'
                       : 'bg-emerald-700/20 border-white/30 hover:border-white/60'
                   }`}
@@ -305,7 +309,7 @@ export default function SignInPage() {
                 onClick={() => setStep('form')}
                 className="w-full max-w-2xl py-3 sm:py-3.5 bg-white text-[#059669] hover:-translate-y-1 active:scale-98 hover:scale-101 font-medium text-xs sm:text-sm rounded-xl shadow-lg transition-all"
               >
-                Lanjutkan daftar sebagai {role === 'buyer' ? 'Pembeli' : 'Penjual'} →
+                Lanjutkan daftar sebagai {role === 'pembeli' ? 'Pembeli' : 'Penjual'} →
               </button>
             </div>
           ) : (

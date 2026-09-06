@@ -40,10 +40,22 @@ export default function NavbarBuyer({ searchQuery, onSearchChange, onSearchSubmi
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         const fullName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'User';
-        const avatarUrl = user.user_metadata?.avatar_url || user.user_metadata?.picture || null;
         setUserName(fullName);
         setUserEmail(user.email || '');
-        setUserAvatar(avatarUrl);
+
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('avatar_url')
+          .eq('id', user.id)
+          .maybeSingle();
+
+        if (profileData?.avatar_url) {
+          setUserAvatar(profileData.avatar_url);
+        } else if (profileData?.avatar_url === '') {
+          setUserAvatar(null);
+        } else if (user.user_metadata?.avatar_url || user.user_metadata?.picture) {
+          setUserAvatar(user.user_metadata.avatar_url || user.user_metadata.picture);
+        }
       }
     }
     fetchUser();
