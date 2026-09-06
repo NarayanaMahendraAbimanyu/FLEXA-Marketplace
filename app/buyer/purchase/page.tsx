@@ -163,7 +163,7 @@ export default function PurchasePage() {
       <h1 className="text-xl sm:text-2xl font-bold text-black/80 mb-3">Pesanan Saya</h1>
       <div className="w-full h-[1px] bg-slate-200 mb-6" />
 
-      <div className="min-h-[483px]">
+      <div className="min-h-[540px]">
         {isLoading ? (
           <div className="flex items-center justify-center h-full min-h-[400px]">
             <p className="text-sm text-black/50 font-medium">Memuat pesanan...</p>
