@@ -99,7 +99,7 @@ export default function CartPage() {
                 <div key={item.id} className="bg-white border border-[#059669]/30 rounded-3xl p-5 sm:p-6 shadow-sm space-y-4">
                   <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                     <div className="flex items-center gap-4 w-full sm:w-auto">
-                      <div className="w-16 h-16 sm:w-20 sm:h-20 bg-slate-200 rounded-xl flex items-center justify-center font-bold text-black/40 text-xs flex-shrink-0">
+                      <div className="w-16 h-16 sm:w-20 sm:h-20 bg-slate-200 rounded-xl text-center flex items-center justify-center font-bold text-black/40 text-xs flex-shrink-0">
                         {item.image_text}
                       </div>
                       <div className="flex-1 min-w-0 space-y-0">
