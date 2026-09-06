@@ -87,8 +87,6 @@ Perkembangan dunia e-commerce menuntut platform yang tidak hanya sekadar menjual
 
 ### Screenshot Aplikasi
 
-### Screenshot Aplikasi
-
 <div align="center">
   <img src="docs/screenshots/homepage.png" alt="Homepage" width="800"/>
   <p><em>Homepage - Tampilan utama aplikasi FLEXA</em></p>
