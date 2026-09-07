@@ -552,7 +552,10 @@ export default function ProductDetailPage() {
               </Link>
               <button
                 type="button"
-                onClick={handleStartChat}
+                onClick={() => {
+                  if (guardSellerAction()) return;
+                  handleStartChat();
+                }}
                 className="px-4 sm:px-5 py-2.5 bg-[#059669] text-white hover:bg-[#047857] active:scale-[0.98] duration-200 transition-all font-bold text-xs sm:text-sm rounded-xl shadow-sm flex-shrink-0"
               >
                 Chat Penjual
