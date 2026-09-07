@@ -528,7 +528,7 @@ export default function ProductDetailPage() {
 
             <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-200">
               <Link
-                href={storeOwnerId ? `/store/${storeOwnerId}` : '#'}
+                href={storeOwnerId ? `/store/${storeOwnerId}` : activeProduct?.storeId ? `/store/${activeProduct.storeId}` : '#'}
                 className="flex items-center gap-3 hover:opacity-80 duration-200 transition-opacity min-w-0"
               >
                 {product.storeAvatar ? (

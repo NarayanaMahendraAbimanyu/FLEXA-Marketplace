@@ -4,6 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '../../../lib/supabaseClient';
+import { PRODUCTS } from '../../data/products';
+import { findDummyStore } from '../../data/store';
 
 interface StoreProduct {
   id: number;
@@ -35,6 +37,30 @@ export default function StorePage() {
     if (!sellerId) return;
 
     const fetchStore = async () => {
+      const dummyStore = sellerId.startsWith('dummy-') ? findDummyStore(sellerId) : undefined;
+
+      if (dummyStore) {
+        setStoreName(dummyStore.storeName);
+        setLogoUrl('');
+        setBannerUrl('');
+        setDescription(dummyStore.description);
+        setAddress(dummyStore.address);
+
+        const dummyProducts = PRODUCTS.filter((p) => p.storeId === sellerId);
+        const mapped: StoreProduct[] = dummyProducts.map((item) => ({
+          id: item.id,
+          title: item.title,
+          price: item.price,
+          imageUrl: undefined,
+          categoryTag: item.categoryTag,
+          rating: item.rating,
+          soldCount: item.soldCount,
+        }));
+        setProducts(mapped);
+        setLoading(false);
+        return;
+      }
+
       const { data: storeData } = await supabase
         .from('store_settings')
         .select('store_name, logo_url, banner_url, store_description, store_address')
@@ -77,6 +103,8 @@ export default function StorePage() {
     };
 
     fetchStore();
+
+    if (sellerId.startsWith('dummy-')) return;
 
     const channel = supabase
       .channel(`store_settings_page_${sellerId}`)
