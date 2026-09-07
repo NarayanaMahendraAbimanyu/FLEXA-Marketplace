@@ -503,7 +503,10 @@ export default function ProductDetailPage() {
               </h1>
             </div>
 
-            <span className="block text-2xl sm:text-3xl font-bold text-[#059669]">{product.price}</span>
+            <span className="block text-2xl sm:text-3xl font-bold text-[#059669]">
+              {product.price}
+              {isSewa && <span className="text-sm sm:text-base font-semibold text-black/40"> / hari</span>}
+            </span>
 
             <div className="flex items-center gap-3 py-1">
               <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-50">
